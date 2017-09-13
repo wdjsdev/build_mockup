@@ -94,6 +94,7 @@ function checkRoster(garObj,thisGarment,prop)
 		//spiritwear
 		case "FD-164":
 		case "FD-1873":
+		case "FD-1874":
 		case "FD-211":
 		case "FD-477":
 		case "FD-486":

@@ -29,6 +29,8 @@
 
 function container(designNumber)
 {
+	var valid = true;
+	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
 
 	/*****************************************************************************/
 
@@ -99,8 +101,8 @@ function container(designNumber)
 		{
 			var components =
 			{
-				regDev : new Folder("~/Desktop/automation/javascript/_new_cad_workflow/build_mockup/components/"),
-				binDev : new Folder("~/Desktop/automation/javascript/_new_cad_workflow/build_mockup/comp_bin/"),
+				regDev : new Folder("~/Desktop/automation/build_mockup/components/"),
+				binDev : new Folder("~/Desktop/automation/build_mockup/comp_bin/"),
 				prod: new Folder("/Volumes/Customization/Library/Scripts/Script Resources/components/mockup_builder/")
 			}
 
@@ -165,7 +167,7 @@ function container(designNumber)
 		//this file isn't a component for this specific script, so it lives somehwere else..
 		//no problem, just add it to the end of the list
 		//push the utilities container file to files as well
-		files.push(File("/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js"));
+		// files.push(File("/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js"));
 
 		for(var f=0;f<files.length;f++)
 		{
@@ -191,12 +193,6 @@ function container(designNumber)
 	////////////////////
 
 		//global variables
-
-		//running flag validation variable
-		var valid = true;
-
-		//errors
-		var errorList = [];
 
 		//non-error messages
 		var msgList = [];
@@ -263,7 +259,7 @@ function container(designNumber)
 		//otherwise, set logDest to buildMockLog
 		if(user == "will.dowling")
 		{
-			logDest.push(new File("~/Desktop/automation/javascript/_new_cad_workflow/build_mockup/logs/build_mockup_dev_log.txt"));
+			logDest.push(new File("~/Desktop/automation/logs/build_mockup_dev_log.txt"));
 		}
 		else
 		{

@@ -244,6 +244,9 @@ function getSport(garObj)
 		case "FD-1873W":
 		case "FD-1873Y":
 		case "FD-1873":
+		case "FD-1874W":
+		case "FD-1874Y":
+		case "FD-1874":
 		case "FD-2042W":
 		case "FD-2044W":
 		// case "FD-211Y":
