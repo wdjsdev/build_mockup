@@ -245,6 +245,8 @@
 				'FD-FOOT-PANT':'FD-251',
 				'FD-FOOT-INTPNT':'FD-5064',
 				'FD-FOOT-PNLPNT':'FD-5080',
+				'FD-FOOT-SLCOMP':'FD-438',
+				'FD-FOOT-SH':'FD-4017',
 
 			//Lacrosse
 				'FD-LAX-PN2PRV':'FD-3027/FD-3024Y',
@@ -276,6 +278,8 @@
 				'FD-VOL-LS':'FD-3185W',
 				'FD-VOL-WU':'FD-3003W',
 				'FD-VOL-SH':'FD-281',
+				'FD-VOL-SFLS':'FD-3181W',
+				'FD-VOL-SFRB':'FD-3180W',
 
 			//Spiritwear
 				'FD-SP-BKSWP':'FD-211',

@@ -34,6 +34,7 @@ function getSport(garObj)
 		case "FD-215_FD-219":
 		case "FD-215W":
 		case "FD-215W_FD-219W":
+		case "FD-215Y_FD-219Y":
 		case "FD-215Y":
 		case "FD-217W":
 		case "FD-217Y":
@@ -48,18 +49,21 @@ function getSport(garObj)
 		case "FD-105":
 		case "FD-4054W":
 		case "FD-4061W":
-		case "FD-410":
 		case "FD-410Y":
-		case "FD-412":
-		case "FD-412Y":
-		case "FD-415":
+		case "FD-410":
+		case "FD-412-412Y":
+		case "FD-415-415Y":
 		case "FD-415Y":
-		case "FD-420":
+		case "FD-415":
 		case "FD-420Y":
+		case "FD-420":
 		case "FD-425Y":
+		case "FD-425":
 		case "FD-430Y":
 		case "FD-430":
+		case "FD-436Y":
 		case "FD-436":
+		case "FD-439Y":
 		case "FD-5038W":
 		case "FD-5071":
 		case "FD-5072W":
@@ -69,6 +73,31 @@ function getSport(garObj)
 		case "FD-752W":
 		case "FD-753W":
 			sport = "COMPRESSION";
+			break;
+
+		case "FD-2040W":
+		case "FD-2040Y":
+		case "FD-3032W":
+		case "FD-3032Y":
+		case "FD-3033W":
+		case "FD-3033Y":
+		case "FD-3052W":
+		case "FD-3052Y":
+		case "FD-4040W":
+		case "FD-4040Y":
+		case "PS-2035W":
+		case "PS-2035Y":
+		case "PS-2036W":
+		case "PS-2036Y":
+		case "PS-2037W":
+		case "PS-2037Y":
+		case "PS-4048W":
+		case "PS-4048Y":
+		case "PS-4049W":
+		case "PS-4049Y":
+		case "PS-4070W":
+		case "PS-4070Y":
+			sport = "CHEERLEADING";
 			break;
 
 		case "FD-1000Y":
@@ -153,8 +182,6 @@ function getSport(garObj)
 		case "BM-502T":
 		case "BM-503T":
 		case "BM-504T":
-
-
 			sport = "DIAMOND SPORTS";
 			break;
 
@@ -186,6 +213,17 @@ function getSport(garObj)
 		case "BM-5808":
 		case "BM-5809":
 			sport = "FOOTBALL";
+			break;
+
+		case "FD-4017Y":
+		case "FD-4017":
+		case "FD-410Y":
+		case "FD-410":
+		case "FD-412Y":
+		case "FD-412":
+		case "FD-438Y":
+		case "FD-438":
+			sport = "FOOTBALL 7 ON 7";
 			break;
 
 		case "FD-2000Y":
@@ -398,10 +436,41 @@ function getSport(garObj)
 			sport = "SPIRITWEAR";
 			break;
 
+		case "FD-2050Y":
+		case "FD-2050":
+		case "FD-2051Y":
+		case "FD-2051":
+		case "FD-2052Y":
+		case "FD-2052":
+		case "FD-2053W":
+		case "FD-2053Y":
+		case "FD-2054W":
+		case "FD-2054Y":
+		case "FD-4022W":
+		case "FD-4023W":
+		case "FD-4032Y":
+		case "FD-4032":
+		case "FD-4033Y":
+		case "FD-4033":
+		case "FD-4035Y":
+		case "FD-4035":
+			sport = "TRACK";
+			break;
+
 		case "FD-281":
 		case "FD-3003":
+		case "FD-3180W":
+		case "FD-3181W":
+		case "FD-3181Y":
+		case "FD-3181":
+		case "FD-3182W":
+		case "FD-3182Y":
+		case "FD-3182":
+		case "FD-3183W":
 		case "FD-3184W":
 		case "FD-3185W":
+		case "FD-4057Y":
+		case "FD-4057":
 			sport = "VOLLEYBALL";
 			break;
 
