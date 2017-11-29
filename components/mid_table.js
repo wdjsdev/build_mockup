@@ -278,7 +278,8 @@
 				'FD-VOL-LS':'FD-3185W',
 				'FD-VOL-WU':'FD-3003W',
 				'FD-VOL-SH':'FD-281',
-				'FD-VOL-SFLS':'FD-3181W',
+				'FD-VOL-SFLS':'FD-3183W',
+				'FD-VOL-SFSS':'FD-3182W',
 				'FD-VOL-SFRB':'FD-3180W',
 
 			//Spiritwear
