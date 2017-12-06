@@ -30,7 +30,8 @@
 function container(designNumber)
 {
 	var valid = true;
-	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
+
+	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
 
 	/*****************************************************************************/
 
@@ -94,91 +95,23 @@ function container(designNumber)
 			return localValid;
 		}
 
-		//development prompt to verify which components should be used
-		//only will.dowling will be prompted here, other artists
-		//will always get the production components.
-		function componentPrompt()
+		var devPath = "~/Desktop/automation/build_mockup/components";
+		var prodPath = "/Volumes/Customization/Library/Scripts/Script Resources/components/mockup_builder/";
+
+		var componentFiles = includeComponents(devPath,prodPath);
+
+		if(componentFiles)
 		{
-			var components =
+			for(var f=0;f<componentFiles.length;f++)
 			{
-				regDev : new Folder("~/Desktop/automation/build_mockup/components/"),
-				binDev : new Folder("~/Desktop/automation/build_mockup/comp_bin/"),
-				prod: new Folder("/Volumes/Customization/Library/Scripts/Script Resources/components/mockup_builder/")
-			}
-
-			var result;
-
-			var w = new Window("dialog","Which components do you want to use?");
-				var txtGroup = w.add("group");
-					var topTxt = txtGroup.add("statictext", undefined, "Select the component group.");
-
-				var btnGroup = w.add("group");
-					btnGroup.orientation = "column";
-					var regDev = btnGroup.add("button", undefined, "Regular Development");
-						regDev.onClick = function()
-						{
-							result = components.regDev;
-							w.close();
-						}
-					var binDev = btnGroup.add("button", undefined, "Binary Development");
-						binDev.onClick = function()
-						{
-							result = components.binDev;
-							w.close();
-						}
-					var production = btnGroup.add("button", undefined, "Production Components");
-						production.onClick = function()
-						{
-							result = components.prod;
-							w.close();
-						}
-					var cancel = btnGroup.add("button", undefined, "Cancel");
-						cancel.onClick = function()
-						{
-							result = false;
-							w.close();
-						}
-			w.show();
-
-			return result;
-		}
-
-		var user = $.getenv("USER");
-
-		if(user == "will.dowling")
-		{
-			//prompt for correct component folder
-			var path = componentPrompt();
-			if(!path)
-			{
-				return;
+				var thisComponent = componentFiles[f];
+				eval("#include \"" + thisComponent + "\"");
 			}
 		}
 		else
 		{
-			//network storage
-			var path = Folder("/Volumes/Customization/Library/Scripts/Script Resources/components/mockup_builder/");
+			valid = false;
 		}
-		
-		
-		//get the files from the correct component folder
-		var files = path.getFiles();
-
-		//this file isn't a component for this specific script, so it lives somehwere else..
-		//no problem, just add it to the end of the list
-		//push the utilities container file to files as well
-		// files.push(File("/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js"));
-
-		for(var f=0;f<files.length;f++)
-		{
-			var thisComponent = files[f];
-			eval("#include \"" + thisComponent + "\"");
-		}
-
-		// #include "~/Desktop/automation/javascript/_new_cad_workflow/build_mockup/comp_mini/generate_json.js";
-
-		// alert("success");
-		// return;
 
 
 
@@ -222,7 +155,7 @@ function container(designNumber)
 			youth:undefined,
 			possibleGarments : ["top", "bottom"],
 			possibleSizes : ["adult", "youth"],
-			sports : ["ACCESSORIES","BAGS","BASKETBALL","COMPRESSION","DIAMOND SPORTS","FOOTBALL","LACROSSE","SOCCER","SPIRITWEAR","VOLLEYBALL"]
+			sports : ["ACCESSORIES","BAGS","BASKETBALL","COMPRESSION","DIAMOND SPORTS","FOOTBALL","FOOTBALL 7 ON 7","LACROSSE","SOCCER","SPIRITWEAR","VOLLEYBALL"]
 		}
 
 		//set some file path constants
