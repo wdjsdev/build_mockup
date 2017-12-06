@@ -72,7 +72,8 @@ function openFiles(mockupFiles,graphicFiles)
 				}
 				try
 				{
-					mergeTemplate(masterFile);
+					// mergeTemplate(masterFile);
+					eval("#include \"/Volumes/Customization/Library/Scripts/mockup_scripts/Merge_Templates.jsx\"");
 					log.l("Successfully merged " + thisMockup.name + " to " + masterFile.name)
 				}
 				catch(e)
