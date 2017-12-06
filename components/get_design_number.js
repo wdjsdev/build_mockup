@@ -26,8 +26,6 @@ function getDesignNumber()
 	//result is a validated string containing the design number
 	var result = true;
 
-	#include "/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.js";
-
 	var designNumbersArray = [];
 
 	log.h("Beginning execution of getDesignNumber function.");
