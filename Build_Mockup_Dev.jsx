@@ -30,9 +30,12 @@
 function container(designNumber)
 {
 	var valid = true;
+	var scriptName = "build_mockup";
 
 	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
 
+	logDest.push(getLogDest());
+	
 	/*****************************************************************************/
 
 	///////Begin/////////
@@ -185,18 +188,6 @@ function container(designNumber)
 			lib.mascotsPath = "/Volumes/Customization/Library/Mascots/";
 			lib.ghostedMascotsPath = "/Volumes/Customization/Library/Mascots/_Ghosted Mascots/";
 			lib.prepressPath = "/Volumes/Customization/Library/cads/prepress/";
-		}
-
-		//if user is will.dowling set logDest to local development log
-		//so the main user log isn't cluttered up by my testing
-		//otherwise, set logDest to buildMockLog
-		if(user == "will.dowling")
-		{
-			logDest.push(new File("~/Desktop/automation/logs/build_mockup_dev_log.txt"));
-		}
-		else
-		{
-			logDest.push(buildMockLog);
 		}
 
 		
