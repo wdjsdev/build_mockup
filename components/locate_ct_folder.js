@@ -12,7 +12,7 @@
 		mid
 			string representing the garment code/mid value. i.e. "FD-163W"
 	Return value
-		folder path
+		Folder object
 
 */
 
@@ -24,7 +24,18 @@ function locateCTFolder(mid)
 	var curDepth = 0;
 
 	//include the database
-	eval("#include \"" + CTFL + "\"");
+	try
+	{
+		eval("#include \"" + CTFL + "\"");		
+	}
+	catch(e)
+	{
+		var dbFile = File(CTFL);
+		dbFile.open("w");
+		dbFile.write("var ctLocations = {};");
+		dbFile.close();
+		eval("#include \"" + CTFL + "\"");
+	}
 	
 	if(ctLocations[mid])
 	{
@@ -34,11 +45,11 @@ function locateCTFolder(mid)
 	}
 	else
 	{
-		log("Nothing in the database for " + mid + ". Beginning to dig through prepress folders.");
+		log.l("Nothing in the database for " + mid + ". Beginning to dig through prepress folders.");
 		digForFolders(prepressFolder);
 		if(!ctFolder)
 		{
-			ctFolder = prepressFolder.selectDlg("Select Converted Template Folder or Mockup Folder");
+			ctFolder = prepressFolder.selectDlg("Select Converted Template Folder or Mockup Folder for: " + mid + ".");
 		}
 
 		//if there is a ct folder, save the folder to the database. 
@@ -53,7 +64,7 @@ function locateCTFolder(mid)
 
 	}
 
-	return ctFolder.fsName;
+	return ctFolder;
 
 
 	//recursive function for finding the proper CT folder in the prepress folder.
@@ -76,7 +87,7 @@ function locateCTFolder(mid)
 						{
 							ctFolder = gfFiles[y];
 							log.l("Found the CT folder here:");
-							log.l("ctFolder.fsName")
+							log.l(ctFolder.fsName);
 						}
 					}
 					if(!ctFolder)

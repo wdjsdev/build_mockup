@@ -46,11 +46,17 @@ function loopDesignNumbers()
 	{
 		if(config.top)
 		{
-			newGarment(config,config.top,curDesignNumber);
+			// newGarment(config,config.top,curDesignNumber);
+			curGarment = new Garment(config,config.top,curDesignNumber);
+			curGarment.init();
+			garmentsNeeded.push(curGarment);
 		}
 		if(config.bottom)
 		{
-			newGarment(config,config.bottom,curDesignNumber);
+			// newGarment(config,config.bottom,curDesignNumber);
+			curGarment = new Garment(config,config.bottom,curDesignNumber);
+			curGarment.init();
+			garmentsNeeded.push(curGarment);
 		}
 	}
 	
