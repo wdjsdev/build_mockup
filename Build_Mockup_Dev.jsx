@@ -21,12 +21,16 @@ function BuildMockup()
 
 	//Global Variables
 	var orderNumber;
+	var teamName;
 	var orderData;
 	var garmentsNeeded = [];
+	var curGarmentIndex = 1;
 	var designNumbers = [];
 	var womensCodePat = /w$/i;
 	var localJobFolder;
 	var curOrderFolder;
+	var currentMockup;
+	var filesToClose = [];
 
 	//mid/garment relationship database
 	var MGR = midGarmentRelationshipDatabasePath = dataPath + "build_mockup_data/mid_garment_relationship_database.js";
@@ -34,12 +38,17 @@ function BuildMockup()
 	//known converted_template folder locations database
 	//database to keep track of the exact folder locations for a given
 	//garment code so we don't need to dig for them on each execution.
-	// var CTFL = convertedTemplateFolderLocationsDatabasePath = dataPath + "build_mockup_data/converted_template_locations_database.js";
-	var CTFL = convertedTemplateFolderLocationsDatabasePath = desktopPath + "temp/converted_template_locations_database.js";
+	var CTFL = convertedTemplateFolderLocationsDatabasePath = dataPath + "build_mockup_data/converted_template_locations_database.js";
+	// var CTFL = convertedTemplateFolderLocationsDatabasePath = desktopPath + "temp/converted_template_locations_database.js";
+
+	//pattern id-style number relationships
+	var PSN = patternIdStyleNumberRlationshipsDatabasePath = dataPath + "build_mockup_data/pattern_id_style_nymber_database.js";
+	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
 
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
-	var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
+	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
+	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_locations_database.js";
 
 	var tempPatternFillPath = libraryPath + "";
 
@@ -68,25 +77,38 @@ function BuildMockup()
 		return valid;
 	}
 
-	function testFunction()
-	{
-		designNumbers = ["PeMAppwiLCP1"];
-		// designNumbers = ["PzSXPLCa1Tzm"];
-		// designNumbers = ["AgOkmOQX5xBA"];
-		orderNumber = "1234567";
-		// initSaveLoc();
-		// createOrderFolder();
-		loopDesignNumbers();
-		$.writeln(JSON.stringify(garmentsNeeded));
-		loopGarmentsNeeded();
-		valid = false;
-		printLog();
-		if(errorList.length)
-		{
-			sendErrors(errorList);
-		}
-	}
+	// function testFunction()
+	// {
+	// 	designNumbers = ["c1CCb5ANIO6Z"];
+	// 	// designNumbers = ["PzSXPLCa1Tzm"];
+	// 	// designNumbers = ["AgOkmOQX5xBA"];
+	// 	orderNumber = "1234567";
+	// 	// initSaveLoc();
+	// 	// createOrderFolder();
+	// 	loopDesignNumbers();
+	// 	$.writeln(JSON.stringify(garmentsNeeded));
+	// 	loopGarmentsNeeded();
+	// 	valid = false;
+	// 	printLog();
+	// 	if(errorList.length)
+	// 	{
+	// 		sendErrors(errorList);
+	// 	}
+	// }
+	
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		test function call
+	//
+	////////////////////////
+	
+
 	testFunction();
+
+	//
+	//
 
 
 	//
@@ -111,6 +133,13 @@ function BuildMockup()
 		loopDesignNumbers();
 	}
 
+
+	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
+	{
+		filesToClose[ftc].activate();
+		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+	}
+	
 
 	printLog();
 	

@@ -3,48 +3,40 @@
 function Garment(config,data,designNumber)
 {
 	this.designNumber = designNumber;
-	this.adultGarmentCode = "";
-	this.adultGarmentFolder;
-	this.adultGarmentFile;
-	this.youthGarmentFolder;
-	this.youthGarmentFile;
-	this.youthGarmentCode = "";
+	this.garmentCode = "";
+	this.garmentFolder;
+	this.garmentFile;
 	this.styleNumber = "";
-	this.garmentColors = {};
+	this.garmentColors = data.colors;
 	this.graphics = config.graphics;
+	this.saveFile;
+
+
 
 
 	this.init = function()
 	{
 		this.setGarmentCodes();
 		this.setStyleNumber();
-		this.setGarmentColors();
 		this.getGarments();
 		this.getGraphics();
-	}
-
-	this.processGarments = function()
-	{
-		if(this.adultGarmentFile)
-		{
-			this.processCurGarment("Adult",this.adultGarmentFile);
-		}
-		if(this.youthGarmentFile)
-		{
-			this.processCurGarment("Youth",this.youthGarmentFile);
-		}
+		this.getSaveFile();
 	}
 
 
-	this.recolor = function(doc,colors)
+
+
+
+
+
+
+	this.processGarment = function()
 	{
 
-	}
-
-	this.processCurGarment = function(label,file)
-	{
-		this.openFile(file);
-		this.recolor(thi)
+		this.openFile(this.garmentFile);
+		currentMockup = app.activeDocument;
+		currentMockup.saveAs(this.saveFile);
+		this.recolorGarment(this.garmentColors)
 
 		for(var g in this.graphics)
 		{
@@ -53,7 +45,7 @@ function Garment(config,data,designNumber)
 				this.openFile(this.graphics[g].file);
 			}
 		}
-		// recolorArtwork(colors);
+
 	}
 
 	this.setGarmentCodes = function()
@@ -83,24 +75,64 @@ function Garment(config,data,designNumber)
 		this.styleNumber = data.styleNo;
 	}
 
-	this.setGarmentColors = function()
+	this.recolorGarment = function(colors)
 	{
-		var curColor;
-		for(var ph in data.colors)
+		var doc = app.activeDocument;
+		var curGStyle,patternFile;
+		for(var ph in colors)
 		{
-			curColor = data.colors[ph];
-			curColor.swatchName = BUILDER_COLOR_CODES[curColor.colorCode];
-			if(curColor.pattern)
-			{
-				curColor.pattern.swatchName = BUILDER_COLOR_CODES[curColor.pattern.colorCode];
-
-			}
-			if(curColor.gradient)
-			{
-				curColor.gradient.swatchName = BUILDER_COLOR_CODES[curColor.gradient.colorCode];
-			}
+			curGStyle = new GraphicStyle(colors[ph]);
+			curGStyle.init();
+			currentMockup.activate();
+			this.applyGraphicStyle(ph,curGStyle.style)
 		}
 		this.garmentColors = data.colors;
+	}
+
+	this.recolorGraphic = function(colors)
+	{
+
+	}
+
+	this.applyGraphicStyle = function(placeholder)
+	{
+		var doc = app.activeDocument;
+		doc.selection = null;
+		doc.defaultFillColor = makeNewSpotColor(placeholder).color;
+		app.executeMenuCommand("Find Fill Color menu item");
+
+		function dig(curItem)
+		{
+			if(curItem.typename === "PathItem")
+			{
+				gs.applyTo(curItem);
+			}
+			else if(curItem.typename === "CompoundPathItem" && curItem.pathItems.length)
+			{
+				gs.applyTo(curItem.pathItems[0]);
+			}
+			else if(curItem.typename === "GroupItem")
+			{
+				for(var g=0,len=curItem.pageItems.length;g<len;g++)
+				{
+					dig(curItem.pageItems[g]);
+				}
+			}
+		}
+
+
+		try
+		{
+			var gs = doc.graphicStyles[placeholder];
+			for(var cc=0,len=doc.selection.length;cc<len;cc++)
+			{
+				dig(doc.selection[cc]);
+			}
+		}
+		catch(e)
+		{
+			doc.defaultFillColor = src.fillColor;
+		}
 	}
 
 	this.getGarments = function()
@@ -114,12 +146,17 @@ function Garment(config,data,designNumber)
 		}
 		if(this.adultGarmentFolder)
 		{
-			this.adultGarmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
+			this.garmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
 		}
 		if(this.youthGarmentFolder)
 		{
 			this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
 		}
+	}
+
+	this.getSaveFile = function()
+	{
+		this.saveFile = File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + curGarmentIndex + ".ai");
 	}
 
 	this.getFile = function(folder,style)

@@ -17,10 +17,15 @@ function createOrderFolder()
 	var userInitials = user.charAt(0) + user.charAt(user.indexOf(".")+1);
 	userInitials = userInitials.toUpperCase();
 
+	if(!teamName)
+	{
+		teamName = "Team Name";
+	}
+
 	var folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";
-	curOrderFolder = Folder(folderString);
+	curOrderFolder = Folder(localJobFolder.fsName + "/" + folderString);
 	if(!curOrderFolder.exists)
 	{
-		curOrderFOlder.create();
+		curOrderFolder.create();
 	}
 }

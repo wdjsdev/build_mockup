@@ -18,6 +18,7 @@ function loopGarmentsNeeded()
 	log.h("Beginning of loopGarmentsNeeded()");
 	for(var g=0,len=garmentsNeeded.length;g<len;g++)
 	{
-		garmentsNeeded[g].processGarments();
+		garmentsNeeded[g].processGarment();
+		curGarmentIndex++;
 	}
 }
