@@ -20,11 +20,7 @@ function Garment(config,data,designNumber)
 		this.setStyleNumber();
 		this.getGarments();
 		this.getGraphics();
-		this.getSaveFile();
 	}
-
-
-
 
 
 
@@ -32,10 +28,20 @@ function Garment(config,data,designNumber)
 
 	this.processGarment = function()
 	{
+		this.makeMockup(this.garmentFile);
+		if(this.youthGarmentFile)
+		{
+			this.makeMockup(this.youthGarmentFile);
+		}
+	}
 
-		this.openFile(this.garmentFile);
+
+	this.makeMockup = function(file)
+	{
+		this.openFile(file);
 		currentMockup = app.activeDocument;
-		currentMockup.saveAs(this.saveFile);
+		currentMockup.saveAs(this.getSaveFile());
+		curGarmentIndex++;
 		this.recolorGarment(this.garmentColors)
 
 		for(var g in this.graphics)
@@ -43,6 +49,7 @@ function Garment(config,data,designNumber)
 			if(this.graphics[g].file)
 			{
 				this.openFile(this.graphics[g].file);
+				this.recolorGraphic(this.graphics[g].colors);
 			}
 		}
 
@@ -79,19 +86,45 @@ function Garment(config,data,designNumber)
 	{
 		var doc = app.activeDocument;
 		var curGStyle,patternFile;
+		var placeholderPrefix = topOrBottomSwatches();
+		var curPlaceholderName;
 		for(var ph in colors)
 		{
+			curPlaceholderName = placeholderPrefix + ph.substring(1,ph.length);
+			colors[ph].id = curPlaceholderName;
 			curGStyle = new GraphicStyle(colors[ph]);
 			curGStyle.init();
 			currentMockup.activate();
-			this.applyGraphicStyle(ph,curGStyle.style)
+			this.applyGraphicStyle(curPlaceholderName,curGStyle.style)
 		}
 		this.garmentColors = data.colors;
 	}
 
 	this.recolorGraphic = function(colors)
 	{
+		var doc = app.activeDocument;
+		var swatches = doc.swatches;
 
+
+		var phNumber,phSwatch;
+		for(var ph in colors)
+		{
+			phNumber = ph.replace(/[a-z]/gi,"");
+			phSwatch = findPHSwatch(phNumber,colors[ph]);
+		}
+
+		function findPHSwatch(num,color)
+		{
+			var swatchName;
+			for(var s=0,len=swatches.length;s<len;s++)
+			{
+				swatchName = swatches[s].name.replace(/[a-z]/gi,"");
+				if(swatchName == num)
+				{
+					mergeSwatches(swatches[s].name,color.swatchName);
+				}
+			}
+		}
 	}
 
 	this.applyGraphicStyle = function(placeholder)
@@ -156,20 +189,29 @@ function Garment(config,data,designNumber)
 
 	this.getSaveFile = function()
 	{
-		this.saveFile = File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + curGarmentIndex + ".ai");
+		return File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + curGarmentIndex + ".ai");
 	}
 
 	this.getFile = function(folder,style)
 	{
-		var files = folder.getFiles("*" + style + "*");
+		var searchStr = "*-" + style + "*";
+		var files = folder.getFiles(searchStr);
+		var file;
 		if(!files.length)
 		{
-			return undefined;
+			searchStr = searchStr.replace("-","_");
+			files = folder.getFiles(searchStr);
+			if(files.length)
+			{
+				file = files[0];
+			}
+
 		}
 		else
 		{
-			return files[0];
+			file = files[0];
 		}
+		return file;
 	}
 
 	this.getGraphics = function()

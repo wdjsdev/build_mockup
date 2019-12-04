@@ -58,20 +58,34 @@
 				}
 				this.targetBlock = gradientLayer.pageItems[data.gradient.id];
 			}
-			else if(data.pattern)
-			{
-				this.targetBlock = livePatternLayer.pageItems["no_gradient"];
-			}
 			else if(data.gradient)
 			{
 				this.targetBlock = livePatternLayer.layers["No_Pattern"].pageItems[data.gradient.id];
 			}
 			else
 			{
-				this.targetBlock = this.doc.pathItems.rectangle(103,710,152,152);
+				this.targetBlock = livePatternLayer.pathItems.rectangle(103,710,152,152);
 				this.targetBlock.filled = true;
 				this.targetBlock.stroked = false;
 				this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
+			}
+
+			if(data.pattern)
+			{
+				this.doc.selection = null;
+				this.targetBlock.selected = true;
+				createAction("add_new_fill",ADD_NEW_FILL_ACTION_STRING);
+				app.doScript("add_new_fill","add_new_fill");
+				removeAction("add_new_fill");
+
+				for(var s=0,len=this.swatches.length;s<len;s++)
+				{
+					if(this.swatches[s].name.indexOf("DSPATTERN") === 0)
+					{
+						this.doc.defaultFillColor = this.swatches[s].color;
+					}
+				}
+				
 			}
 
 			this.targetBlock.name = data.id;
@@ -96,15 +110,17 @@
 
 		this.recolor = function()
 		{
-			if(data.pattern)
-			{
-				this.processPattern();
-			}
+			
 			this.backgroundSwatch = makeNewSpotColor(this.backgroundColor);
 			this.doc.selection = null;
 			this.doc.defaultFillColor = makeNewSpotColor(data.id).color;
 			app.executeMenuCommand("Find Fill Color menu item");
 			this.doc.defaultFillColor = this.backgroundSwatch.color;
+
+			if(data.pattern)
+			{
+				this.processPattern();
+			}
 
 			if(data.gradient)
 			{
@@ -143,6 +159,7 @@
 
 		this.processPattern = function()
 		{
+
 			this.patternColor = BUILDER_COLOR_CODES[data.pattern.colorCode];
 			this.patternScale = data.pattern.scale;
 			mergeSwatches("P1",this.patternColor);

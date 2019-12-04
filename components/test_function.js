@@ -14,10 +14,14 @@
 
 function testFunction()
 {
-	designNumbers = ["c1CCb5ANIO6Z"];
-	// designNumbers = ["PzSXPLCa1Tzm"];
+	getOrderNumber();
+	getOrderData();
+
+	// designNumbers = ["c1CCb5ANIO6Z"];
+	// designNumbers = ["JJMbuFLcReav"];
 	// designNumbers = ["AgOkmOQX5xBA"];
-	orderNumber = "1234567";
+	// orderNumber = "1234567";
+	designNumbers = getDesignNumbers();
 	initSaveLoc();
 	createOrderFolder();
 	loopDesignNumbers();

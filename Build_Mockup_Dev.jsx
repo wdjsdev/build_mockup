@@ -105,7 +105,7 @@ function BuildMockup()
 	////////////////////////
 	
 
-	testFunction();
+	// testFunction();
 
 	//
 	//
@@ -116,12 +116,27 @@ function BuildMockup()
 	//
 	if(valid)
 	{
-		orderNumber = getOrderNumber();
+		getOrderNumber();
+	}
+
+	if(valid)
+	{
+		getOrderData();
 	}
 
 	if(valid)
 	{
 		designNumbers = getDesignNumbers();
+	}
+
+	if(valid)
+	{
+		initSaveLoc();
+	}
+
+	if(valid)
+	{
+		createOrderFolder();
 	}
 
 
@@ -131,6 +146,11 @@ function BuildMockup()
 	if(valid)
 	{
 		loopDesignNumbers();
+	}
+
+	if(valid)
+	{
+		loopGarmentsNeeded();
 	}
 
 
