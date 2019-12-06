@@ -57,6 +57,7 @@ function BuildMockup()
 	//
 
 	logDest.push(getLogDest())
+	initLog();
 
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup";
@@ -76,25 +77,6 @@ function BuildMockup()
 		valid = false;
 		return valid;
 	}
-
-	// function testFunction()
-	// {
-	// 	designNumbers = ["c1CCb5ANIO6Z"];
-	// 	// designNumbers = ["PzSXPLCa1Tzm"];
-	// 	// designNumbers = ["AgOkmOQX5xBA"];
-	// 	orderNumber = "1234567";
-	// 	// initSaveLoc();
-	// 	// createOrderFolder();
-	// 	loopDesignNumbers();
-	// 	$.writeln(JSON.stringify(garmentsNeeded));
-	// 	loopGarmentsNeeded();
-	// 	valid = false;
-	// 	printLog();
-	// 	if(errorList.length)
-	// 	{
-	// 		sendErrors(errorList);
-	// 	}
-	// }
 	
 
 	////////////////////////
@@ -153,15 +135,21 @@ function BuildMockup()
 		loopGarmentsNeeded();
 	}
 
+	garmentsNeeded[0].mockupDocument.activate();
 
 	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
 	{
-		filesToClose[ftc].activate();
-		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+		// filesToClose[ftc].activate();
+		// app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
 	}
 	
-
+	endLog();
 	printLog();
+	if(errorList.length)
+	{
+		sendErrors(errorList);
+	}
 	
 }
 

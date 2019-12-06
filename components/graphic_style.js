@@ -4,6 +4,7 @@
 		this.sourceFile;
 		this.doc;
 		this.swatches;
+		this.validGraphicStyle = false;
 
 		//targetBlock is the pre-built rectangle
 		//with the correct appearance applied
@@ -104,18 +105,21 @@
 			removeAction("graphic_style_from_selection");
 			this.doc.graphicStyles[this.doc.graphicStyles.length-1].name = data.id;
 			filesToClose.push(this.doc);
+			currentMockup.layers[0].locked = false;
+			currentMockup.layers[0].visible = true;
 			var dupTarget = this.targetBlock.duplicate(currentMockup);
 			dupTarget.remove();
+			this.validGraphicStyle = true;
 		}
 
 		this.recolor = function()
 		{
-			
-			this.backgroundSwatch = makeNewSpotColor(this.backgroundColor);
-			this.doc.selection = null;
-			this.doc.defaultFillColor = makeNewSpotColor(data.id).color;
-			app.executeMenuCommand("Find Fill Color menu item");
-			this.doc.defaultFillColor = this.backgroundSwatch.color;
+			mergeSwatches("C1",this.backgroundColor);
+			// this.backgroundSwatch = makeNewSpotColor(this.backgroundColor);
+			// this.doc.selection = null;
+			// this.doc.defaultFillColor = makeNewSpotColor(data.id).color;
+			// app.executeMenuCommand("Find Fill Color menu item");
+			// this.doc.defaultFillColor = this.backgroundSwatch.color;
 
 			if(data.pattern)
 			{

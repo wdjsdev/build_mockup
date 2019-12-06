@@ -30,10 +30,7 @@ function getOrderNumber()
 				onGroup.orientation = "row";
 				var onMsg = UI.static(onGroup,"Order Number: ");
 				var onInput = UI.edit(onGroup,"1234567",10);
-					onInput.addEventListener("keydown",undefined,function()
-					{
-
-					})
+					onInput.active = true;
 			var tnGroup = UI.group(w);
 				tnGroup.orientation = "row";
 				var tnMsg = UI.static(tnGroup,"Team Name: ");

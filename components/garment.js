@@ -10,6 +10,7 @@ function Garment(config,data,designNumber)
 	this.garmentColors = data.colors;
 	this.graphics = config.graphics;
 	this.saveFile;
+	this.mockupDocument;
 
 
 
@@ -39,7 +40,7 @@ function Garment(config,data,designNumber)
 	this.makeMockup = function(file)
 	{
 		this.openFile(file);
-		currentMockup = app.activeDocument;
+		currentMockup = this.mockupDocument = app.activeDocument;
 		currentMockup.saveAs(this.getSaveFile());
 		curGarmentIndex++;
 		this.recolorGarment(this.garmentColors)
@@ -90,6 +91,7 @@ function Garment(config,data,designNumber)
 		var curPlaceholderName;
 		for(var ph in colors)
 		{
+			colors[ph].swatchName = BUILDER_COLOR_CODES[colors[ph].colorCode];
 			curPlaceholderName = placeholderPrefix + ph.substring(1,ph.length);
 			colors[ph].id = curPlaceholderName;
 			curGStyle = new GraphicStyle(colors[ph]);
@@ -164,7 +166,7 @@ function Garment(config,data,designNumber)
 		}
 		catch(e)
 		{
-			doc.defaultFillColor = src.fillColor;
+			doc.defaultFillColor = makeNewSpotColor(this.garmentColors[placeholder].swatchName).color;
 		}
 	}
 
