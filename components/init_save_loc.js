@@ -15,6 +15,7 @@
 
 function initSaveLoc()
 {
+	log.h("Beginning execution of initSaveLoc()");
 	var saveLoc;
 	var prefPath = documentsPath + "/build_mockup_prefs/"
 	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
@@ -22,6 +23,7 @@ function initSaveLoc()
 	if(!saveLocPrefFolder.exists)
 	{
 		saveLocPrefFolder.create();
+		log.l("Created a saveLocPrefFolder");
 	}
 	
 	saveLocPrefFile.open("r");
@@ -48,7 +50,7 @@ function initSaveLoc()
 	}
 	else
 	{
-		localJobFolder = Folder(saveLoc);
+		localJobFolder = Folder(saveLoc.replace(/.*users/i,"/Volumes/Macintosh HD/Users/"));
 	}
 	
 

@@ -29,10 +29,14 @@ function Garment(config,data,designNumber)
 
 	this.processGarment = function()
 	{
-		this.makeMockup(this.garmentFile);
-		if(this.youthGarmentFile)
+		if(this.garmentFile)
 		{
-			this.makeMockup(this.youthGarmentFile);
+			this.makeMockup(this.garmentFile);
+		}
+		else
+		{
+			errorList.push("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
+			log.e("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
 		}
 	}
 
@@ -40,13 +44,29 @@ function Garment(config,data,designNumber)
 	this.makeMockup = function(file)
 	{
 		this.openFile(file);
-		currentMockup = this.mockupDocument = app.activeDocument;
+		this.mockupDocument = currentMockup = app.activeDocument;
+
+		if(this.youthGarmentFile)
+		{
+			var youthDoc = this.openFile(this.youthGarmentFile);
+			mergeTemplate(currentMockup);
+			filesToClose.push(youthDoc);
+			currentMockup.activate();
+		}
+
 		currentMockup.saveAs(this.getSaveFile());
 		curGarmentIndex++;
+		
 		this.recolorGarment(this.garmentColors)
 
 		for(var g in this.graphics)
 		{
+			curGraphic = this.graphics[g];
+			curGraphic.folder = locateGraphicFolder(curGraphic.name,curGraphic.lib);
+			if(curGraphic.folder)
+			{
+				curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
+			}
 			if(this.graphics[g].file)
 			{
 				this.openFile(this.graphics[g].file);
@@ -108,6 +128,8 @@ function Garment(config,data,designNumber)
 		var swatches = doc.swatches;
 
 
+
+
 		var phNumber,phSwatch;
 		for(var ph in colors)
 		{
@@ -117,6 +139,7 @@ function Garment(config,data,designNumber)
 
 		function findPHSwatch(num,color)
 		{
+			color.swatchName = BUILDER_COLOR_CODES[color.colorCode];
 			var swatchName;
 			for(var s=0,len=swatches.length;s<len;s++)
 			{
@@ -196,6 +219,9 @@ function Garment(config,data,designNumber)
 
 	this.getFile = function(folder,style)
 	{
+		log.l("Beginning of getFile function:");
+		log.l("folder = " + folder);
+		log.l("style = " + style + "::::");
 		var searchStr = "*-" + style + "*";
 		var files = folder.getFiles(searchStr);
 		var file;
@@ -207,12 +233,19 @@ function Garment(config,data,designNumber)
 			{
 				file = files[0];
 			}
+			else
+			{
+				file = folder.getFiles()[0].openDlg("Select the file matching the style number: " + style);
+
+			}
 
 		}
 		else
 		{
 			file = files[0];
 		}
+
+		log.l("file = " + file);
 		return file;
 	}
 
@@ -246,6 +279,7 @@ function Garment(config,data,designNumber)
 	this.openFile = function(file)
 	{
 		app.open(file);
+		return app.activeDocument;
 	}
 
 }

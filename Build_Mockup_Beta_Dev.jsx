@@ -4,14 +4,21 @@ function BuildMockup()
 	var valid = true;
 	var scriptName = "build_mockup";
 
+	var devUtilities = false;
+
 	//Utilities
-	// //Production Utilities
-	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
-	eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Batch_Framework.jsxbin\"");
-	
-	//Dev Utilities
-	// eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Utilities_Container.js\"");
-	// eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Batch_Framework.js\"");
+	if(!devUtilities)
+	{
+		// //Production Utilities
+		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
+		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Batch_Framework.jsxbin\"");
+	}
+	else
+	{
+		//Dev Utilities
+		eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Utilities_Container.js\"");
+		eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Batch_Framework.js\"");
+	}
 	
 	if(!valid)
 	{
@@ -133,7 +140,10 @@ function BuildMockup()
 		loopGarmentsNeeded();
 	}
 
-	garmentsNeeded[0].mockupDocument.activate();
+	if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+	{
+		garmentsNeeded[0].mockupDocument.activate();
+	}
 
 	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
 	{
