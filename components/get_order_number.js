@@ -39,6 +39,8 @@ function getOrderNumber()
 				btnGroup.orientation = "row";
 				var cancel = UI.button(btnGroup,"Cancel",function()
 				{
+					proceed = false;
+					valid = false;
 					w.close();
 				})
 				var submit = UI.button(btnGroup,"Submit",submitFunction);
