@@ -37,9 +37,6 @@ function loopDesignNumbers()
 		{
 			processConfig(curBuilderData.configReverse);
 		}
-
-		//temporary exit
-		break;
 	}
 
 	function processConfig(config)
