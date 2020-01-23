@@ -18,7 +18,18 @@
 
 function locateGraphicFolder(graphicCode)
 {
+	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
+
+	//check first to see if this graphic is something worth grabbing at all..
+	//check for PROVIDED, CUSTOM, or ONFILE
+	var skipGraphics = ["provided","custom","onfile","fullcustom"];
+	if(skipGraphics.indexOf(graphicCode.replace("fds-","")) > -1)
+	{
+		return undefined;
+	}
+
+
 	var graphicFolder,parentFolder,gfFiles,exit = false;
 	var maxDepth = 1;
 	var curDepth = 0;
