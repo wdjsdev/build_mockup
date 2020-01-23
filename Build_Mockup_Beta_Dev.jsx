@@ -2,12 +2,12 @@
 function BuildMockup()
 {
 	var valid = true;
-	var scriptName = "build_mockup";
+	var scriptName = "build_mockup_beta";
 
-	var devUtilities = false;
+	var devUtilities = true;
 
 	//Utilities
-	if(!devUtilities)
+	if(!devUtilities || $.getenv("USER").indexOf("dowling") === -1)
 	{
 		// //Production Utilities
 		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
@@ -25,6 +25,23 @@ function BuildMockup()
 		return valid;
 	}
 
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+	LIVE_LOGGING = false;
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
 
 	//Global Variables
 	var orderNumber;
@@ -55,7 +72,10 @@ function BuildMockup()
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
-	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_locations_database.js";
+	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
+
+	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
+
 
 	//
 	//Gather and include the components
