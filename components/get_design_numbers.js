@@ -28,7 +28,7 @@ function getDesignNumbers()
 		for(var lo=0,optLen=lineOptions.length;lo<optLen;lo++)
 		{
 			curOption = lineOptions[lo];
-			if(curOption.name && curOption.name === "Design")
+			if(curOption.name && curOption.name === "Design" && curOption.value && curOption.value !== "")
 			{
 				tmpDesignNumbers.push(curOption.value);
 			}

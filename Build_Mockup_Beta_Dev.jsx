@@ -5,9 +5,13 @@ function BuildMockup()
 	var scriptName = "build_mockup_beta";
 
 	var devUtilities = true;
+	if($.getenv("USER").indexOf("dowling") === -1)
+	{
+		devUtilities = false;
+	}
 
 	//Utilities
-	if(!devUtilities || $.getenv("USER").indexOf("dowling") === -1)
+	if(!devUtilities)
 	{
 		// //Production Utilities
 		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
@@ -59,15 +63,24 @@ function BuildMockup()
 	//mid/garment relationship database
 	var MGR = midGarmentRelationshipDatabasePath = dataPath + "build_mockup_data/mid_garment_relationship_database.js";
 
+
+
+
 	//known converted_template folder locations database
 	//database to keep track of the exact folder locations for a given
 	//garment code so we don't need to dig for them on each execution.
 	var CTFL = convertedTemplateFolderLocationsDatabasePath = dataPath + "build_mockup_data/converted_template_locations_database.js";
 	// var CTFL = convertedTemplateFolderLocationsDatabasePath = desktopPath + "temp/converted_template_locations_database.js";
 
+
+
+
 	//pattern id-style number relationships
 	var PSN = patternIdStyleNumberRlationshipsDatabasePath = dataPath + "build_mockup_data/pattern_id_style_nymber_database.js";
 	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
+
+
+
 
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
