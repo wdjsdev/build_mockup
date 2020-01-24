@@ -2,9 +2,13 @@
 function BuildMockup()
 {
 	var valid = true;
-	var scriptName = "build_mockup";
+	var scriptName = "build_mockup_beta";
 
-	var devUtilities = false;
+	var devUtilities = true;
+	if($.getenv("USER").indexOf("dowling") === -1)
+	{
+		devUtilities = false;
+	}
 
 	//Utilities
 	if(!devUtilities)
@@ -25,6 +29,23 @@ function BuildMockup()
 		return valid;
 	}
 
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+	LIVE_LOGGING = false;
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
 
 	//Global Variables
 	var orderNumber;
@@ -42,20 +63,32 @@ function BuildMockup()
 	//mid/garment relationship database
 	var MGR = midGarmentRelationshipDatabasePath = dataPath + "build_mockup_data/mid_garment_relationship_database.js";
 
+
+
+
 	//known converted_template folder locations database
 	//database to keep track of the exact folder locations for a given
 	//garment code so we don't need to dig for them on each execution.
 	var CTFL = convertedTemplateFolderLocationsDatabasePath = dataPath + "build_mockup_data/converted_template_locations_database.js";
 	// var CTFL = convertedTemplateFolderLocationsDatabasePath = desktopPath + "temp/converted_template_locations_database.js";
 
+
+
+
 	//pattern id-style number relationships
 	var PSN = patternIdStyleNumberRlationshipsDatabasePath = dataPath + "build_mockup_data/pattern_id_style_nymber_database.js";
 	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
 
+
+
+
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
-	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_locations_database.js";
+	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
+
+	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
+
 
 	//
 	//Gather and include the components

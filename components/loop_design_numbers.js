@@ -21,6 +21,10 @@ function loopDesignNumbers()
 	for(var dn=0,len=designNumbers.length;dn<len;dn++)
 	{
 		curDesignNumber = designNumbers[dn];
+		if(curDesignNumber === "")
+		{
+			continue;
+		}
 		curBuilderData = undefined;
 		curBuilderData = getBuilderData(curDesignNumber);
 		if(!curBuilderData)
@@ -37,9 +41,6 @@ function loopDesignNumbers()
 		{
 			processConfig(curBuilderData.configReverse);
 		}
-
-		//temporary exit
-		break;
 	}
 
 	function processConfig(config)
