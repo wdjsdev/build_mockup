@@ -1,9 +1,0 @@
-issues to fix:
-
-FD-219 what sport?
-	this is a larger issue with reversibles. garment code should retrun as FD-215_FD-219_ since top and bottom mockups are combined.
-
-checkRoster function line 126 and 127 are missing periods in the case body
-
-getSubStyle function line 36 has two entries for "1062". delete one.
-	also duplicate FD-BASE-SS cases in switch statement

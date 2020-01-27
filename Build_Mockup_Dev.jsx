@@ -1,33 +1,5 @@
- /*
-
- Script Name: Build_Mockup
- Author: William Dowling
- Build Date: 07 March, 2016
- Description: Rebuilding with a clearer road map
-
- Build number: 3.0
-
- Progress:
-
- 	Version 3.001
- 		07 March, 2016
- 		Initial rebuild. populating global variables and data storage
-
- 	Version 3.002
- 		Adding getDesignNumber function.
- 		Prompt user with scriptUI dialog and validate input on submit.
- 			if not valid, add statictext to the dialog to alert the user of the error and allow them to continue.
-	
- 	Version 3.003
- 		Finished rebuild. Tested and working on everything except reversibles.
- 		Distributing this version to the artists.
-
-	Version 3.004
-		Adding a check to see whether the garment is reversible
-
- */
-
-function container(designNumber)
+#target Illustrator
+function BuildMockup()
 {
 	var valid = true;
 	var scriptName = "build_mockup";
@@ -192,189 +164,138 @@ function container(designNumber)
 
 		
 
-	////////End/////////
-	////Data Storage////
-	////////////////////
+	//mid/garment relationship database
+	var MGR = midGarmentRelationshipDatabasePath = dataPath + "build_mockup_data/mid_garment_relationship_database.js";
 
-	/*****************************************************************************/
+	//known converted_template folder locations database
+	//database to keep track of the exact folder locations for a given
+	//garment code so we don't need to dig for them on each execution.
+	var CTFL = convertedTemplateFolderLocationsDatabasePath = dataPath + "build_mockup_data/converted_template_locations_database.js";
+	// var CTFL = convertedTemplateFolderLocationsDatabasePath = desktopPath + "temp/converted_template_locations_database.js";
 
-	///////Begin////////
-	///Function Calls///
-	////////////////////
+	//pattern id-style number relationships
+	var PSN = patternIdStyleNumberRlationshipsDatabasePath = dataPath + "build_mockup_data/pattern_id_style_nymber_database.js";
+	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
 
-	
-		/////////////////////
-		////TEST FUNCTION////
-		/////////////////////
+	//known graphic folder locations database
+	//database to keep track of exact folder locations for a given graphic
+	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
+	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_locations_database.js";
 
-			// valid = testFunction();
+	var tempPatternFillPath = libraryPath + "";
 
-			// if(errorList.length>0)
-			// {
-			// 	sendErrors(errorList);
-			// }
-			// if(msgList.length>0)
-			// {
-			// 	sendMsgs(msgList);
-			// }
+	//
+	//Gather and include the components
+	//
 
-			// printLog();
-			// return valid;
+	logDest.push(getLogDest())
 
-		/////////////////////
-		////TEST FUNCTION////
-		/////////////////////
+	var devComponents = desktopPath + "automation/build_mockup/components";
+	var prodComponents = componentsPath + "build_mockup";
 
-	if(valid && !designNumber)
+	var compFiles = includeComponents(devComponents,prodComponents,true);
+	if(compFiles)
 	{
-		//prompt user for design number and validate the format of their input
-		if(!getDesignNumber())
+		for(var cf=0,len=compFiles.length;cf<len;cf++)
 		{
-			valid = false;
+			eval("#include \"" + compFiles[cf] + "\"");
 		}
 	}
 	else
 	{
-		//a design number was passed in, don't prompt the user
-		lib.designNumbers.push(designNumber);
-		log.h("designNumber = " + designNumber);
+		errorList.push("Failed to find the necessary components.");
+		log.e("Failed to find the components.");
+		valid = false;
+		return valid;
 	}
 
-	log.h("The user entered the following design numbers: ::" + lib.designNumbers.join("::"));
+	// function testFunction()
+	// {
+	// 	designNumbers = ["c1CCb5ANIO6Z"];
+	// 	// designNumbers = ["PzSXPLCa1Tzm"];
+	// 	// designNumbers = ["AgOkmOQX5xBA"];
+	// 	orderNumber = "1234567";
+	// 	// initSaveLoc();
+	// 	// createOrderFolder();
+	// 	loopDesignNumbers();
+	// 	$.writeln(JSON.stringify(garmentsNeeded));
+	// 	loopGarmentsNeeded();
+	// 	valid = false;
+	// 	printLog();
+	// 	if(errorList.length)
+	// 	{
+	// 		sendErrors(errorList);
+	// 	}
+	// }
 	
-	//loop the lib.designNumbers array
-	for(var dn=0;dn<lib.designNumbers.length;dn++)
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		test function call
+	//
+	////////////////////////
+	
+
+	// testFunction();
+
+	//
+	//
+
+
+	//
+	//Gather the order data
+	//
+	if(valid)
 	{
-		//reset mockupsToOpen array
-		lib.mockupsToOpen = [];
-
-		var thisDesignNumber = lib.designNumbers[dn];
-
-		log.h("Beginning design numbers loop for design number: ::" + thisDesignNumber);
-		if(valid)
-		{
-			//search for a file that matches the design number the user entered
-			//save result to lib.json
-			if(!getJson(thisDesignNumber))
-			{
-				valid = false;
-			}
-		}
-		
-
-		if(valid)
-		{
-			//check that the json data is in the correct format
-			//i.e. not created with the old builder.
-			if(!preValidateJson(lib.json))
-			{
-				valid = false;
-			}
-		}
-
-
-		if(valid)
-		{
-			//check to see whether this is a reversible garment
-			if(!checkForReversible(lib.json))
-			{
-				valid = false;
-			}
-
-		}
-
-		if(valid)
-		{
-			var successCounter = 0;
-			//loop the properties of lib.json
-			//for each config object, run verifyGarInfo and verifyGraphicInfo functions
-			for(var prop in lib.json)
-			{
-				if(prop.indexOf("config")>-1)
-				{
-					log.l("Beginning loop for lib.json." + prop);
-					if(!verifyGarInfo(lib.json[prop],prop))
-					{
-						log.l("Failed to correctly verify the garment info for " + prop + ". Skipping this garment.");
-						continue;
-					}
-					if(!verifyGraphicInfo(lib.json[prop],prop))
-					{
-						log.l("Failed to correctly verify the graphic(s) info for " + prop);
-						continue;
-					}
-					successCounter++;
-
-				}
-			}
-			if(successCounter == 0)
-			{
-				valid = false;
-				log.e("Failed to successfully process any config objects. Exiting script.");
-			}
-		}
-
-		if(valid)
-		{
-			//remove duplicate mockup files only from this design number
-			//any duplicate mockups that come from a different design number should still be opened.
-			//push unique files to lib.filesToOpen array.
-			log.h("Beginning execution of removeDuplicates function for the mockupFiles for design number: " + thisDesignNumber);
-			removeDuplicates(lib.mockupsToOpen,"mockups");
-		}
+		getOrderNumber();
 	}
 
 	if(valid)
 	{
-		//remove all duplicate graphics
-		//push unique files to lib.filesToOpen array
-		log.h("Beginning execution of removeDuplicates for all graphic files.");
-		if(!removeDuplicates(lib.graphicsToOpen,"graphics"))
-		{
-			valid = false;
-		}
+		getOrderData();
 	}
-	
-	
 
 	if(valid)
 	{
-		openFiles(lib.curatedMockups,lib.curatedGraphics);
+		designNumbers = getDesignNumbers();
 	}
 
+	if(valid)
+	{
+		initSaveLoc();
+	}
+
+	if(valid)
+	{
+		createOrderFolder();
+	}
+
+
+	//
+	//loop each design number to gather the garments and graphics needed
+	//
+	if(valid)
+	{
+		loopDesignNumbers();
+	}
+
+	if(valid)
+	{
+		loopGarmentsNeeded();
+	}
+
+
+	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
+	{
+		filesToClose[ftc].activate();
+		app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+	}
 	
-	////////End/////////
-	///Function Calls///
-	////////////////////
 
-	/*****************************************************************************/
-
-	if(errorList.length>0)
-	{
-		sendErrors(errorList);
-		log.e("The following error messages were sent to the user: ::::" + errorList.join("::"));	
-	}
-
-	if(msgList.length>0)
-	{
-		if(user != "will.dowling")
-		{
-			sendMsgs(msgList);
-		}
-		log.h("The following script messages were sent to the user: ::::" + msgList.join("::"));	
-		
-	}
-
-	log.h("End of Build_Mockup script. Returning " + valid);
-
-	//print the log file(s)
 	printLog();
-
-
-
-	return valid;
-
+	
 }
 
 
-container();
+BuildMockup();
