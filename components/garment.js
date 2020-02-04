@@ -62,12 +62,7 @@ function Garment(config,data,designNumber)
 		for(var g in this.graphics)
 		{
 			curGraphic = this.graphics[g];
-			// curGraphic.folder = locateGraphicFolder(curGraphic.name,curGraphic.lib);
-			// if(curGraphic.folder)
-			// {
-			// 	// curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
-			// 	curGraphic.file = getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
-			// }
+
 			if(this.graphics[g].file)
 			{
 				this.openFile(this.graphics[g].file);
@@ -126,7 +121,12 @@ function Garment(config,data,designNumber)
 	this.recolorGraphic = function(colors)
 	{
 		var doc = app.activeDocument;
-		var swatches = doc.swatches;
+		var swatches = [];
+
+		for(var s=0,len=doc.swatches.length;s<len;s++)
+		{
+			swatches.push(doc.swatches[s]);
+		}
 
 
 
