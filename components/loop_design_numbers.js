@@ -29,8 +29,8 @@ function loopDesignNumbers()
 		curBuilderData = getBuilderData(curDesignNumber);
 		if(!curBuilderData)
 		{
-			errorList.push("Failed to find the builder data for design number: " + curDesignNumber);
-			errorList.push("This design number has been skipped.");
+			errorList.push("Netsuite did not respond with any data. Please try again in a minute.");
+			errorList.push(curDesignNumber + " has been skipped.");
 			continue;
 		}
 
