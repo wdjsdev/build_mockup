@@ -15,11 +15,5 @@
 function getBuilderData(designNumber)
 {
 	var result = curlData(NBD,designNumber);
-	if(!result)
-	{
-		log.e("Failed to get the builder data for design number: " + designNumber);
-		errorList.push("Failed to get the builder data for design number: " + designNumber);
-		valid = false;
-	}
 	return result;
 }

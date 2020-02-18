@@ -33,8 +33,6 @@ function locateGraphicFolder(graphicCode)
 	var graphicFolder,parentFolder,gfFiles,exit = false;
 	var maxDepth = 1;
 	var curDepth = 0;
-	var nameNumberPat = /(FDSN|FDSP)[-_]/i;
-	graphicCode = graphicCode.replace(nameNumberPat,"FDSP-FDSN_");
 
 	//include the database
 	try

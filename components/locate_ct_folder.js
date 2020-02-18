@@ -81,6 +81,11 @@ function locateCTFolder(mid)
 		{
 			var files = loc.getFiles("*" + mid + "*");
 		}
+		else
+		{
+			curDepth--;
+			return;
+		}
 		for(var f=0,len=files.length;f<len && !ctFolder && !exit && curDepth < maxDepth;f++)
 		{
 			if(files[f] instanceof Folder)

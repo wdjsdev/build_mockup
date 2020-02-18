@@ -26,6 +26,14 @@ function topOrBottomSwatches()
 	{
 		//this would be a mockup where there's a jersey and shorts
 		//we need to weed these out...
+
+		// ...... or apparently if the garments use bottom colors, but the paramcolors use top colors...
+		// fml
+
+		//just set the result to bottom colors for now.. it's more likely that there will be
+		//top colors inside a file that utilizes bottom colors for the actual artwork than
+		//a file that uses top colors but also has bottom colors.. idk. the files just need to be fixed
+		result = "B";
 	}
 	else if(tops > 0)
 	{

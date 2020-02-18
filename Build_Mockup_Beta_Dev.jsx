@@ -60,6 +60,25 @@ function BuildMockup()
 	var currentMockup;
 	var filesToClose = [];
 
+	//regex to remove superfluous appendages from graphic codes
+	//for example, the builder occasionally uses a code like: FDS-325LS
+	//even though the graphic is identical to FDS-325
+	//the builder needs to label the graphic codes this way to facilitate
+	//grouping certain graphics together for use on specific garments..
+	//but for our purposes.. we don't want to do that in art. identical
+	//graphics should have identical codes.
+	var vestigialAppendagePat = /bg|hg|cb|pnt|g|ll|ls|rl|rs|b$/i;
+
+	//regex for name and number graphics
+	//the graphic code will come through with one or the other
+	//but the files are named with both prefixes.
+	//for example, a number code might be FDSN-1001...
+	//but the artwork file for that number will include the player name
+	//graphic as well. As such the file would be named FDSP-FDSN_1001
+	//so the graphic code needs to be updated to include both prefixes
+	var nameNumberPat = /(FDSN|FDSP)[-_]/i;
+
+
 	//mid/garment relationship database
 	var MGR = midGarmentRelationshipDatabasePath = dataPath + "build_mockup_data/mid_garment_relationship_database.js";
 
@@ -86,6 +105,7 @@ function BuildMockup()
 	//database to keep track of exact folder locations for a given graphic
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
 	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
+	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "automation/build_mockup/resources/graphic_folder_locations_database.js";
 
 	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
 
