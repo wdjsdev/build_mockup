@@ -39,10 +39,12 @@ function test()
 	{
 		var newGarmentCode;
 
-		var gc = new Window("dialog");
+		var gc = new Window("dialog","Enter the new garment code.");
 			gc.orientation = "column";
 			var topTxt = UI.static(gc,"Enter the garment code:");
 			var gcInput = UI.edit(gc,"FD-1234",20);
+
+			//cancel and submit buttons	
 			var closeBtnGroup = UI.closeButtonGroup(gc,
 				//submit button function
 				function()
@@ -65,6 +67,72 @@ function test()
 		return newGarmentCode;
 	}
 
+	function addArtworkLocation()
+	{
+		for(var loc in BUILDER_GRAPHIC_LOCATION_CODES)
+		{
+			artworkLocations.push(loc);
+		}
+		var newArtworkLocation;
+		
+		var al = new Window("dialog","Enter the artwork sizing standards.");
+			al.orientation = "column";
+
+			var topTxt = UI.static(al,"Enter the artwork sizing standards in inches:");
+
+			var inputGroup = UI.group(al);
+				var ddGroup = UI.group(inputGroup);
+					ddGroup.orientation = "row";
+					var locDropdownTxt = UI.static(ddGroup,"Select a Location:");
+					var locDropdown = UI.dropdown(ddGroup,artworkLocations);
+						locDropdown.selection = 0;
+
+				var dimGroup = UI.group(inputGroup);
+					dimGroup.orientation = "column";
+					var wGroup = UI.group(dimGroup);
+						wGroup.orientation = "row";
+						var wLabel = UI.static(wGroup,"Standard Width:")
+						var widthInput = UI.edit(wGroup,"12",4)
+
+					var hGroup = UI.group(dimGroup);
+						hGroup.orientation = "row";
+						var hLabel = UI.static(hGroup,"Standard Height:");
+						var heightInput = UI.edit(hGroup,"12",4);
+
+			var closeButtonGroup = UI.closeButtonGroup(al,
+				//submit function
+				function()
+				{
+					if(!locDropdown.selection)
+					{
+						alert("Please select an artwork location from the dropdown list.");
+						return;
+					}
+					if(!widthInput || !heightInput)
+					{
+						alert("Please enter standard width and height.");
+						return;
+					}
+					newArtworkLocation = validateLocationInput(locDropdown.selection.text,widthInput.text,heightInput.text);
+
+					if(newArtworkLocation)
+					{
+						al.close();
+					}
+
+				},
+				//cancel function
+				function()
+				{
+					newArtworkLocation = undefined;
+					al.close();
+				})
+
+		al.show();
+
+		return newArtworkLocation;
+	}
+
 	function validateGarmentCode(input)
 	{
 		var result;
@@ -80,6 +148,16 @@ function test()
 		}
 		return result;
 
+	}
+
+	function validateLocationInput(locLabel,w,h)
+	{
+		var newLoc = {};
+		newLoc.label = locLabel;
+		newLoc.w = w.replace(/[a-z]/ig,"");
+		newLoc.h = h.replace(/[a-z]/ig,"");
+		newLoc.code = BUILDER_GRAPHIC_LOCATION_CODES[locLabel];
+		return newLoc;
 	}
 
 
@@ -135,9 +213,13 @@ function test()
 	//dialog definition
 	var glw = UI.window("dialog","Graphic Locations and Sizing Database");
 		
-		//select the sport
-		var sportDropdown = UI.dropdown(glw,sportsArray);
-			sportDropdown.selection = 0;
+		var sportGroup = UI.group(glw);
+			sportGroup.orientation = "row";
+
+			var sportLabelTxt = UI.static(sportGroup,"Sport: ");
+			//select the sport
+			var sportDropdown = UI.dropdown(sportGroup,sportsArray);
+				sportDropdown.selection = 0;
 		
 		UI.hseparator(glw);
 		
@@ -157,6 +239,17 @@ function test()
 					//validate the response and if valid, trigger database
 					//overwrite and close dialog.
 					//add the new element to the garmentCodes listbox
+
+
+
+					//check that the necessary selections have been made
+					if(!sportDropdown.selection)
+					{
+						alert("Please select a sport from the dropdown at the top")
+					}
+
+					var curSport = sportDropdown.selection.text;
+
 					var newGarmentCode = addGarmentCode();
 					if(newGarmentCode)
 					{
@@ -180,8 +273,34 @@ function test()
 					//validate the response and if valid, trigger database
 					//overwrite and close dialog.
 					//add the new element to the artworkLocationsListbox
-					alert("adding artwork location");
-					//
+				
+
+					//check that the necessary selections have been made
+					if(!sportDropdown.selection)
+					{
+						alert("Please select a sport from the dropdown at the top");
+						return;
+					}
+					if(!garmentCodesListbox.selection)
+					{
+						alert("Please select a garment code.");
+						return;
+					}
+
+					var curGarmentCode = garmentCodesListbox.selection.text;
+					var curSport = sportDropdown.selection.text;
+
+					var newArtworkLocation = addArtworkLocation();
+					if(!newArtworkLocation)
+					{
+						return;
+					}
+
+					db[curSport][curGarmentCode][newArtworkLocation.code] = newArtworkLocation;
+					writeDatabase(databasePath,"var graphicLocationsAndSizing = " + JSON.stringify(db));
+					overwriteDatabase = true;
+					artworkLocations.push(newArtworkLocation.label);
+					populateListbox(artworkLocationsListbox,artworkLocations);
 				})
 
 		//group for the buttons at the bottom of the dialog. the main control buttons, if you will.
@@ -222,12 +341,12 @@ function test()
 		artworkLocations = [];
 
 		var sportText = sportDropdown.selection.text;
-		var locText = garmentCodesListbox.selection.text;
-		for(loc in db[sportText][locText])
+		var garmentCode = garmentCodesListbox.selection.text;
+		for(loc in db[sportText][garmentCode])
 		{
-			if(db[sportText][locText].hasOwnProperty)
+			if(db[sportText][garmentCode].hasOwnProperty)
 			{
-				artworkLocations.push(loc);
+				artworkLocations.push(db[sportText][garmentCode][loc].label);
 			}
 		}
 		populateListbox(artworkLocationsListbox,artworkLocations);
