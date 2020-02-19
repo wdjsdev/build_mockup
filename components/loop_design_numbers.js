@@ -39,6 +39,7 @@ function loopDesignNumbers()
 
 		if(curBuilderData.configReverse)
 		{
+			curBuilderData.configReverse.reverse = true;
 			processConfig(curBuilderData.configReverse);
 		}
 	}
@@ -47,18 +48,27 @@ function loopDesignNumbers()
 	{
 		if(config.top)
 		{
-			// newGarment(config,config.top,curDesignNumber);
 			curGarment = new Garment(config,config.top,curDesignNumber);
 			curGarment.init();
+			curGarment.suffix = getSuffix(config,"_Top");
 			garmentsNeeded.push(curGarment);
 		}
 		if(config.bottom)
 		{
-			// newGarment(config,config.bottom,curDesignNumber);
 			curGarment = new Garment(config,config.bottom,curDesignNumber);
 			curGarment.init();
+			curGarment.suffix = getSuffix(config,"_Bot");
 			garmentsNeeded.push(curGarment);
 		}
+	}
+
+	function getSuffix(config,topbot)
+	{
+		var suffix = "";
+		var topAndBot = (config.top && config.bottom) ? "_" + topbot : "";
+		var rev = config.reverse ? "_B" : "";
+		suffix = topAndBot + rev;
+		return suffix;
 	}
 	
 
