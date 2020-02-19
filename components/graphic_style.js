@@ -81,11 +81,11 @@
 
 				if(data.pattern)
 				{
-					this.doc.selection = null;
-					this.targetBlock.selected = true;
-					createAction("add_new_fill",ADD_NEW_FILL_ACTION_STRING);
-					app.doScript("add_new_fill","add_new_fill");
-					removeAction("add_new_fill");
+					// this.doc.selection = null;
+					// this.targetBlock.selected = true;
+					// createAction("add_new_fill",ADD_NEW_FILL_ACTION_STRING);
+					// app.doScript("add_new_fill","add_new_fill");
+					// removeAction("add_new_fill");
 
 					for(var s=0,len=this.swatches.length;s<len;s++)
 					{
