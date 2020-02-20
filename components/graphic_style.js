@@ -44,6 +44,9 @@
 				this.swatches = this.doc.swatches;
 				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
 
+				//variables to hold the above pattern or below pattern layers
+				var gbp,gap;
+
 				var livePatternLayer = findSpecificLayer(this.doc.layers,"Live Pattern");
 				if(!livePatternLayer)
 				{
@@ -52,25 +55,59 @@
 					filesToClose.push(this.doc);
 					return;
 				}
+				else
+				{
+					//normalize the sublayer names to preclude spelling issues such as "bellow"...
+					//loop the livePatternLayer's layers and fix the names
+					var curLay;
+					var belPat = /^.*_bel.*_.*/i;
+					var aboPat = /^.*_abo.*_.*/i
+					for(var n=0,len=livePatternLayer.layers.length;n<len;n++)
+					{
+						curLay = livePatternLayer.layers[n];
+						curLay.name = curLay.name.replace(belPat,"Gradient_Below_Pattern");
+						curLay.name = curLay.name.replace(aboPat,"Gradient_Above_Pattern");
+						
+						if(belPat.test(curLay.name))
+						{
+							gbp = curLay;
+						}
+						if(aboPat.test(curLay.name))
+						{
+							gap = curLay;
+						}
+					}
+				}
 
 
 				var gradientLayer;
+
+				//both pattern AND gradient
 				if(data.pattern && data.gradient)
 				{
 					if(data.gradient.top)
 					{
-						gradientLayer = livePatternLayer.layers["Gradient_Above_Pattern"];
+						this.targetBlock = gap.pageItems[data.gradient.id];
 					}
 					else
 					{
-						gradientLayer = livePatternLayer.layers["Gradient_Below_Pattern"];	
+						this.targetBlock = gbp.pageItems[data.gradient.id];
 					}
-					this.targetBlock = gradientLayer.pageItems[data.gradient.id];
 				}
+
+				//only a gradient
 				else if(data.gradient)
 				{
 					this.targetBlock = livePatternLayer.layers["No_Pattern"].pageItems[data.gradient.id];
 				}
+				
+				// only a pattern
+				else if(data.pattern)
+				{
+					this.targetBlock = livePatternLayer.pageItems["no_gradient"];
+				}
+
+				//just a solid fill color
 				else
 				{
 					this.targetBlock = livePatternLayer.pathItems.rectangle(103,710,152,152);
@@ -79,23 +116,7 @@
 					this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
 				}
 
-				if(data.pattern)
-				{
-					this.doc.selection = null;
-					this.targetBlock.selected = true;
-					createAction("add_new_fill",ADD_NEW_FILL_ACTION_STRING);
-					app.doScript("add_new_fill","add_new_fill");
-					removeAction("add_new_fill");
 
-					for(var s=0,len=this.swatches.length;s<len;s++)
-					{
-						if(this.swatches[s].name.indexOf("DSPATTERN") === 0)
-						{
-							this.doc.defaultFillColor = this.swatches[s].color;
-						}
-					}
-					
-				}
 
 				this.targetBlock.name = data.id;
 				this.doc.selection = null;
@@ -136,11 +157,6 @@
 		this.recolor = function()
 		{
 			mergeSwatches("C1",this.backgroundColor);
-			// this.backgroundSwatch = makeNewSpotColor(this.backgroundColor);
-			// this.doc.selection = null;
-			// this.doc.defaultFillColor = makeNewSpotColor(data.id).color;
-			// app.executeMenuCommand("Find Fill Color menu item");
-			// this.doc.defaultFillColor = this.backgroundSwatch.color;
 
 			if(data.pattern)
 			{
@@ -152,35 +168,6 @@
 				this.processGradient();
 			}
 		}
-
-		// this.getSourceFile = function()
-		// {
-		// 	var id;
-		// 	if(data.pattern)
-		// 	{
-		// 		id = data.pattern.id;
-		// 	}
-		// 	else
-		// 	{
-		// 		id = "NONE";
-		// 	}
-		// 	var patternStyleNumber = patternStyleConverter(id);
-		// 	var patternFolder = locateGraphicFolder("DSPATTERN-" + patternStyleNumber);
-		// 	var files = patternFolder.getFiles("*" + patternStyleNumber + "*");
-		// 	if(files.length)
-		// 	{
-		// 		log.l("found " + files.length + " files matching the style number: " + patternStyleNumber);
-		// 		log.l(files.join(", "));
-		// 		this.sourceFile = files[0];
-		// 	}
-		// 	else
-		// 	{	
-		// 		log.e("found no pattern files matching the style number: " + patternStyleNumber);
-		// 		errorList.push("Failed to find a pattern fill file for")
-		// 	}
-
-
-		// }
 
 		this.processPattern = function()
 		{
@@ -194,8 +181,6 @@
 		this.processGradient = function()
 		{
 			this.gradientColor = BUILDER_COLOR_CODES[data.gradient.colorCode];
-			// makeNewSpotColor(this.gradientColor);
-			// this.recolorGradients()
 			mergeSwatches("G1",this.gradientColor);
 		}
 

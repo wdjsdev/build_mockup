@@ -44,6 +44,10 @@ function getDesignNumbers()
 		log.e("Failed to get the unique items from tmpDesignNumbers.::e = " + e + "::tmpDesignNumbers = " + tmpDesignNumbers);
 		errorList.push("Failed while parsing the design numbers.");
 	}
+
+	//prompt the user to choose which design numbers
+	//they want to process
+	result = chooseDesignNumbers(result);
 	
 	return result;
 }

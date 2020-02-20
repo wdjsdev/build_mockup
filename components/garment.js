@@ -217,7 +217,8 @@ function Garment(config,data,designNumber)
 
 	this.getSaveFile = function()
 	{
-		return File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + curGarmentIndex + ".ai");
+		var reverse = config.reverse ? "_B" : "";
+		return File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + designNumber + this.suffix + ".ai");
 	}
 
 	this.getGraphics = function()
