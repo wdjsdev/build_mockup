@@ -107,6 +107,11 @@ function Garment(config,data,designNumber)
 		var curPlaceholderName;
 		for(var ph in colors)
 		{
+			if(/_[\d]*_/.test(ph))
+			{
+				//wonky data.. ignore it.
+				continue;
+			}
 			colors[ph].swatchName = BUILDER_COLOR_CODES[colors[ph].colorCode];
 			curPlaceholderName = placeholderPrefix + ph.substring(1,ph.length);
 			colors[ph].id = curPlaceholderName;
@@ -134,6 +139,11 @@ function Garment(config,data,designNumber)
 		var phNumber,phSwatch;
 		for(var ph in colors)
 		{
+			if(/_[\d]*_/.test(ph))
+			{
+				//wonky data.. ignore it.
+				continue;
+			}
 			phNumber = ph.replace(/[a-z]/gi,"");
 			phSwatch = findPHSwatch(phNumber,colors[ph]);
 		}
