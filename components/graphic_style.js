@@ -104,7 +104,33 @@
 				// only a pattern
 				else if(data.pattern)
 				{
-					this.targetBlock = livePatternLayer.pageItems["no_gradient"];
+					try
+					{
+						this.targetBlock = livePatternLayer.pageItems["no_gradient"];
+					}
+					catch(e)
+					{
+						this.targetBlock = livePatternLayer.pathItems.rectangle(103,710,152,152);
+						this.targetBlock.stroked = false;
+						this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
+						this.targetBlock.selected = true;
+						createAction("add_new_fill",ADD_NEW_FILL_ACTION_STRING);
+						app.doScript("add_new_fill","add_new_fill");
+						removeAction("add_new_fill");
+						var patternSwatch;
+						var curSwatch;
+						for(var p = app.activeDocument.swatches.length - 1; p>=0 && !patternSwatch; p--)
+						{
+							curSwatch = app.activeDocument.swatches[p];
+							if(curSwatch.name.indexOf("DSPATTERN-") === 0)
+							{
+								patternSwatch = curSwatch;
+							}
+						}
+						
+						this.targetBlock.fillColor = patternSwatch.color;
+						this.targetBlock.name = "no_gradient";
+					}
 				}
 
 				//just a solid fill color
