@@ -27,7 +27,10 @@ function getDesignNumbers()
 		curLine = orderData.lines[odl];
 		if(curLine.item.toLowerCase().indexOf("fillin")>-1)
 		{
-			fillinDesignNumbers.push(previousDesignNumber);
+			if(previousDesignNumber)
+			{
+				fillinDesignNumbers.push(previousDesignNumber);
+			}
 			previousDesignNumber = undefined;
 			continue;
 		}
@@ -41,8 +44,11 @@ function getDesignNumbers()
 				// tmpDesignNumbers.push(curOption.value);
 			}
 		}
-		tmpDesignNumbers.push(curDesignNumber);
-		previousDesignNumber = curDesignNumber;
+		if(curDesignNumber)
+		{
+			tmpDesignNumbers.push(curDesignNumber);
+			previousDesignNumber = curDesignNumber;
+		}
 	}
 
 	try

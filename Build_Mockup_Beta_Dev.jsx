@@ -38,6 +38,7 @@ function BuildMockup()
 	////////////////////////	
 
 	LIVE_LOGGING = false;
+	// DEV_LOGGING = true;
 
 	////////////////////////
 	////////ATTENTION://////
