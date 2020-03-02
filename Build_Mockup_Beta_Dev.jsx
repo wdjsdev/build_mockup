@@ -55,7 +55,11 @@ function BuildMockup()
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
 	var designNumbers = [];
+
 	var womensCodePat = /w$/i;
+	var youthCodePat = /y$/i;
+	var girlsCodePat = /g$/i;
+
 	var localJobFolder;
 	var curOrderFolder;
 	var currentMockup;

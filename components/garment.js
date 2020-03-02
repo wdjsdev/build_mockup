@@ -84,13 +84,19 @@ function Garment(config,data,designNumber)
 
 		this.adultGarmentCode = data.mid;
 
-		if(womensCodePat.test(data.mid))
+		if(womensCodePat.test(this.adultGarmentCode))
 		{
-			this.youthGarmentCode = data.mid.replace(womensCodePat,"G");
+			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
+		}
+		else if(girlsCodePat.test(this.adultGarmentCode))
+		{
+			this.youthGarmentCode = this.adultGarmentCode;
+			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"");
 		}
 		else
 		{
-			this.youthGarmentCode = data.mid + "Y";
+			this.youthGarmentCode = this.adultGarmentCode;
+			this.adultGarmentCode = this.youthGarmentCode.replace(youthCodePat,"");
 		}
 	}
 
