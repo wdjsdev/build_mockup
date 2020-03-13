@@ -81,7 +81,7 @@ function BuildMockup()
 	//but the artwork file for that number will include the player name
 	//graphic as well. As such the file would be named FDSP-FDSN_1001
 	//so the graphic code needs to be updated to include both prefixes
-	var nameNumberPat = /(FDSN|FDSP)[-_]/i;
+	var nameNumberPat = /(fdsn|fdsp)[-_]/i;
 
 
 	//mid/garment relationship database

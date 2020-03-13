@@ -238,25 +238,54 @@ function Garment(config,data,designNumber)
 	this.getSaveFile = function()
 	{
 		var reverse = config.reverse ? "_B" : "";
-		return File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + designNumber + this.suffix + ".ai");
+		return File(curOrderFolder.fsName + "/" + orderNumber + "_MASTER_" + designNumber + reverse + ".ai");
 	}
 
 	this.getGraphics = function()
 	{
-		var curGraphic,colorCode;
+		var curGraphic,colorCode,skipThisGraphic;
+		var skipGraphics = ["provided","custom","onfile","fullcustom"];
 
 		for(var g in this.graphics)
 		{
 			curGraphic = this.graphics[g];
+			//check first to see if this graphic is something worth grabbing at all..
+			//check for PROVIDED, CUSTOM, or ONFILE
+			
+			for(var sg=0,len=skipGraphics.length;sg<len;sg++)
+			{
+				if(g.toLowerCase().indexOf(skipGraphics[sg])>-1)
+				{
+					log.l("skipping " + g)
+					curGraphic.file = undefined;
+					skipThisGraphic = true;
+					break;
+				}	
+			}
+
+			if(skipThisGraphic)
+			{
+				skipThisGraphic = false;
+				continue;
+			}
+			
+
+
+			//if the graphic is a name or number, update the code
+			curGraphic.name = g.replace(nameNumberPat,"fdsp-fdsn_");
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
 
 			//get the style number for this graphic
 			curGraphic.styleNumber = this.getGraphicStyleNumber(curGraphic.name);
+			if(!curGraphic.styleNumber)
+			{
+				errorList.push("Failed to get the style number for the graphic: " + curGraphic.name);
+				continue;
+			}
 
-			//if the graphic is a name or number, update the code
-			curGraphic.name = curGraphic.name.replace(nameNumberPat,"fdsp-fdsn_");
+			
 
 			curGraphic.folder = locateGraphicFolder(curGraphic.name,curGraphic.lib);
 			if(curGraphic.folder)
@@ -281,7 +310,18 @@ function Garment(config,data,designNumber)
 
 	this.getGraphicStyleNumber = function(name)
 	{
-		return name.substring(name.lastIndexOf("-")+1,name.length);
+		// return name.substring(name.lastIndexOf("-")+1,name.length);
+
+		var pat = /[_-]([\d]{3,})/;
+		var result = name.match(pat);
+		if(result && result.length)
+		{
+			return name.match(pat)[1];
+		}
+		else
+		{
+			return undefined;
+		}
 	}
 
 	this.openFile = function(file)

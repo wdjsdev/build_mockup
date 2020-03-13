@@ -16,7 +16,7 @@
 function loopDesignNumbers()
 {
 	var curBuilderData,curDesignNumber;
-	var config,curGarment;
+	var config;
 
 	for(var dn=0,len=designNumbers.length;dn<len;dn++)
 	{
@@ -46,19 +46,20 @@ function loopDesignNumbers()
 
 	function processConfig(config)
 	{
+		var topGarment,bottomGarment;
 		if(config.top)
 		{
-			curGarment = new Garment(config,config.top,curDesignNumber);
-			curGarment.init();
-			curGarment.suffix = getSuffix(config,"_Top");
-			garmentsNeeded.push(curGarment);
+			topGarment = new Garment(config,config.top,curDesignNumber);
+			topGarment.init();
+			topGarment.suffix = getSuffix(config,"_Top");
+			garmentsNeeded.push(topGarment);
 		}
 		if(config.bottom)
 		{
-			curGarment = new Garment(config,config.bottom,curDesignNumber);
-			curGarment.init();
-			curGarment.suffix = getSuffix(config,"_Bot");
-			garmentsNeeded.push(curGarment);
+			bottomGarment = new Garment(config,config.bottom,curDesignNumber);
+			bottomGarment.init();
+			bottomGarment.suffix = getSuffix(config,"_Bot");
+			garmentsNeeded.push(bottomGarment);
 		}
 	}
 
