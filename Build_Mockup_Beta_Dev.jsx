@@ -4,7 +4,7 @@ function BuildMockup()
 	var valid = true;
 	var scriptName = "build_mockup_beta";
 
-	var devUtilities = true;
+	var devUtilities = false;
 	if($.getenv("USER").indexOf("dowling") === -1)
 	{
 		devUtilities = false;
