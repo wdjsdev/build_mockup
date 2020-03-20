@@ -66,7 +66,7 @@ function loopDesignNumbers()
 	function getSuffix(config,topbot)
 	{
 		var suffix = "";
-		var topAndBot = (config.top && config.bottom) ? "_" + topbot : "";
+		var topAndBot = (config.top && config.bottom) ? topbot : "";
 		var rev = config.reverse ? "_B" : "";
 		suffix = topAndBot + rev;
 		return suffix;
