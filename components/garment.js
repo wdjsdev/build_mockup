@@ -112,6 +112,7 @@ function Garment(config,data,designNumber)
 	this.recolorGarment = function(colors)
 	{
 		var doc = app.activeDocument;
+		hidePPLay();
 		var curGStyle,patternFile;
 		var placeholderPrefix = topOrBottomSwatches();
 		var curPlaceholderName;
