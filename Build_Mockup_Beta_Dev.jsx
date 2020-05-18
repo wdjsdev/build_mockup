@@ -4,29 +4,67 @@ function BuildMockup()
 	var valid = true;
 	var scriptName = "build_mockup_beta";
 
-	var devUtilities = false;
-	if($.getenv("USER").indexOf("dowling") === -1)
+	
+	function getUtilities()
 	{
-		devUtilities = false;
+		var result = [];
+		var networkPath,utilPath,ext,devUtilities;
+
+		//check for dev utilities preference file
+		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
+
+		if(devUtilitiesPreferenceFile.exists)
+		{
+			devUtilitiesPreferenceFile.open("r");
+			var prefContents = devUtilitiesPreferenceFile.read();
+			devUtilitiesPreferenceFile.close();
+
+			devUtilities = prefContents === "true" ? true : false;
+		}
+		else
+		{
+			devUtilities = false;
+		}
+
+		if(devUtilities)
+		{
+			utilPath = "~/Desktop/automation/utilities/";
+			ext = ".js";
+		}
+		else
+		{
+			if($.os.match("Windows"))
+			{
+				networkPath = "//AD4/Customization/";
+			}
+			else
+			{
+				networkPath = "/Volumes/Customization/";
+			}
+
+			utilPath = decodeURI(networkPath + "Library/Scripts/Script Resources/Data/");	
+			ext = ".jsxbin";
+
+		}
+
+		result.push(utilPath + "Utilities_Container" + ext);
+		result.push(utilPath + "Batch_Framework" + ext);
+		return result;
+
 	}
 
-	//Utilities
-	if(!devUtilities)
+	var utilities = getUtilities();
+	if(utilities)
 	{
-		// //Production Utilities
-		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Utilities_Container.jsxbin\"");
-		eval("#include \"/Volumes/Customization/Library/Scripts/Script Resources/Data/Batch_Framework.jsxbin\"");
+		for(var u=0,len=utilities.length;u<len;u++)
+		{
+			eval("#include \"" + utilities[u] + "\"");	
+		}
 	}
 	else
 	{
-		//Dev Utilities
-		eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Utilities_Container.js\"");
-		eval("#include \"/Volumes/Macintosh HD/Users/will.dowling/Desktop/automation/utilities/Batch_Framework.js\"");
-	}
-	
-	if(!valid)
-	{
-		return valid;
+		alert("Failed to find the utilities..");
+		return false;	
 	}
 
 	////////////////////////
