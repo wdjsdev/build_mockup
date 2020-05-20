@@ -8,7 +8,8 @@ function BuildMockup()
 	function getUtilities()
 	{
 		var result = [];
-		var networkPath,utilPath,ext,devUtilities;
+		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
+		var ext = ".jsxbin"
 
 		//check for dev utilities preference file
 		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
@@ -19,32 +20,16 @@ function BuildMockup()
 			var prefContents = devUtilitiesPreferenceFile.read();
 			devUtilitiesPreferenceFile.close();
 
-			devUtilities = prefContents === "true" ? true : false;
-		}
-		else
-		{
-			devUtilities = false;
-		}
-
-		if(devUtilities)
-		{
-			utilPath = "~/Desktop/automation/utilities/";
-			ext = ".js";
-		}
-		else
-		{
-			if($.os.match("Windows"))
+			if(prefContents === "true")
 			{
-				networkPath = "//AD4/Customization/";
+				utilPath = "~/Desktop/automation/utilities/";
+				ext = ".js";
 			}
-			else
-			{
-				networkPath = "/Volumes/Customization/";
-			}
+		}
 
-			utilPath = decodeURI(networkPath + "Library/Scripts/Script Resources/Data/");	
-			ext = ".jsxbin";
-
+		if($.os.match("Windows"))
+		{
+			utilPath = utilPath.replace("/Volumes/","//AD4/");
 		}
 
 		result.push(utilPath + "Utilities_Container" + ext);
@@ -65,6 +50,31 @@ function BuildMockup()
 	{
 		alert("Failed to find the utilities..");
 		return false;	
+	}
+
+
+
+	//get the components
+	var devComponents = desktopPath + "automation/build_mockup/components";
+	var prodComponents = componentsPath + "build_mockup_beta";
+
+	var compFiles = includeComponents(devComponents,prodComponents,false);
+	if(compFiles.length)
+	{
+		var curComponent;
+		for(var cf=0,len=compFiles.length;cf<len;cf++)
+		{
+			curComponent = compFiles[cf].fullName;
+			eval("#include \"" + curComponent + "\"");
+			log.l("included: " + compFiles[cf].name);
+		}
+	}
+	else
+	{
+		errorList.push("Failed to find the necessary components.");
+		log.e("No components were found.");
+		valid = false;
+		return valid;
 	}
 
 	////////////////////////
