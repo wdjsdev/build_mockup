@@ -26,5 +26,7 @@ function initSaveLoc()
 		getSaveLocation();
 	}
 
+	localJobFolder = Folder(saveLoc);
+
 	log.l("saveLoc = " + saveLoc);
 }
