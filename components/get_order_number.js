@@ -37,6 +37,10 @@ function getOrderNumber()
 				var tnInput = UI.edit(tnGroup,"Bandits",20);
 			var btnGroup = UI.group(w);
 				btnGroup.orientation = "row";
+				var saveLocBtn = UI.button(btnGroup,"Update Save Location",function()
+				{
+					getSaveLocation();
+				})
 				var cancel = UI.button(btnGroup,"Cancel",function()
 				{
 					proceed = false;

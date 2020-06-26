@@ -21,10 +21,17 @@ function getFile(folder,style)
 	{
 		file = chooseFile(files);
 	}
-
-	if(!file)
+	else
 	{
-		file = folder.openDlg("Select the file matching the style number: " + style,isAiFileOrFolder);
+		if(os === "windows")
+		{
+			file = folder.openDlg("Select the file matching the style number: " + style);
+		}
+		else
+		{
+			file = folder.openDlg("Select the file matching the style number: " + style,isAiFileOrFolder);	
+		}
+		
 	}
 
 	log.l("file = " + file);

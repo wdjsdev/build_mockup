@@ -54,6 +54,7 @@ function BuildMockup()
 
 
 
+
 	//get the components
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup_beta";
@@ -108,6 +109,7 @@ function BuildMockup()
 	var youthCodePat = /y$/i;
 	var girlsCodePat = /g$/i;
 
+	var saveLoc;
 	var localJobFolder;
 	var curOrderFolder;
 	var currentMockup;
@@ -170,24 +172,7 @@ function BuildMockup()
 	logDest.push(getLogDest())
 	// initLog();
 
-	var devComponents = desktopPath + "automation/build_mockup/components";
-	var prodComponents = componentsPath + "build_mockup_beta";
-
-	var compFiles = includeComponents(devComponents,prodComponents,false);
-	if(compFiles)
-	{
-		for(var cf=0,len=compFiles.length;cf<len;cf++)
-		{
-			eval("#include \"" + compFiles[cf] + "\"");
-		}
-	}
-	else
-	{
-		errorList.push("Failed to find the necessary components.");
-		log.e("Failed to find the components.");
-		valid = false;
-		return valid;
-	}
+	
 	
 
 	////////////////////////
@@ -203,6 +188,15 @@ function BuildMockup()
 	//
 	//
 
+	//initialize the save location preference file
+	var prefPath = documentsPath + "build_mockup_prefs/"
+	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
+	var saveLocPrefFolder = Folder(prefPath);
+	if(!saveLocPrefFolder.exists)
+	{
+		saveLocPrefFolder.create();
+		log.l("Created a saveLocPrefFolder");
+	}
 
 	//
 	//Gather the order data
