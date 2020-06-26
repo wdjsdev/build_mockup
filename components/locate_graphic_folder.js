@@ -18,12 +18,13 @@
 
 function locateGraphicFolder(graphicCode)
 {
+	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
+
+
 	var graphicFolder,parentFolder,gfFiles,exit = false;
-	var maxDepth = 2;
+	var maxDepth = 1;
 	var curDepth = 0;
-	var nameNumberPat = /(FDSN|FDSP)[-_]/i;
-	graphicCode = graphicCode.replace(nameNumberPat,"FDSP-FDSN_");
 
 	//include the database
 	try
@@ -65,6 +66,7 @@ function locateGraphicFolder(graphicCode)
 		{
 			graphicLocations[graphicCode] = graphicFolder.fsName;
 			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
+			log.l("Added {" + graphicCode + "," + graphicFolder.fsName + " to graphicLocations database.");
 		}
 
 	}

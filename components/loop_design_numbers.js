@@ -16,17 +16,21 @@
 function loopDesignNumbers()
 {
 	var curBuilderData,curDesignNumber;
-	var config,curGarment;
+	var config;
 
 	for(var dn=0,len=designNumbers.length;dn<len;dn++)
 	{
 		curDesignNumber = designNumbers[dn];
+		if(curDesignNumber === "")
+		{
+			continue;
+		}
 		curBuilderData = undefined;
 		curBuilderData = getBuilderData(curDesignNumber);
 		if(!curBuilderData)
 		{
-			errorList.push("Failed to find the builder data for design number: " + curDesignNumber);
-			errorList.push("This design number has been skipped.");
+			errorList.push("Netsuite did not respond with any data. Please try again in a minute.");
+			errorList.push(curDesignNumber + " has been skipped.");
 			continue;
 		}
 
@@ -35,29 +39,37 @@ function loopDesignNumbers()
 
 		if(curBuilderData.configReverse)
 		{
+			curBuilderData.configReverse.reverse = true;
 			processConfig(curBuilderData.configReverse);
 		}
-
-		//temporary exit
-		break;
 	}
 
 	function processConfig(config)
 	{
+		var topGarment,bottomGarment;
 		if(config.top)
 		{
-			// newGarment(config,config.top,curDesignNumber);
-			curGarment = new Garment(config,config.top,curDesignNumber);
-			curGarment.init();
-			garmentsNeeded.push(curGarment);
+			topGarment = new Garment(config,config.top,curDesignNumber);
+			topGarment.init();
+			topGarment.suffix = getSuffix(config,"_Top");
+			garmentsNeeded.push(topGarment);
 		}
 		if(config.bottom)
 		{
-			// newGarment(config,config.bottom,curDesignNumber);
-			curGarment = new Garment(config,config.bottom,curDesignNumber);
-			curGarment.init();
-			garmentsNeeded.push(curGarment);
+			bottomGarment = new Garment(config,config.bottom,curDesignNumber);
+			bottomGarment.init();
+			bottomGarment.suffix = getSuffix(config,"_Bot");
+			garmentsNeeded.push(bottomGarment);
 		}
+	}
+
+	function getSuffix(config,topbot)
+	{
+		var suffix = "";
+		var topAndBot = (config.top && config.bottom) ? topbot : "";
+		var rev = config.reverse ? "_B" : "";
+		suffix = topAndBot + rev;
+		return suffix;
 	}
 	
 

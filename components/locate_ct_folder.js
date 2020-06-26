@@ -19,7 +19,7 @@
 function locateCTFolder(mid)
 {
 	log.h("Beginning execution of locateCTFolder(" + mid + ")");
-	var garmentFolder,gfFiles,ctFolder,exit = false;
+	var garmentFolder,mockupFolder,gfFiles,ctFolder,exit = false;
 	var maxDepth = 2;
 	var curDepth = 0;
 
@@ -60,6 +60,7 @@ function locateCTFolder(mid)
 			//write the new ct/mockup folder to the database
 			ctLocations[mid] = ctFolder.fsName;
 			writeDatabase(CTFL,"var ctLocations = " + JSON.stringify(ctLocations));
+			log.l("added {" + mid + ", " + ctFolder.fsName + "} to ctLocations database.");
 		}
 
 	}
@@ -72,7 +73,19 @@ function locateCTFolder(mid)
 	function digForFolders(loc)
 	{	
 		log.l("Digging for " + mid + " in " + loc.fsName);
-		var files = loc.getFiles();
+		if(curDepth == 0)
+		{
+			var files = loc.getFiles();
+		}
+		else if(curDepth === 1)
+		{
+			var files = loc.getFiles("*" + mid + "*");
+		}
+		else
+		{
+			curDepth--;
+			return;
+		}
 		for(var f=0,len=files.length;f<len && !ctFolder && !exit && curDepth < maxDepth;f++)
 		{
 			if(files[f] instanceof Folder)
@@ -83,12 +96,25 @@ function locateCTFolder(mid)
 					gfFiles = garmentFolder.getFiles();
 					for(var y=0,gfLen=gfFiles.length;y<gfLen;y++)
 					{
-						if(gfFiles[y] instanceof Folder && gfFiles[y].name.indexOf("onvert")>-1)
+						if(gfFiles[y] instanceof Folder)
 						{
-							ctFolder = gfFiles[y];
-							log.l("Found the CT folder here:");
-							log.l(ctFolder.fsName);
+							if(gfFiles[y].name.toLowerCase().indexOf("onvert")>-1)
+							{
+								ctFolder = gfFiles[y];
+								log.l("Found the CT folder here:");
+								log.l(ctFolder.fsName);
+							}
+							else if(gfFiles[y].name.toLowerCase().indexOf("ockup")>-1)
+							{
+								mockupFolder = gfFiles[y];
+							}
 						}
+					}
+					if(mockupFolder && !ctFolder)
+					{
+						ctFolder = mockupFolder;
+						log.l("No ct folder. using the mockup folder instead.");
+						log.l("mockupFolder.fsName = " + mockupFolder.fsName);
 					}
 					if(!ctFolder)
 					{

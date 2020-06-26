@@ -30,18 +30,21 @@ function getOrderNumber()
 				onGroup.orientation = "row";
 				var onMsg = UI.static(onGroup,"Order Number: ");
 				var onInput = UI.edit(onGroup,"1234567",10);
-					onInput.addEventListener("keydown",undefined,function()
-					{
-
-					})
+					onInput.active = true;
 			var tnGroup = UI.group(w);
 				tnGroup.orientation = "row";
 				var tnMsg = UI.static(tnGroup,"Team Name: ");
 				var tnInput = UI.edit(tnGroup,"Bandits",20);
 			var btnGroup = UI.group(w);
 				btnGroup.orientation = "row";
+				var saveLocBtn = UI.button(btnGroup,"Update Save Location",function()
+				{
+					getSaveLocation();
+				})
 				var cancel = UI.button(btnGroup,"Cancel",function()
 				{
+					proceed = false;
+					valid = false;
 					w.close();
 				})
 				var submit = UI.button(btnGroup,"Submit",submitFunction);
