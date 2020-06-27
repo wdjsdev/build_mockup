@@ -2,7 +2,7 @@
 function BuildMockup()
 {
 	var valid = true;
-	var scriptName = "build_mockup_beta";
+	var scriptName = "build_mockup";
 
 	
 	function getUtilities()
@@ -57,7 +57,7 @@ function BuildMockup()
 
 	//get the components
 	var devComponents = desktopPath + "automation/build_mockup/components";
-	var prodComponents = componentsPath + "build_mockup_beta";
+	var prodComponents = componentsPath + "build_mockup";
 
 	var compFiles = includeComponents(devComponents,prodComponents,false);
 	if(compFiles.length)
