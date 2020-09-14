@@ -20,31 +20,43 @@ function getDesignNumbers()
 	var result;
 	var tmpDesignNumbers = [];
 	var fillinDesignNumbers = []; //list of design numbers that were identified as fillins
-	var curLine,lineOptions,curOption,previousDesignNumber,curDesignNumber;
+	var curLine, lineOptions, curOption, previousDesignNumber, curDesignNumber, curItem;
 
-	for(var odl=0,len=orderData.lines.length;odl<len;odl++)
+	for (var odl = 0, len = orderData.lines.length; odl < len; odl++)
 	{
 		curLine = orderData.lines[odl];
-		if(curLine.item.toLowerCase().indexOf("fillin")>-1)
+		curItem = curLine.item.toLowerCase();
+
+
+
+		//check for things that would indicate the end of a particular garment
+		//like a "DF" code of any kind or a "FILLIN" indicator
+		//if the line indicates fillin, note the design number so it can be
+		//stripped out of the curated design numbers array.
+
+		if (curItem.indexOf("fillin") > -1 || curItem.indexOf("df") > -1)
 		{
-			if(previousDesignNumber)
+			if (previousDesignNumber && curItem.indexOf("fillin") > -1)
 			{
 				fillinDesignNumbers.push(previousDesignNumber);
 			}
 			previousDesignNumber = undefined;
+			curDesignNumber = undefined;
 			continue;
 		}
 		lineOptions = curLine.options;
-		for(var lo=0,optLen=lineOptions.length;lo<optLen;lo++)
+		for (var lo = 0, optLen = lineOptions.length; lo < optLen; lo++)
 		{
 			curOption = lineOptions[lo];
-			if(curOption.name && curOption.name === "Design" && curOption.value && curOption.value !== "")
+			if (curOption.name && curOption.name === "Design" && curOption.value && curOption.value !== "")
 			{
 				curDesignNumber = curOption.value;
 				// tmpDesignNumbers.push(curOption.value);
 			}
 		}
-		if(curDesignNumber)
+
+
+		if (curDesignNumber)
 		{
 			tmpDesignNumbers.push(curDesignNumber);
 			previousDesignNumber = curDesignNumber;
@@ -55,25 +67,25 @@ function getDesignNumbers()
 	{
 		result = getUnique(tmpDesignNumbers);
 	}
-	catch(e)
+	catch (e)
 	{
 		log.e("Failed to get the unique items from tmpDesignNumbers.::e = " + e + "::tmpDesignNumbers = " + tmpDesignNumbers);
 		errorList.push("Failed while parsing the design numbers.");
 	}
 
 	//trim any fillin design numbers
-	for(var f = result.length - 1; f>=0; f--)
+	for (var f = result.length - 1; f >= 0; f--)
 	{
-		if(fillinDesignNumbers.indexOf(result[f])>-1)
+		if (fillinDesignNumbers.indexOf(result[f]) > -1)
 		{
-			result.splice(f,1);
+			result.splice(f, 1);
 		}
 	}
-	
+
 
 	//prompt the user to choose which design numbers
 	//they want to process
 	result = chooseDesignNumbers(result);
-	
+
 	return result;
 }
