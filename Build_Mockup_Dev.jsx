@@ -2,7 +2,7 @@
 function BuildMockup()
 {
 	var valid = true;
-	var scriptName = "build_mockup_beta";
+	var scriptName = "build_mockup";
 
 	
 	function getUtilities()
