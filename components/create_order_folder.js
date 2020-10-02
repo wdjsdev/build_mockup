@@ -23,7 +23,7 @@ function createOrderFolder()
 	}
 
 	var folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";
-	curOrderFolder = Folder(localJobFolder.fullName + "/" + folderString);
+	curOrderFolder = Folder(saveLoc + "/" + folderString);
 	if(!curOrderFolder.exists)
 	{
 		curOrderFolder.create();
