@@ -86,7 +86,10 @@ function getDesignNumbers()
 
 	//prompt the user to choose which design numbers
 	//they want to process
-	result = chooseDesignNumbers(result);
+	if(result.length > 1)
+	{
+		result = chooseDesignNumbers(result);
+	}
 
 	scriptTimer.endTask("getDesignNumbers");
 	return result;
