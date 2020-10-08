@@ -22,6 +22,7 @@ function locateGraphicFolder(graphicCode)
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
 
 
+	scriptTimer.beginTask("locateGraphicFolder_" + graphicCode);
 	var graphicFolder,parentFolder,gfFiles,exit = false;
 	var maxDepth = 1;
 	var curDepth = 0;
@@ -71,7 +72,7 @@ function locateGraphicFolder(graphicCode)
 
 	}
 
-
+	scriptTimer.endTask("locateGraphicFolder_" + graphicCode);
 	return graphicFolder;
 
 	function digForGraphic(loc)
