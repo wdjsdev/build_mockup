@@ -13,6 +13,7 @@
 
 function getOrderData()
 {
+	scriptTimer.beginTask("getOrderData");
 	orderData = curlData(NOD,orderNumber);
 	if(!orderData)
 	{
@@ -26,4 +27,5 @@ function getOrderData()
 		errorList.push("The sales order data from netsuite was not in the correct format.")
 		valid = false;
 	}
+	scriptTimer.endTask("getOrderData");
 }

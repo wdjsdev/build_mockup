@@ -54,6 +54,31 @@ function BuildMockup()
 
 
 
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+	LIVE_LOGGING = false;
+	DEV_LOGGING = false;
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+
+
+	scriptTimer.beginTask("BuildMockup");
+
+
+	scriptTimer.beginTask("getComponents");
 
 	//get the components
 	var devComponents = desktopPath + "automation/build_mockup/components";
@@ -78,24 +103,9 @@ function BuildMockup()
 		return valid;
 	}
 
-	////////////////////////
-	////////ATTENTION://////
-	//
-	//		temporary live logging
-	//		turn off before distribution
-	//
-	////////////////////////	
+	scriptTimer.endTask("getComponents");
 
-	LIVE_LOGGING = false;
-	// DEV_LOGGING = true;
-
-	////////////////////////
-	////////ATTENTION://////
-	//
-	//		temporary live logging
-	//		turn off before distribution
-	//
-	////////////////////////	
+	
 
 	//Global Variables
 	var orderNumber;
@@ -216,6 +226,10 @@ function BuildMockup()
 		designNumbers = getDesignNumbers();
 	}
 
+	// orderNumber = "1234567";
+	// designNumbers.push("gt8l41GIfxLA");
+
+
 	if(valid)
 	{
 		initSaveLoc();
@@ -253,11 +267,15 @@ function BuildMockup()
 	}
 	
 	// endLog();
+	scriptTimer.beginTask("printLog");
 	printLog();
+	scriptTimer.endTask("printLog");
 	if(errorList.length)
 	{
 		sendErrors(errorList);
 	}
+
+	scriptTimer.endTask("BuildMockup");
 	
 }
 

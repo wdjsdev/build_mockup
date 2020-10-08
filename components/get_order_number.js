@@ -13,6 +13,8 @@
 
 function getOrderNumber()
 {
+	scriptTimer.beginTask("getOrderNumber");
+	
 	var proceed = true;
 
 	while(proceed)
@@ -20,6 +22,8 @@ function getOrderNumber()
 		result = promptWindow();
 	}
 
+	scriptTimer.endTask("getOrderNumber");
+	return;
 
 	function promptWindow()
 	{

@@ -7,6 +7,7 @@ function Garment(config,data,designNumber)
 	this.garmentFolder;
 	this.garmentFile;
 	this.styleNumber = "";
+	this.fileSuffix; //this is like a _A or _B for reversible garments
 	this.garmentColors = data.colors;
 	this.graphics = config.graphics;
 	this.saveFile;
@@ -217,6 +218,7 @@ function Garment(config,data,designNumber)
 
 	this.getGarments = function()
 	{
+		scriptTimer.beginTask("getGarments");
 		this.adultGarmentFolder = locateCTFolder(this.adultGarmentCode);
 		
 		//if this garment is a bag, there's no youth sizing.. skip this part.
@@ -227,13 +229,14 @@ function Garment(config,data,designNumber)
 		if(this.adultGarmentFolder)
 		{
 			// this.garmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
-			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber);
+			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
 		if(this.youthGarmentFolder)
 		{
 			// this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
-			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber);
+			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
+		scriptTimer.endTask("getGarments");
 	}
 
 	this.getSaveFile = function()
@@ -243,6 +246,7 @@ function Garment(config,data,designNumber)
 
 	this.getGraphics = function()
 	{
+		scriptTimer.beginTask("getGraphics");
 		var curGraphic,colorCode,skipThisGraphic;
 		var skipGraphics = ["provided","custom","onfile","fullcustom"];
 
@@ -291,7 +295,7 @@ function Garment(config,data,designNumber)
 			if(curGraphic.folder)
 			{
 				// curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
-				curGraphic.file = getFile(curGraphic.folder,curGraphic.styleNumber);
+				curGraphic.file = getFile(curGraphic.folder,curGraphic.styleNumber,curGraphic.name);
 			}
 			else
 			{
@@ -304,6 +308,8 @@ function Garment(config,data,designNumber)
 				curGraphic.colors[c].swatchName = BUILDER_COLOR_CODES[colorCode];
 			}
 		}
+
+		scriptTimer.endTask("getGraphics");
 	}
 
 	

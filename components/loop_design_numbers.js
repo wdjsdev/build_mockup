@@ -16,10 +16,12 @@
 function loopDesignNumbers()
 {
 	var curBuilderData,curDesignNumber;
+	var rev;
 	var config;
 
 	for(var dn=0,len=designNumbers.length;dn<len;dn++)
 	{
+		rev = false;
 		curDesignNumber = designNumbers[dn];
 		if(curDesignNumber === "")
 		{
@@ -34,29 +36,36 @@ function loopDesignNumbers()
 			continue;
 		}
 
+		if(curBuilderData.config && curBuilderData.configReverse)
+		{
+			rev = true;
+		}
+
 		config = curBuilderData.config;
-		processConfig(config);
+		processConfig(config,"_A");
 
 		if(curBuilderData.configReverse)
 		{
 			curBuilderData.configReverse.reverse = true;
-			processConfig(curBuilderData.configReverse);
+			processConfig(curBuilderData.configReverse,"_B");
 		}
 	}
 
-	function processConfig(config)
+	function processConfig(config,fileSuffix)
 	{
 		var topGarment,bottomGarment;
 		if(config.top)
 		{
-			topGarment = new Garment(config,config.top,curDesignNumber);
+			topGarment = new Garment(config,config.top,curDesignNumber,fileSuffix);
+			topGarment.fileSuffix = rev ? fileSuffix : "";
 			topGarment.init();
 			topGarment.suffix = getSuffix(config,"_Top");
 			garmentsNeeded.push(topGarment);
 		}
 		if(config.bottom)
 		{
-			bottomGarment = new Garment(config,config.bottom,curDesignNumber);
+			bottomGarment = new Garment(config,config.bottom,curDesignNumber,fileSuffix);
+			bottomGarment.fileSuffix = rev ? fileSuffix : "";
 			bottomGarment.init();
 			bottomGarment.suffix = getSuffix(config,"_Bot");
 			garmentsNeeded.push(bottomGarment);
