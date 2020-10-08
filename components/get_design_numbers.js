@@ -16,6 +16,7 @@
 
 function getDesignNumbers()
 {
+	scriptTimer.beginTask("getDesignNumbers");
 	log.h("Beginning execution of getDesignNumbers function.");
 	var result;
 	var tmpDesignNumbers = [];
@@ -87,5 +88,6 @@ function getDesignNumbers()
 	//they want to process
 	result = chooseDesignNumbers(result);
 
+	scriptTimer.endTask("getDesignNumbers");
 	return result;
 }

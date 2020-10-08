@@ -54,6 +54,30 @@ function BuildMockup()
 
 
 
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+	LIVE_LOGGING = false;
+	DEV_LOGGING = true;
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		temporary live logging
+	//		turn off before distribution
+	//
+	////////////////////////	
+
+
+
+
+
+	scriptTimer.beginTask("getComponents");
 
 	//get the components
 	var devComponents = desktopPath + "automation/build_mockup/components";
@@ -78,24 +102,9 @@ function BuildMockup()
 		return valid;
 	}
 
-	////////////////////////
-	////////ATTENTION://////
-	//
-	//		temporary live logging
-	//		turn off before distribution
-	//
-	////////////////////////	
+	scriptTimer.endTask("getComponents");
 
-	LIVE_LOGGING = false;
-	// DEV_LOGGING = true;
-
-	////////////////////////
-	////////ATTENTION://////
-	//
-	//		temporary live logging
-	//		turn off before distribution
-	//
-	////////////////////////	
+	
 
 	//Global Variables
 	var orderNumber;

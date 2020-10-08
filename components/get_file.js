@@ -1,17 +1,35 @@
-function getFile(folder,style)
+function getFile(folder,style,name)
 {
 	var file;
 	log.l("Beginning of getFile function:");
 	log.l("folder = " + folder);
 	log.l("style = " + style + "::::");
 	var searchStr = "*-" + style + "*";
-	var files = folder.getFiles(function(file)
-		{
-			var result;
-			var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
-			return pat.test(file.name);
-		});
+	var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
+	// var files = folder.getFiles(function(file)
+	// 	{
+	// 		var result;
+	// 		var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
+	// 		return pat.test(file.name);
+	// 	});
+	scriptTimer.beginTask(folder + " getFiles");
+	var files = folder.getFiles();
+	scriptTimer.endTask(folder + " getFiles");
 	
+
+	scriptTimer.beginTask("lookingForStyleNumber");
+	if(files.length)
+	{
+		for(var f=files.length-1;f>=0;f--)
+		{
+			if(!pat.test(files[f].name))
+			{
+				files.splice(f,1);
+			}
+		}
+	}
+
+	scriptTimer.endTask("lookingForStyleNumber");
 
 	if(files.length === 1)
 	{
@@ -25,11 +43,11 @@ function getFile(folder,style)
 	{
 		if(os === "windows")
 		{
-			file = folder.openDlg("Select the file matching the style number: " + style);
+			file = folder.openDlg("Select the file matching the style number: " + name);
 		}
 		else
 		{
-			file = folder.openDlg("Select the file matching the style number: " + style,isAiFileOrFolder);	
+			file = folder.openDlg("Select the file matching the style number: " + name);	
 		}
 		
 	}
