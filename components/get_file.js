@@ -1,35 +1,70 @@
 function getFile(folder,style,name)
 {
-	var file;
+	var file,files = [];
 	log.l("Beginning of getFile function:");
 	log.l("folder = " + folder);
 	log.l("style = " + style + "::::");
 	var searchStr = "*-" + style + "*";
 	var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
-	// var files = folder.getFiles(function(file)
-	// 	{
-	// 		var result;
-	// 		var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
-	// 		return pat.test(file.name);
-	// 	});
-	scriptTimer.beginTask(folder + " getFiles");
-	var files = folder.getFiles();
-	scriptTimer.endTask(folder + " getFiles");
-	
 
-	scriptTimer.beginTask("lookingForStyleNumber");
-	if(files.length)
+
+	////////////////////////
+	////////ATTENTION://////
+	//
+	//		disabling this section
+	//		trying to find a solution that doesn't
+	//		use getFiles() because that takes 
+	//		way too long over vpn
+	//
+	////////////////////////
+
+		// scriptTimer.beginTask(folder + " getFiles");
+		// var files = folder.getFiles();
+		// scriptTimer.endTask(folder + " getFiles");
+		
+		// if(files.length)
+		// {
+		// 	for(var f=files.length-1;f>=0;f--)
+		// 	{
+		// 		if(!pat.test(files[f].name))
+		// 		{
+		// 			files.splice(f,1);
+		// 		}
+		// 	}
+		// }
+
+	//try to just get the file explicitly
+	file = new File(folder.fullName + "/" + name + ".ait");
+
+	//if no files matched the concatenated name,
+	//get all the files in the folder and check against
+	//the style numbers. put a big message here so you know 
+	//to fix it later.
+	if(!file.exists)
 	{
-		for(var f=files.length-1;f>=0;f--)
+		log.l("ATTN::::Why wasn't this file found?!? Figure it out!::" +  file.fullName);
+		scriptTimer.beginTask(folder + ".getFiles()");
+		files = folder.getFiles();
+		
+		
+		if(files.length)
 		{
-			if(!pat.test(files[f].name))
+			for(var f=files.length-1;f>=0;f--)
 			{
-				files.splice(f,1);
+				if(!pat.test(files[f].name))
+				{
+					files.splice(f,1);
+				}
 			}
 		}
+		scriptTimer.endTask(folder + ".getFiles()");
+	}
+	else
+	{
+		files = [file];
 	}
 
-	scriptTimer.endTask("lookingForStyleNumber");
+
 
 	if(files.length === 1)
 	{
@@ -41,15 +76,7 @@ function getFile(folder,style,name)
 	}
 	else
 	{
-		if(os === "windows")
-		{
-			file = folder.openDlg("Select the file matching the style number: " + name);
-		}
-		else
-		{
-			file = folder.openDlg("Select the file matching the style number: " + name);	
-		}
-		
+		file = folder.openDlg("Select the file matching the style number: " + name + "_" + style);
 	}
 
 	log.l("file = " + file);

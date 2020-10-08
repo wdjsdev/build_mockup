@@ -228,12 +228,12 @@ function Garment(config,data,designNumber)
 		if(this.adultGarmentFolder)
 		{
 			// this.garmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
-			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode);
+			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber);
 		}
 		if(this.youthGarmentFolder)
 		{
 			// this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
-			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode);
+			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode + "_" + this.styleNumber);
 		}
 		scriptTimer.endTask("getGarments");
 	}

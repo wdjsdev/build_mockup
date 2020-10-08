@@ -63,7 +63,7 @@ function BuildMockup()
 	////////////////////////	
 
 	LIVE_LOGGING = false;
-	DEV_LOGGING = true;
+	DEV_LOGGING = false;
 
 	////////////////////////
 	////////ATTENTION://////
@@ -75,6 +75,7 @@ function BuildMockup()
 
 
 
+	scriptTimer.beginTask("BuildMockup");
 
 
 	scriptTimer.beginTask("getComponents");
@@ -225,6 +226,7 @@ function BuildMockup()
 		designNumbers = getDesignNumbers();
 	}
 
+
 	if(valid)
 	{
 		initSaveLoc();
@@ -262,11 +264,15 @@ function BuildMockup()
 	}
 	
 	// endLog();
+	scriptTimer.beginTask("printLog");
 	printLog();
+	scriptTimer.endTask("printLog");
 	if(errorList.length)
 	{
 		sendErrors(errorList);
 	}
+
+	scriptTimer.endTask("BuildMockup");
 	
 }
 
