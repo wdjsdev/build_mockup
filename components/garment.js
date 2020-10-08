@@ -7,6 +7,7 @@ function Garment(config,data,designNumber)
 	this.garmentFolder;
 	this.garmentFile;
 	this.styleNumber = "";
+	this.fileSuffix; //this is like a _A or _B for reversible garments
 	this.garmentColors = data.colors;
 	this.graphics = config.graphics;
 	this.saveFile;
@@ -228,12 +229,12 @@ function Garment(config,data,designNumber)
 		if(this.adultGarmentFolder)
 		{
 			// this.garmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
-			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber);
+			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
 		if(this.youthGarmentFolder)
 		{
 			// this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
-			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode + "_" + this.styleNumber);
+			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
 		scriptTimer.endTask("getGarments");
 	}

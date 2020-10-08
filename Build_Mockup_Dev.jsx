@@ -226,6 +226,9 @@ function BuildMockup()
 		designNumbers = getDesignNumbers();
 	}
 
+	// orderNumber = "1234567";
+	// designNumbers.push("gt8l41GIfxLA");
+
 
 	if(valid)
 	{

@@ -72,7 +72,8 @@ function getFile(folder,style,name)
 	} 
 	else if(files.length > 1)
 	{
-		file = chooseFile(files);
+		// file = chooseFile(files);
+		file = files[0];
 	}
 	else
 	{
@@ -85,7 +86,7 @@ function getFile(folder,style,name)
 
 	//give the user a button for each file matching
 	//the given style number. return the text of that button
-	function chooseFile(files)
+	function chooseFile(name, files)
 	{
 		var result;
 		log.l("multiple files found matching the style number: " + style + ". Prompting user.");
