@@ -14,6 +14,10 @@
 
 function createOrderFolder()
 {
+
+	var folderString = "";
+
+
 	var userInitials = user.charAt(0) + user.charAt(user.indexOf(".")+1);
 	userInitials = userInitials.toUpperCase();
 
@@ -21,13 +25,18 @@ function createOrderFolder()
 	{
 		teamName = "Team Name";
 	}
-	if(orderNumber = "NoOrderNumber")
-	{
-		orderNumber = designNumbers[0];
-	}
 
-	var folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";
-	curOrderFolder = Folder(saveLoc + "/" + folderString);
+	if(designNumberOnly)
+	{
+		folderString = designNumbers[0] + "_No_Order_Number";
+	}
+	else
+	{
+		folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";	
+	}
+	
+	curOrderFolderPath = saveLoc + "/" + folderString;
+	curOrderFolder = Folder(curOrderFolderPath);
 	if(!curOrderFolder.exists)
 	{
 		curOrderFolder.create();

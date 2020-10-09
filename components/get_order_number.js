@@ -92,8 +92,8 @@ function getOrderNumber()
 			{
 				validDesignNumber = true;
 				designNumbers.push(dnInput.text);
-				teamName = "NONE";
-				orderNumber = "NoOrderNumber";
+				teamName = "TEAMNAME";
+				orderNumber = "ORDERNUMBER";
 				designNumberOnly = true;
 				w.close();
 			}

@@ -278,11 +278,6 @@ function Garment(config,data,designNumber)
 			//if the graphic is a name or number, update the code
 			curGraphic.name = g.replace(nameNumberPat,"fdsp-fdsn_");
 
-			// //check for a BG appendage indicating a background graphic
-			// if(!/bg$/i.test(curGraphic.name))
-			// {
-
-			// }
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
 			

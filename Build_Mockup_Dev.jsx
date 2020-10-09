@@ -122,6 +122,7 @@ function BuildMockup()
 
 	var saveLoc;
 	var localJobFolder;
+	var localJobFolderPath;
 	var curOrderFolder;
 	var currentMockup;
 	var filesToClose = [];
@@ -133,7 +134,7 @@ function BuildMockup()
 	//grouping certain graphics together for use on specific garments..
 	//but for our purposes.. we don't want to do that in art. identical
 	//graphics should have identical codes.
-	var vestigialAppendagePat = /bg|cb|pnt|g|ll|ls|rl|rs|b$/i;
+	var vestigialAppendagePat = /cb|pnt|([^b]g)|ll|ls|rl|rs|b$/i;
 
 	//regex for name and number graphics
 	//the graphic code will come through with one or the other
