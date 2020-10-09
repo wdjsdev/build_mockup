@@ -15,12 +15,7 @@ function getOrderNumber()
 {
 	scriptTimer.beginTask("getOrderNumber");
 	
-	var proceed = true;
-
-	while(proceed)
-	{
-		result = promptWindow();
-	}
+	result = promptWindow();
 
 	scriptTimer.endTask("getOrderNumber");
 	return;
@@ -30,11 +25,20 @@ function getOrderNumber()
 		var inputResult = {orderNumber:"",teamName:""};
 		var w = new Window("dialog","Enter the Order Number and Team Name");
 			var msg = UI.static(w,"Enter Order Info:");
-			var onGroup = UI.group(w);
-				onGroup.orientation = "row";
-				var onMsg = UI.static(onGroup,"Order Number: ");
-				var onInput = UI.edit(onGroup,"1234567",10);
-					onInput.active = true;
+			var inputGroup = UI.group(w);
+				var onGroup = UI.group(inputGroup);
+					onGroup.orientation = "row";
+					var onMsg = UI.static(onGroup,"Order Number: ");
+					var onInput = UI.edit(onGroup,"1234567",10);
+						onInput.active = true;
+					var submit = UI.button(onGroup ,"Build This Order",submitOrderNumberFunction);
+
+				var dnGroup = UI.group(w);
+					dnGroup.orientation = "row";
+					var dnMsg = UI.static(dnGroup,"Design Number: ");
+					var dnInput = UI.edit(dnGroup,"tvXGyTwqKmGn",13);
+					var dnBtn = UI.button(dnGroup,"Create This Design",submitDesignNumberFunction);
+
 			var tnGroup = UI.group(w);
 				tnGroup.orientation = "row";
 				var tnMsg = UI.static(tnGroup,"Team Name: ");
@@ -51,20 +55,47 @@ function getOrderNumber()
 					valid = false;
 					w.close();
 				})
-				var submit = UI.button(btnGroup,"Submit",submitFunction);
+				
 
 
-		w.addEventListener("keydown",function(k)
+		onInput.addEventListener("keydown",function(k)
 		{
 			if(k.keyName == "Enter")
 			{
-				submitFunction();
+				submitOrderNumberFunction();
+			}
+		});
+		dnInput.addEventListener("keydown",function(k)
+		{
+			if(k.keyName == "Enter")
+			{
+				submitDesignNumberFunction();
 			}
 		});
 
 		w.show();
 
-		function submitFunction()
+		function submitDesignNumberFunction()
+		{
+			var dnPat = /[\da-z]{12}/i;
+			var validDesignNumber = false;
+
+			if(dnPat.test(dnInput.text))
+			{
+				validDesignNumber = true;
+				designNumbers.push(dnInput.text);
+				teamName = "NONE";
+				orderNumber = "NoOrderNumber";
+				designNumberOnly = true;
+				w.close();
+			}
+			else
+			{
+				alert("Invalid design number.");
+			}
+		}
+
+		function submitOrderNumberFunction()
 		{
 			var onPat = /[\d]{7}/i;
 			var validOrderNumber = false;
@@ -74,7 +105,6 @@ function getOrderNumber()
 				validOrderNumber = true;
 				orderNumber = onInput.text;
 				teamName = tnInput.text
-				proceed = false;
 				w.close();
 			}
 			else if(!onPat.test(onInput.text))

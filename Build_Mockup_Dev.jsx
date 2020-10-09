@@ -114,6 +114,7 @@ function BuildMockup()
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
 	var designNumbers = [];
+	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
 
 	var womensCodePat = /w$/i;
 	var youthCodePat = /y$/i;
@@ -216,12 +217,17 @@ function BuildMockup()
 		getOrderNumber();
 	}
 
-	if(valid)
+
+
+	//if designNumbers.length > 0 then the user opted not to
+	//build an entire order, but rather a single design number
+	//as such, we don't need to get the order data
+	if(valid && !designNumberOnly)
 	{
 		getOrderData();
 	}
 
-	if(valid)
+	if(valid && !designNumberOnly)
 	{
 		designNumbers = getDesignNumbers();
 	}
@@ -252,12 +258,13 @@ function BuildMockup()
 	if(valid)
 	{
 		loopGarmentsNeeded();
+		if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+		{
+			garmentsNeeded[0].mockupDocument.activate();
+		}
 	}
 
-	if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
-	{
-		garmentsNeeded[0].mockupDocument.activate();
-	}
+	
 
 	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
 	{
