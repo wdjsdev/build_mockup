@@ -241,7 +241,7 @@ function Garment(config,data,designNumber)
 
 	this.getSaveFile = function()
 	{
-		return File(curOrderFolder.fsName + "/" + orderNumber + "_Master_" + designNumber + this.suffix + ".ai");
+		return File(curOrderFolderPath + "/" + orderNumber + "_Master_" + designNumber + this.suffix + ".ai");
 	}
 
 	this.getGraphics = function()
@@ -278,8 +278,14 @@ function Garment(config,data,designNumber)
 			//if the graphic is a name or number, update the code
 			curGraphic.name = g.replace(nameNumberPat,"fdsp-fdsn_");
 
+			// //check for a BG appendage indicating a background graphic
+			// if(!/bg$/i.test(curGraphic.name))
+			// {
+
+			// }
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
+			
 
 			//get the style number for this graphic
 			curGraphic.styleNumber = this.getGraphicStyleNumber(curGraphic.name);
