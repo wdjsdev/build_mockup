@@ -114,6 +114,7 @@ function BuildMockup()
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
 	var designNumbers = [];
+	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
 
 	var womensCodePat = /w$/i;
 	var youthCodePat = /y$/i;
@@ -121,6 +122,7 @@ function BuildMockup()
 
 	var saveLoc;
 	var localJobFolder;
+	var localJobFolderPath;
 	var curOrderFolder;
 	var currentMockup;
 	var filesToClose = [];
@@ -132,7 +134,7 @@ function BuildMockup()
 	//grouping certain graphics together for use on specific garments..
 	//but for our purposes.. we don't want to do that in art. identical
 	//graphics should have identical codes.
-	var vestigialAppendagePat = /bg|cb|pnt|g|ll|ls|rl|rs|b$/i;
+	var vestigialAppendagePat = /cb|pnt|([^b]g)|ll|ls|rl|rs|b$/i;
 
 	//regex for name and number graphics
 	//the graphic code will come through with one or the other
@@ -216,12 +218,17 @@ function BuildMockup()
 		getOrderNumber();
 	}
 
-	if(valid)
+
+
+	//if designNumbers.length > 0 then the user opted not to
+	//build an entire order, but rather a single design number
+	//as such, we don't need to get the order data
+	if(valid && !designNumberOnly)
 	{
 		getOrderData();
 	}
 
-	if(valid)
+	if(valid && !designNumberOnly)
 	{
 		designNumbers = getDesignNumbers();
 	}
@@ -252,12 +259,13 @@ function BuildMockup()
 	if(valid)
 	{
 		loopGarmentsNeeded();
+		if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+		{
+			garmentsNeeded[0].mockupDocument.activate();
+		}
 	}
 
-	if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
-	{
-		garmentsNeeded[0].mockupDocument.activate();
-	}
+	
 
 	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
 	{

@@ -16,7 +16,7 @@
 function initSaveLoc()
 {
 	log.h("Beginning execution of initSaveLoc()");
-	
+
 	saveLocPrefFile.open("r");
 	saveLoc = saveLocPrefFile.read();
 	saveLocPrefFile.close();
@@ -26,7 +26,9 @@ function initSaveLoc()
 		getSaveLocation();
 	}
 
-	localJobFolder = Folder(saveLoc);
-
+	localJobFolderPath = saveLoc;
+	localJobFolder = Folder(localJobFolderPath);	
+	
+	
 	log.l("saveLoc = " + saveLoc);
 }

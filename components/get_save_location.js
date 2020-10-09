@@ -30,6 +30,7 @@ function getSaveLocation()
 	saveLoc = saveLoc.replace(/~\/|.*users/i,homeFolderPath) + "/";
 	alert("Master files will be saved here:\n" + saveLoc);
 
+	localJobFolderPath = saveLoc;
 	localJobFolder = Folder(saveLoc);
 
 	writeDatabase(saveLocPrefFile.fullName,saveLoc);

@@ -241,7 +241,7 @@ function Garment(config,data,designNumber)
 
 	this.getSaveFile = function()
 	{
-		return File(curOrderFolder.fsName + "/" + orderNumber + "_Master_" + designNumber + this.suffix + ".ai");
+		return File(curOrderFolderPath + "/" + orderNumber + "_Master_" + designNumber + this.suffix + ".ai");
 	}
 
 	this.getGraphics = function()
@@ -280,6 +280,7 @@ function Garment(config,data,designNumber)
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
+			
 
 			//get the style number for this graphic
 			curGraphic.styleNumber = this.getGraphicStyleNumber(curGraphic.name);
