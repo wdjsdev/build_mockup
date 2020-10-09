@@ -17,28 +17,18 @@ function initSaveLoc()
 {
 	log.h("Beginning execution of initSaveLoc()");
 
-	// if(designNumberOnly)
-	// {
-	// 	localJobFolder = Folder.selectDialog("Where do you want to save your mockup?");
-	// 	if(localJobFolder)
-	// 	{
-	// 		saveLoc = localJobFolder.fullName.replace(userPathRegex,homeFolderPath);
-	// 	}
-	// }
-	// else
-	// {
-		saveLocPrefFile.open("r");
-		saveLoc = saveLocPrefFile.read();
-		saveLocPrefFile.close();
+	saveLocPrefFile.open("r");
+	saveLoc = saveLocPrefFile.read();
+	saveLocPrefFile.close();
 
-		if(saveLoc === "")
-		{
-			getSaveLocation();
-		}
+	if(saveLoc === "")
+	{
+		getSaveLocation();
+	}
 
-		localJobFolderPath = saveLoc;
-		localJobFolder = Folder(localJobFolderPath);	
-	// }
+	localJobFolderPath = saveLoc;
+	localJobFolder = Folder(localJobFolderPath);	
+	
 	
 	log.l("saveLoc = " + saveLoc);
 }
