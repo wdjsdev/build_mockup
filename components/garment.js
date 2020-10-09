@@ -55,7 +55,9 @@ function Garment(config,data,designNumber)
 			currentMockup.activate();
 		}
 
-		currentMockup.saveAs(this.getSaveFile());
+		this.saveFile = this.getSaveFile();
+
+		currentMockup.saveAs(this.saveFile);
 		curGarmentIndex++;
 		
 		this.recolorGarment(this.garmentColors)
@@ -108,6 +110,11 @@ function Garment(config,data,designNumber)
 	this.setStyleNumber = function()
 	{
 		this.styleNumber = data.styleNo;
+
+		var fulldyeStyleNumPat = /full[\s]?dye$/i;
+
+		this.styleNumber = this.styleNumber.replace(fulldyeStyleNumPat,"1000");
+
 	}
 
 	this.recolorGarment = function(colors)
@@ -221,6 +228,16 @@ function Garment(config,data,designNumber)
 		scriptTimer.beginTask("getGarments");
 		this.adultGarmentFolder = locateCTFolder(this.adultGarmentCode);
 		
+		////////////////////////
+		////////ATTENTION://////
+		//
+		//		stop searching for youth garments if there are none
+		//
+		////////////////////////
+		//add logic here to prevent searching for youth
+		//garments that don't exist. this should also replace the
+		//bags exception below
+		//
 		//if this garment is a bag, there's no youth sizing.. skip this part.
 		if(data.garment.toLowerCase().indexOf("bag") === -1)
 		{
