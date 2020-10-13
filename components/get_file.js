@@ -8,31 +8,6 @@ function getFile(folder,style,name)
 	var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
 
 
-	////////////////////////
-	////////ATTENTION://////
-	//
-	//		disabling this section
-	//		trying to find a solution that doesn't
-	//		use getFiles() because that takes 
-	//		way too long over vpn
-	//
-	////////////////////////
-
-		// scriptTimer.beginTask(folder + " getFiles");
-		// var files = folder.getFiles();
-		// scriptTimer.endTask(folder + " getFiles");
-		
-		// if(files.length)
-		// {
-		// 	for(var f=files.length-1;f>=0;f--)
-		// 	{
-		// 		if(!pat.test(files[f].name))
-		// 		{
-		// 			files.splice(f,1);
-		// 		}
-		// 	}
-		// }
-
 	//try to just get the file explicitly
 	file = new File(folder.fullName + "/" + name + ".ait");
 
@@ -72,12 +47,12 @@ function getFile(folder,style,name)
 	} 
 	else if(files.length > 1)
 	{
-		// file = chooseFile(files);
-		file = files[0];
+		file = chooseFile(name,files);
+		// file = files[0];
 	}
 	else
 	{
-		file = folder.openDlg("Select the file matching the style number: " + name + "_" + style);
+		file = folder.openDlg("Select the file matching the style number: " + name);
 	}
 
 	log.l("file = " + file);
@@ -89,10 +64,10 @@ function getFile(folder,style,name)
 	function chooseFile(name, files)
 	{
 		var result;
-		log.l("multiple files found matching the style number: " + style + ". Prompting user.");
+		log.l("multiple files found matching the name: " + name + ". Prompting user.");
 		log.l("files found: ::" + files.join("::"));
 		var cf = new Window("dialog","Choose the correct graphic.");
-			var topTxt = UI.static(cf,"The following files match the style number: " + style);
+			var topTxt = UI.static(cf,"The following files match the name: " + name);
 			var topTxt2 = UI.static(cf,"Please select the appropriate file.");
 
 			var btns = [];

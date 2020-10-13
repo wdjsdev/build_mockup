@@ -28,14 +28,14 @@
 		{
 			this.patternStyleNumber = "0000_No_Pattern";
 		}
-		this.patternFolder = locateGraphicFolder("DSPATTERN-" + this.patternStyleNumber);
+		this.patternFolder = Folder("/Volumes/Customization/Library/Graphics/Pattern Fills/")
 
 		this.init = function()
 		{
 			// this.getSourceFile();
 			if(this.patternFolder)
 			{
-				this.sourceFile = getFile(this.patternFolder,this.patternStyleNumber);
+				this.sourceFile = getFile(this.patternFolder,this.patternStyleNumber,"DSPATTERN-"+ this.patternStyleNumber);
 			}
 			if(this.sourceFile)
 			{

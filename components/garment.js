@@ -290,10 +290,11 @@ function Garment(config,data,designNumber)
 				continue;
 			}
 			
-
+			//replace any hyphens with underscores
+			// curGraphic.name = g.replace("-","_");
 
 			//if the graphic is a name or number, update the code
-			curGraphic.name = g.replace(nameNumberPat,"fdsp-fdsn_");
+			curGraphic.name = curGraphic.name.replace(nameNumberPat,"fdsp-fdsn_");
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
@@ -336,7 +337,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{3,})/;
+		var pat = /[_-]([\d]{1,}$)/;
 		var result = name.match(pat);
 		if(result && result.length)
 		{

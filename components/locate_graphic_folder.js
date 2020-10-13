@@ -16,7 +16,7 @@
 
 */
 
-function locateGraphicFolder(graphicCode)
+function locateGraphicFolder(graphicCode,lib)
 {
 	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
@@ -44,11 +44,12 @@ function locateGraphicFolder(graphicCode)
 	}
 
 
-	log.l("Checking database for " + graphicCode);
-	if(graphicLocations[graphicCode])
+	var lowerLib = lib.toLowerCase();
+	log.l("Checking database for " + lowerLib);
+	if(graphicLocations[lowerLib.toLowerCase()])
 	{
-		log.l(graphicCode + " found: " + graphicLocations[graphicCode]);
-		graphicFolder = Folder(graphicLocations[graphicCode]);
+		log.l(lowerLib + " found: " + graphicLocations[lowerLib]);
+		graphicFolder = Folder(graphicLocations[lowerLib]);
 	}
 	else
 	{
@@ -65,7 +66,7 @@ function locateGraphicFolder(graphicCode)
 
 		if(graphicFolder)
 		{
-			graphicLocations[graphicCode] = graphicFolder.fsName;
+			graphicLocations[graphicCode] = graphicFolder.fullName;
 			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
 			log.l("Added {" + graphicCode + "," + graphicFolder.fsName + " to graphicLocations database.");
 		}
