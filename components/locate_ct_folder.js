@@ -23,6 +23,8 @@ function locateCTFolder(mid)
 	var maxDepth = 2;
 	var curDepth = 0;
 
+	var youthPat = /[yg]$/i;
+
 	//include the database
 	try
 	{
@@ -41,15 +43,29 @@ function locateCTFolder(mid)
 	{
 		log.l("Found an entry for " + mid + " in the database.")
 		log.l("CT folder = " + ctLocations[mid]);
-		ctFolder = Folder(ctLocations[mid]);
+
+		if(ctLocations[mid] === "no_youth_garment")
+		{
+			ctFolder = undefined;
+		}
+		else
+		{
+			ctFolder = Folder(ctLocations[mid]);	
+		}
+		
 	}
 	else
 	{
 		log.l("Nothing in the database for " + mid + ". Beginning to dig through prepress folders.");
 		digForFolders(prepressFolder);
-		if(!ctFolder)
+		if(!ctFolder )
 		{
-			ctFolder = prepressFolder.selectDlg("Select Converted Template Folder or Mockup Folder for: " + mid + ".");
+			//if it's a youth garment and nothing was found
+			//automatically, assume there is no youth garment
+			if(!youthPat.match(mid))
+			{
+				ctFolder = prepressFolder.selectDlg("Select Converted Template Folder or Mockup Folder for: " + mid + ".");
+			}
 		}
 
 		//if there is a ct folder, save the folder to the database. 
