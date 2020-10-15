@@ -58,7 +58,7 @@ function locateGraphicFolder(graphicCode,lib)
 
 		if(!graphicFolder)
 		{
-			graphicFolder = graphicsFolder.selectDlg("Select Graphic Folder for " + graphicCode + ".");
+			graphicFolder = graphicsFolder.selectDlg("Which folder has the artwork for " + graphicCode + "?");
 		}
 
 		//if there's a graphic folder, save the folder path to the database
@@ -66,9 +66,9 @@ function locateGraphicFolder(graphicCode,lib)
 
 		if(graphicFolder)
 		{
-			graphicLocations[graphicCode] = graphicFolder.fullName;
+			graphicLocations[lowerLib] = graphicFolder.fullName;
 			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + graphicCode + "," + graphicFolder.fsName + " to graphicLocations database.");
+			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 
 	}
@@ -78,7 +78,7 @@ function locateGraphicFolder(graphicCode,lib)
 
 	function digForGraphic(loc)
 	{	
-		log.l("Digging for " + graphicCode + " in " + loc.fsName);
+		log.l("Digging for " + graphicCode + " in " + loc.fullName);
 		var files = loc.getFiles("*" + graphicCode + "*");
 		if(files.length)
 		{
@@ -103,7 +103,7 @@ function locateGraphicFolder(graphicCode,lib)
 				{
 					graphicFolder = curFile;
 					log.l("Found graphic folder here: ");
-					log.l(graphicFolder.fsName);
+					log.l(graphicFolder.fullName);
 				}
 			}
 		}
