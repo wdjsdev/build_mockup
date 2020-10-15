@@ -337,7 +337,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}$)/;
+		var pat = /[_-]([\d]{1,}([hgb]{2})?$)/i;
 		var result = name.match(pat);
 		if(result && result.length)
 		{
