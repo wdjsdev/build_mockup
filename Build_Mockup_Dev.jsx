@@ -85,7 +85,7 @@ function BuildMockup()
 	var prodComponents = componentsPath + "build_mockup";
 
 	var compFiles = includeComponents(devComponents,prodComponents,false);
-	if(compFiles.length)
+	if(compFiles && compFiles.length)
 	{
 		var curComponent;
 		for(var cf=0,len=compFiles.length;cf<len;cf++)
@@ -134,7 +134,7 @@ function BuildMockup()
 	//grouping certain graphics together for use on specific garments..
 	//but for our purposes.. we don't want to do that in art. identical
 	//graphics should have identical codes.
-	var vestigialAppendagePat = /cb|pnt|([^b]g)|ll|ls|rl|rs|b$/i;
+	var vestigialAppendagePat = /cb|pnt|([^b^h]g)|ll|ls|rl|rs|b$/i;
 
 	//regex for name and number graphics
 	//the graphic code will come through with one or the other
