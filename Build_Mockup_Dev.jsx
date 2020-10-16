@@ -223,13 +223,16 @@ function BuildMockup()
 	//Gather the order data
 	//
 
-	//for development,use these instead of entering the same info
-	//into the dialog each time. plus this could serve as a
-	//method of batching orders later
-	//
-	// orderNumber = 1234567;
-	designNumbers.push("N6WHW4dpGfMS");
-	//
+	if(user === "will.dowling")
+	{
+		//for development,use these instead of entering the same info
+		//into the dialog each time. plus this could serve as a
+		//method of batching orders later
+		//
+		// orderNumber = 1234567;
+		// designNumbers.push("N6WHW4dpGfMS");
+		//
+	}
 
 	if(valid && !orderNumber && designNumbers.length === 0)
 	{

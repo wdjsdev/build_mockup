@@ -142,7 +142,7 @@ function Garment(config,data,designNumber)
 			curGStyle = new GraphicStyle(colors[ph]);
 			curGStyle.init();
 			currentMockup.activate();
-			this.applyGraphicStyle(curPlaceholderName,curGStyle.style)
+			this.applyGraphicStyle(curPlaceholderName)
 		}
 		this.garmentColors = data.colors;
 	}
