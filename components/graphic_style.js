@@ -68,7 +68,7 @@
 				this.targetBlock = null;
 			}
 
-			else if((data.gradient || data.pattern) && this.sourceFile )
+			else if(data.gradient || data.pattern )
 			{
 				this.patternFolder = Folder("/Volumes/Customization/Library/Graphics/Pattern Fills/")
 				this.sourceFile = getFile(this.patternFolder,this.patternStyleNumber,"DSPATTERN-"+ this.patternStyleNumber);
