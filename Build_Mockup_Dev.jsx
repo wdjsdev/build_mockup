@@ -63,8 +63,12 @@ function BuildMockup()
 	////////////////////////	
 
 	LIVE_LOGGING = false;
-	DEV_LOGGING = false;
 
+	if(user === "will.dowling")
+	{
+		DEV_LOGGING = true;
+	}
+	
 	////////////////////////
 	////////ATTENTION://////
 	//
@@ -84,7 +88,7 @@ function BuildMockup()
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup";
 
-	var compFiles = includeComponents(devComponents,prodComponents,false);
+	var compFiles = includeComponents(devComponents,prodComponents,true);
 	if(compFiles && compFiles.length)
 	{
 		var curComponent;
@@ -95,9 +99,14 @@ function BuildMockup()
 			log.l("included: " + compFiles[cf].name);
 		}
 	}
+	else if(!compFiles)
+	{
+		valid = false;
+		return valid;
+	}
 	else
 	{
-		errorList.push("Failed to find the necessary components.");
+		errorList.push("Failed to find any components.");
 		log.e("No components were found.");
 		valid = false;
 		return valid;
@@ -213,9 +222,22 @@ function BuildMockup()
 	//
 	//Gather the order data
 	//
-	if(valid)
+
+	//for development,use these instead of entering the same info
+	//into the dialog each time. plus this could serve as a
+	//method of batching orders later
+	//
+	// orderNumber = 1234567;
+	designNumbers.push("N6WHW4dpGfMS");
+	//
+
+	if(valid && !orderNumber && designNumbers.length === 0)
 	{
 		getOrderNumber();
+	}
+	else if (designNumbers.length > 0)
+	{
+		designNumberOnly = true;
 	}
 
 
