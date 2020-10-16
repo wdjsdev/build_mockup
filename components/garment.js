@@ -60,7 +60,12 @@ function Garment(config,data,designNumber)
 		currentMockup.saveAs(this.saveFile);
 		curGarmentIndex++;
 		
-		this.recolorGarment(this.garmentColors)
+		this.recolorGarment(this.garmentColors);
+
+		if(this.saveFile)
+		{
+			this.mockupDocument.save();
+		}
 
 		for(var g in this.graphics)
 		{
