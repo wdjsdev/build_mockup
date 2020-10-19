@@ -213,7 +213,19 @@ function BuildMockup()
 	//
 	//Gather the order data
 	//
-	if(valid)
+
+	if(user === "will.dowling")
+	{
+		//for development,use these instead of entering the same info
+		//into the dialog each time. plus this could serve as a
+		//method of batching orders later
+		//
+		// orderNumber = 1234567;
+		designNumbers.push("sOLu4XvVbFcq");
+		//
+	}
+
+	if(valid && !orderNumber && designNumbers.length === 0)
 	{
 		getOrderNumber();
 	}
@@ -232,9 +244,6 @@ function BuildMockup()
 	{
 		designNumbers = getDesignNumbers();
 	}
-
-	// orderNumber = "1234567";
-	// designNumbers.push("gt8l41GIfxLA");
 
 
 	if(valid)
