@@ -19,5 +19,9 @@ function loopGarmentsNeeded()
 	for(var g=0,len=garmentsNeeded.length;g<len;g++)
 	{
 		garmentsNeeded[g].processGarment();
+		if(garmentsNeeded[g].saveFile)
+		{
+			currentMockup.saveAs(garmentsNeeded[g].saveFile);
+		}
 	}
 }

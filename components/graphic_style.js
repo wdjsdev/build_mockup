@@ -5,6 +5,7 @@
 		this.doc;
 		this.swatches;
 		this.validGraphicStyle = false;
+		this.plainFill = false;
 
 		//targetBlock is the pre-built rectangle
 		//with the correct appearance applied
@@ -16,6 +17,7 @@
 		this.gradientID;
 		this.gradientOnTop;
 
+		this.patternFolder;
 		this.patternColor;
 		this.patternScale;
 		this.patternFile;
@@ -24,23 +26,57 @@
 		{
 			this.patternStyleNumber = patternStyleConverter(data.pattern.id);
 		}
-		else
+		else if(data.gradient)
 		{
 			this.patternStyleNumber = "0000_No_Pattern";
 		}
-		this.patternFolder = locateGraphicFolder("DSPATTERN-" + this.patternStyleNumber);
+		else
+		{
+			this.plainFill = true;
+		}
+		
 
 		this.init = function()
 		{
+			
 			// this.getSourceFile();
-			if(this.patternFolder)
+			
+			this.doc = app.activeDocument;
+
+			if(this.plainFill)
 			{
-				this.sourceFile = getFile(this.patternFolder,this.patternStyleNumber);
+				//create and re-color the target block
+				this.targetBlock = app.activeDocument.pathItems.rectangle(103,710,152,152);
+				this.targetBlock.filled = true;
+				this.targetBlock.stroked = false;
+				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
+				this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
+
+				//select the target block and create a new graphic style
+				this.doc.selection = null;
+				this.targetBlock.selected = true;
+				createAction("graphic_style_from_selection",GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
+				app.doScript("graphic_style_from_selection","graphic_style_from_selection");
+				removeAction("graphic_style_from_selection");
+
+				//rename the graphic style
+				app.activeDocument.graphicStyles[this.doc.graphicStyles.length-1].name = data.id;
+				
+
+				this.validGraphicStyle = true;
+				this.targetBlock.remove();
+				this.targetBlock = null;
 			}
-			if(this.sourceFile)
+
+			else if(data.gradient || data.pattern )
 			{
+				this.patternFolder = Folder("/Volumes/Customization/Library/Graphics/Pattern Fills/")
+				this.sourceFile = getFile(this.patternFolder,this.patternStyleNumber,"DSPATTERN-"+ this.patternStyleNumber);
+
 				app.open(this.sourceFile);
+
 				this.doc = app.activeDocument;
+				
 				this.swatches = this.doc.swatches;
 				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
 
@@ -149,7 +185,7 @@
 				this.targetBlock.selected = true;
 				app.executeMenuCommand("Inverse menu item");
 				app.cut();
-				this.recolor();
+				this.recolor("C1");
 				this.targetBlock.selected = true;
 				if(this.patternScale)
 				{
@@ -180,9 +216,9 @@
 			
 		}
 
-		this.recolor = function()
+		this.recolor = function(inputColor)
 		{
-			mergeSwatches("C1",this.backgroundColor);
+			mergeSwatches(inputColor,this.backgroundColor);
 
 			if(data.pattern)
 			{

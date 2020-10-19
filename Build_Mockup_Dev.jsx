@@ -63,8 +63,12 @@ function BuildMockup()
 	////////////////////////	
 
 	LIVE_LOGGING = false;
-	DEV_LOGGING = false;
 
+	if(user === "will.dowling")
+	{
+		DEV_LOGGING = true;
+	}
+	
 	////////////////////////
 	////////ATTENTION://////
 	//
@@ -84,8 +88,8 @@ function BuildMockup()
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup";
 
-	var compFiles = includeComponents(devComponents,prodComponents,false);
-	if(compFiles.length)
+	var compFiles = includeComponents(devComponents,prodComponents,true);
+	if(compFiles && compFiles.length)
 	{
 		var curComponent;
 		for(var cf=0,len=compFiles.length;cf<len;cf++)
@@ -95,9 +99,14 @@ function BuildMockup()
 			log.l("included: " + compFiles[cf].name);
 		}
 	}
+	else if(!compFiles)
+	{
+		valid = false;
+		return valid;
+	}
 	else
 	{
-		errorList.push("Failed to find the necessary components.");
+		errorList.push("Failed to find any components.");
 		log.e("No components were found.");
 		valid = false;
 		return valid;
@@ -134,7 +143,7 @@ function BuildMockup()
 	//grouping certain graphics together for use on specific garments..
 	//but for our purposes.. we don't want to do that in art. identical
 	//graphics should have identical codes.
-	var vestigialAppendagePat = /cb|pnt|([^b]g)|ll|ls|rl|rs|b$/i;
+	var vestigialAppendagePat = /cb|pnt|([^b^h]g)|ll|ls|rl|rs|b$/i;
 
 	//regex for name and number graphics
 	//the graphic code will come through with one or the other
@@ -221,13 +230,17 @@ function BuildMockup()
 		//method of batching orders later
 		//
 		// orderNumber = 1234567;
-		designNumbers.push("sOLu4XvVbFcq");
+		// designNumbers.push("N6WHW4dpGfMS");
 		//
 	}
 
 	if(valid && !orderNumber && designNumbers.length === 0)
 	{
 		getOrderNumber();
+	}
+	else if (designNumbers.length > 0)
+	{
+		designNumberOnly = true;
 	}
 
 

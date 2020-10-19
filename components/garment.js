@@ -55,10 +55,17 @@ function Garment(config,data,designNumber)
 			currentMockup.activate();
 		}
 
-		currentMockup.saveAs(this.getSaveFile());
+		this.saveFile = this.getSaveFile();
+
+		currentMockup.saveAs(this.saveFile);
 		curGarmentIndex++;
 		
-		this.recolorGarment(this.garmentColors)
+		this.recolorGarment(this.garmentColors);
+
+		if(this.saveFile)
+		{
+			this.mockupDocument.save();
+		}
 
 		for(var g in this.graphics)
 		{
@@ -108,6 +115,11 @@ function Garment(config,data,designNumber)
 	this.setStyleNumber = function()
 	{
 		this.styleNumber = data.styleNo;
+
+		var fulldyeStyleNumPat = /full[\s]?dye$/i;
+
+		this.styleNumber = this.styleNumber.replace(fulldyeStyleNumPat,"1000");
+
 	}
 
 	this.recolorGarment = function(colors)
@@ -130,7 +142,7 @@ function Garment(config,data,designNumber)
 			curGStyle = new GraphicStyle(colors[ph]);
 			curGStyle.init();
 			currentMockup.activate();
-			this.applyGraphicStyle(curPlaceholderName,curGStyle.style)
+			this.applyGraphicStyle(curPlaceholderName)
 		}
 		this.garmentColors = data.colors;
 	}
@@ -221,6 +233,16 @@ function Garment(config,data,designNumber)
 		scriptTimer.beginTask("getGarments");
 		this.adultGarmentFolder = locateCTFolder(this.adultGarmentCode);
 		
+		////////////////////////
+		////////ATTENTION://////
+		//
+		//		stop searching for youth garments if there are none
+		//
+		////////////////////////
+		//add logic here to prevent searching for youth
+		//garments that don't exist. this should also replace the
+		//bags exception below
+		//
 		//if this garment is a bag, there's no youth sizing.. skip this part.
 		if(data.garment.toLowerCase().indexOf("bag") === -1)
 		{
@@ -273,10 +295,11 @@ function Garment(config,data,designNumber)
 				continue;
 			}
 			
-
+			//replace any hyphens with underscores
+			// curGraphic.name = g.replace("-","_");
 
 			//if the graphic is a name or number, update the code
-			curGraphic.name = g.replace(nameNumberPat,"fdsp-fdsn_");
+			curGraphic.name = curGraphic.name.replace(nameNumberPat,"fdsp-fdsn_");
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
@@ -319,7 +342,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{3,})/;
+		var pat = /[_-]([\d]{1,}([hgb]{2})?$)/i;
 		var result = name.match(pat);
 		if(result && result.length)
 		{

@@ -46,6 +46,22 @@ function loopDesignNumbers()
 
 		if(curBuilderData.configReverse)
 		{
+			//set the mid values of the configReverse object
+			//to match the mid values of the config object
+			//for some reason the builder outputs incorrect
+			//mid values (FD-219W) for some garments
+			if(curBuilderData.configReverse.top)
+			{
+				curBuilderData.configReverse.top.mid = curBuilderData.config.top.mid;
+			}
+			if(curBuilderData.configReverse.bottom)
+			{
+				curBuilderData.configReverse.bottom.mid = curBuilderData.config.bottom.mid;
+			}
+
+
+
+			
 			curBuilderData.configReverse.reverse = true;
 			processConfig(curBuilderData.configReverse,"_B");
 		}

@@ -16,7 +16,7 @@
 
 */
 
-function locateGraphicFolder(graphicCode)
+function locateGraphicFolder(graphicCode,lib)
 {
 	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
@@ -44,11 +44,12 @@ function locateGraphicFolder(graphicCode)
 	}
 
 
-	log.l("Checking database for " + graphicCode);
-	if(graphicLocations[graphicCode])
+	var lowerLib = lib.toLowerCase();
+	log.l("Checking database for " + lowerLib);
+	if(graphicLocations[lowerLib.toLowerCase()])
 	{
-		log.l(graphicCode + " found: " + graphicLocations[graphicCode]);
-		graphicFolder = Folder(graphicLocations[graphicCode]);
+		log.l(lowerLib + " found: " + graphicLocations[lowerLib]);
+		graphicFolder = Folder(graphicLocations[lowerLib]);
 	}
 	else
 	{
@@ -57,7 +58,7 @@ function locateGraphicFolder(graphicCode)
 
 		if(!graphicFolder)
 		{
-			graphicFolder = graphicsFolder.selectDlg("Select Graphic Folder for " + graphicCode + ".");
+			graphicFolder = graphicsFolder.selectDlg("Which folder has the artwork for " + graphicCode + "?");
 		}
 
 		//if there's a graphic folder, save the folder path to the database
@@ -65,9 +66,9 @@ function locateGraphicFolder(graphicCode)
 
 		if(graphicFolder)
 		{
-			graphicLocations[graphicCode] = graphicFolder.fsName;
+			graphicLocations[lowerLib] = graphicFolder.fullName;
 			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + graphicCode + "," + graphicFolder.fsName + " to graphicLocations database.");
+			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 
 	}
@@ -77,7 +78,7 @@ function locateGraphicFolder(graphicCode)
 
 	function digForGraphic(loc)
 	{	
-		log.l("Digging for " + graphicCode + " in " + loc.fsName);
+		log.l("Digging for " + graphicCode + " in " + loc.fullName);
 		var files = loc.getFiles("*" + graphicCode + "*");
 		if(files.length)
 		{
@@ -102,7 +103,7 @@ function locateGraphicFolder(graphicCode)
 				{
 					graphicFolder = curFile;
 					log.l("Found graphic folder here: ");
-					log.l(graphicFolder.fsName);
+					log.l(graphicFolder.fullName);
 				}
 			}
 		}
