@@ -21,7 +21,7 @@ function initSaveLoc()
 	saveLoc = saveLocPrefFile.read();
 	saveLocPrefFile.close();
 
-	if(saveLoc === "")
+	if(saveLoc === "" || !saveLoc)
 	{
 		getSaveLocation();
 	}
