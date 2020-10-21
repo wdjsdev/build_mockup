@@ -62,7 +62,7 @@ function locateCTFolder(mid)
 		{
 			//if it's a youth garment and nothing was found
 			//automatically, assume there is no youth garment
-			if(!youthPat.match(mid))
+			if(!youthPat.test(mid))
 			{
 				ctFolder = prepressFolder.selectDlg("Select Converted Template Folder or Mockup Folder for: " + mid + ".");
 			}

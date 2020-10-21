@@ -15,6 +15,7 @@
 
 function loopDesignNumbers()
 {
+	log.h("Beginning loopDesignNumbers()");
 	var curBuilderData,curDesignNumber;
 	var rev;
 	var config;
@@ -23,14 +24,17 @@ function loopDesignNumbers()
 	{
 		rev = false;
 		curDesignNumber = designNumbers[dn];
+		log.l("Processing design number: " + curDesignNumber);
 		if(curDesignNumber === "")
 		{
+			log.l("Empty design number. skippit");
 			continue;
 		}
 		curBuilderData = undefined;
 		curBuilderData = getBuilderData(curDesignNumber);
 		if(!curBuilderData)
 		{
+			log.e("Netsuite did not respond.");
 			errorList.push("Netsuite did not respond with any data. Please try again in a minute.");
 			errorList.push(curDesignNumber + " has been skipped.");
 			continue;
@@ -38,6 +42,7 @@ function loopDesignNumbers()
 
 		if(curBuilderData.config && curBuilderData.configReverse)
 		{
+			log.l("This is a reversible garment.")
 			rev = true;
 		}
 
