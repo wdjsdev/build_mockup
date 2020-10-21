@@ -175,6 +175,7 @@ function Garment(config,data,designNumber)
 		hidePPLay();
 		var curGStyle,patternFile;
 		var placeholderPrefix = topOrBottomSwatches();
+		// var placeholderPrefix = "C";
 		var curPlaceholderName;
 		for(var ph in colors)
 		{
