@@ -15,6 +15,7 @@
 function createOrderFolder()
 {
 
+	log.h("Beginning of createOrderFolder();");
 	var folderString = "";
 
 
@@ -36,9 +37,29 @@ function createOrderFolder()
 	}
 	
 	curOrderFolderPath = saveLoc + "/" + folderString;
+	log.l("curOrderFolderPath = " + curOrderFolderPath);
+
 	curOrderFolder = Folder(curOrderFolderPath);
 	if(!curOrderFolder.exists)
 	{
+		log.l("curOrderFolder did not exist. Creating one at " + curOrderFolderPath);
 		curOrderFolder.create();
+	}
+	else
+	{
+		var files = curOrderFolder.getFiles();
+		var subFiles;
+		for(var f = files.length-1;f>=0;f--)
+		{
+			if(files[f].name.indexOf("assets")>-1)
+			{
+				subFiles = files[f].getFiles();
+				for(var sf = subFiles.length-1;sf>=0;sf--)
+				{
+					subFiles[sf].remove();
+				}
+				files[f].remove();
+			}
+		}
 	}
 }

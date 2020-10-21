@@ -132,9 +132,13 @@ function BuildMockup()
 	var saveLoc;
 	var localJobFolder;
 	var localJobFolderPath;
+	var localGraphicsFolderPath;
+	var localGraphicsFolder;
 	var curOrderFolder;
+	var curOrderFolderPath;
 	var currentMockup;
 	var filesToClose = [];
+	var graphicsOpened = 0;
 
 	//regex to remove superfluous appendages from graphic codes
 	//for example, the builder occasionally uses a code like: FDS-325LS
@@ -229,7 +233,10 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = 1234567;
+		// orderNumber = 3103844;
+		orderNumber = getTestSalesOrders();
+
+
 		// designNumbers.push("N6WHW4dpGfMS");
 		//
 	}
@@ -287,6 +294,7 @@ function BuildMockup()
 		if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
 		{
 			garmentsNeeded[0].mockupDocument.activate();
+			garmentsNeeded[0].mockupDocument.save();
 		}
 	}
 
@@ -296,19 +304,23 @@ function BuildMockup()
 	{
 		// filesToClose[ftc].activate();
 		// app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+		log.l("closing file: " + filesToClose[ftc].name);
 		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
 	}
 	
 	// endLog();
-	scriptTimer.beginTask("printLog");
-	printLog();
-	scriptTimer.endTask("printLog");
+	
 	if(errorList.length)
 	{
 		sendErrors(errorList);
 	}
 
+	log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+
 	scriptTimer.endTask("BuildMockup");
+	scriptTimer.beginTask("printLog");
+	printLog();
+	scriptTimer.endTask("printLog");
 	
 }
 
