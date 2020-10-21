@@ -42,11 +42,24 @@
 			// this.getSourceFile();
 			
 			this.doc = app.activeDocument;
+			var firstLayer = this.doc.layers[0];
+			this.firstLayerLockStatus = false;
+			this.firstLayerVisStatus = false;
 
 			if(this.plainFill)
 			{
 				//create and re-color the target block
-				this.targetBlock = app.activeDocument.pathItems.rectangle(103,710,152,152);
+				if(firstLayer.locked)
+				{
+					this.firstLayerLockStatus = true;
+				}
+				if(firstLayer.visible)
+				{
+					this.firstLayerVisStatus = true;
+				}
+				firstLayer.locked = false;
+				firstLayer.visible = true;
+				this.targetBlock = firstLayer.pathItems.rectangle(103,710,152,152);
 				this.targetBlock.filled = true;
 				this.targetBlock.stroked = false;
 				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
@@ -66,6 +79,10 @@
 				this.validGraphicStyle = true;
 				this.targetBlock.remove();
 				this.targetBlock = null;
+
+				firstLayer.locked = this.firstLayerLockStatus;
+				firstLayer.visible = this.firstLayerVisStatus;
+
 			}
 
 			else if(data.gradient || data.pattern )

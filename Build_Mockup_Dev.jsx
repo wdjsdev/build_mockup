@@ -299,9 +299,6 @@ function BuildMockup()
 
 	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
 	{
-		// filesToClose[ftc].activate();
-		// app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
-		log.l("closing file: " + filesToClose[ftc].name);
 		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
 	}
 	
