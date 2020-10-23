@@ -77,7 +77,7 @@ function Garment(config,data,designNumber)
 			localGraphicsFolder.create();
 		}
 
-		var graphicSaveFile,graphicSaveFileName;
+		var curGraphic,graphicSaveFile,graphicSaveFileName;
 		var curAppendage;
 		var graphicAppendagePat = /_[\d].ai$/;
 		log.l("Looping graphics for the mockup: " + this.saveFile.name);
