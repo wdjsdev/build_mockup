@@ -3,7 +3,7 @@ function BuildMockupBatch()
 {
 
 	var valid = true;
-	var scriptName = "build_mockup";
+	var scriptName = "build_mockup_batch";
 
 	
 	// function getUtilities()
@@ -234,8 +234,14 @@ function BuildMockupBatch()
 
 
 
-
-	var batchMode = true;
+	//set batch mode to true
+	//this will disable any file/folder select dialogs
+	//and suppress any messaging from the script
+	//to prevent any holdups from stopping the batch
+	//it's better to have 20% of orders that are incomplete
+	//if it means that 80% were built properly without
+	//any interaction.
+	const BATCH_MODE = true;
 
 	var orderNumberFile = File("~/Desktop/order_number.txt");
 	orderNumberFile.open("r");
@@ -248,6 +254,20 @@ function BuildMockupBatch()
 	if(!orderNumber)
 	{
 		log.e("Failed to get an order number from the text file.");
+		valid = false;
+	}
+
+	var teamNameFile = File("~/Desktop/team_name.txt");
+	teamNameFile.open("r");
+	teamName = teamNameFile.read();
+	teamNameFile.close();
+
+	teamName = teamName.replace(/\s/g,"");
+
+
+	if(!teamName)
+	{
+		log.e("Failed to get a team name from the text file.");
 		valid = false;
 	}
 
@@ -270,6 +290,10 @@ function BuildMockupBatch()
 	if(valid && !designNumberOnly)
 	{
 		getOrderData(orderNumber);
+		if (orderData)
+		{
+			$.writeln("pause");
+		}
 	}
 
 	if(valid && !designNumberOnly)

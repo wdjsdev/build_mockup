@@ -36,7 +36,7 @@ function createOrderFolder()
 		folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";	
 	}
 	
-	curOrderFolderPath = saveLoc + "/" + folderString;
+	curOrderFolderPath = saveLoc + folderString;
 	log.l("curOrderFolderPath = " + curOrderFolderPath);
 
 	curOrderFolder = Folder(curOrderFolderPath);
