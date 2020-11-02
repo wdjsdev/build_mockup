@@ -3,6 +3,7 @@ function BuildMockup()
 {
 	var valid = true;
 	var scriptName = "build_mockup";
+	const BATCH_MODE = false;
 
 	
 	function getUtilities()
