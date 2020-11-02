@@ -1,0 +1,17 @@
+create a "batch mode" that prevents any dialogs or other user interactions. 
+
+allow for passing a folder of PDFs as an argument.
+	if a folder is passed
+		set batchMode true
+		don't display the order number dialog.
+		for each file in folder
+			parse order number
+			execute BuildMockup(order number)
+			if any errors or missing files (that cause a dialog) during build mockup
+				create a readme file indicating 
+					which garment/graphic/asset could not be found
+					what the error was and which order/design number had the error
+			log some data about the mockup that was built
+				perhaps a small database that holds general data like number of total mockups processed, total time spent processing, graphics opened, number of errors
+	else
+		proceed with build mockup as normal

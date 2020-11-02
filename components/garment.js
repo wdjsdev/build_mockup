@@ -47,6 +47,7 @@ function Garment(config,data,designNumber)
 	{
 		this.openFile(file);
 		this.mockupDocument = currentMockup = app.activeDocument;
+		app.executeMenuCommand("fitall");
 
 		if(this.youthGarmentFile)
 		{
@@ -54,6 +55,7 @@ function Garment(config,data,designNumber)
 			mergeTemplate(currentMockup);
 			filesToClose.push(youthDoc);
 			currentMockup.activate();
+			app.executeMenuCommand("fitall");
 		}
 
 		this.saveFile = this.getSaveFile();
@@ -77,7 +79,7 @@ function Garment(config,data,designNumber)
 			localGraphicsFolder.create();
 		}
 
-		var graphicSaveFile,graphicSaveFileName;
+		var curGraphic,graphicSaveFile,graphicSaveFileName;
 		var curAppendage;
 		var graphicAppendagePat = /_[\d].ai$/;
 		log.l("Looping graphics for the mockup: " + this.saveFile.name);
@@ -402,7 +404,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}([hgb]{2})?$)/i;
+		var pat = /[_-]([\d]{1,}([hgbms]{2})?$)/i;
 		var result = name.match(pat);
 		if(result && result.length)
 		{
@@ -417,6 +419,7 @@ function Garment(config,data,designNumber)
 	this.openFile = function(file)
 	{
 		app.open(file);
+		app.executeMenuCommand("fitall");
 		return app.activeDocument;
 	}
 

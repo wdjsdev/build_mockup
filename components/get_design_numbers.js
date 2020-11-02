@@ -88,7 +88,16 @@ function getDesignNumbers()
 	//they want to process
 	if(result.length > 1)
 	{
-		result = chooseDesignNumbers(result);
+
+		//if script is in BATCH_MODE, don't prompt
+		//just process every design number.
+		if(!BATCH_MODE)
+		{
+			//there's more than one design number on the order
+			//ask the user which design number(s) they want to build.
+			result = chooseDesignNumbers(result);
+		}
+		
 	}
 
 	scriptTimer.endTask("getDesignNumbers");

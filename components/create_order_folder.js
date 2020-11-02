@@ -19,8 +19,16 @@ function createOrderFolder()
 	var folderString = "";
 
 
-	var userInitials = user.charAt(0) + user.charAt(user.indexOf(".")+1);
-	userInitials = userInitials.toUpperCase();
+	if(BATCH_MODE)
+	{
+		var userInitials = "INITIALS";
+	}
+	else
+	{
+		var userInitials = user.charAt(0) + user.charAt(user.indexOf(".")+1);
+		userInitials = userInitials.toUpperCase();	
+	}
+	
 
 	if(!teamName)
 	{
@@ -36,7 +44,7 @@ function createOrderFolder()
 		folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";	
 	}
 	
-	curOrderFolderPath = saveLoc + "/" + folderString;
+	curOrderFolderPath = saveLoc + folderString;
 	log.l("curOrderFolderPath = " + curOrderFolderPath);
 
 	curOrderFolder = Folder(curOrderFolderPath);
