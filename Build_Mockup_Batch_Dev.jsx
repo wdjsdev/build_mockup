@@ -302,7 +302,36 @@ function getBatchOrders()
 	var ordersProcessed = 0;
 
 
-	
+
+
+	//this represents any orders that already exist
+	//in the dest folder
+	var existingOrders = [];
+
+	var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
+	var exFolder = Folder(exFolderPath);
+	var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
+	var localExFolder = Folder(localExFolderPath);
+	var exFiles = exFolder.getFiles();
+	var localExFiles = localExFolder.getFiles();
+
+
+
+	//trim out any existing orders
+	for (var x = 0; x < exFiles.length; x++)
+	{
+		existingOrders.push(exFiles[x].name.substring(0, 7));
+	}
+
+	for(var x=0;x<localExFiles.length;x++)
+	{
+		existingOrders.push(localExFiles[x].name.substring(0,7));
+	}
+
+	//strip out any duplicates from the existingOrders array
+	existingOrders = getUnique(existingOrders);
+
+
 
 	function getFilesFromFolder(folder)
 	{
@@ -315,9 +344,15 @@ function getBatchOrders()
 			if (orderPdfPat.test(curFile.name))
 			{
 				curOrderNum = curFile.name.substring(0, 7);
+
 				if (curOrderNum.indexOf("_") > -1)
 				{
 					curOrderNum = curFile.name.substring(1, 8);
+				}
+				if(existingOrders.indexOf(curOrderNum)>-1)
+				{
+					log.l(curOrderNum + " already exists in the folder. skipping it.");
+					continue;
 				}
 				ordersNeeded.push(curOrderNum);
 
@@ -338,39 +373,21 @@ function getBatchOrders()
 	getFilesFromFolder(rushFolder);
 	getFilesFromFolder(needMockFolder);
 
+	log.l("ordersNeeded = " + ordersNeeded);
+	log.l("teamNames = " + teamNames);
 
-
-
-	//this represents any orders that already exist
-	//in the dest folder
-	var existingOrders = [];
-
-	var exFolderPath = "/Volumes/Customization/1_Active_Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
-	var exFolder = Folder(exFolderPath);
-	var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
-	var localExFolder = Folder(localExFolderPath);
-	var exFiles = exFolder.getFiles();
-	exFiles.concat(localExFolder.getFiles());
-
-
-
-	for (var x = 0; x < exFiles.length; x++)
-	{
-		existingOrders.push(exFiles[x].name.substring(0, 7));
-
-
-		//trim out any existing orders
-		var matchIndex;
-		for (var x = existingOrders.length - 1; x >= 0; x--)
-		{
-			matchIndex = ordersNeeded.indexOf(existingOrders[x]);
-			if (matchIndex > -1)
-			{
-				ordersNeeded.splice(matchIndex,1);
-			}
-		}
-		
-	}
+	
+	// var matchIndex;
+	// for (var x = existingOrders.length - 1; x >= 0; x--)
+	// {
+	// 	matchIndex = ordersNeeded.indexOf(existingOrders[x]);
+	// 	if (matchIndex > -1)
+	// 	{
+	// 		log.l("splicing " + existingOrders[x] + " as a duplicate.");
+	// 		ordersNeeded.splice(matchIndex,1);
+	// 		teamNames.splice(matchIndex,1);
+	// 	}
+	// }
 
 	
 	var scriptResults;
@@ -386,19 +403,21 @@ function getBatchOrders()
 		batchTimer.beginTask(curOrderNumber + "_" + curTeamName);
 		$.writeln("\n*****\n");
 		$.writeln("Procoessing: " + curOrderNumber + "_" + curTeamName);
+		$.writeln("This is garment #" + x + " of the batch.");
 		$.writeln("\n*****\n");
 
 		scriptResults = BuildMockupBatch(curOrderNumber, curTeamName);	
 
 		garmentsProcessed += scriptResults.garmentCount;
 		graphicsProcessed += scriptResults.graphicCount;
+		ordersProcessed++;
 
 		batchTimer.endTask(curOrderNumber + "_" + curTeamName);
 	}
 
 	batchTimer.endTask("batchOrders");
 
-	log.h("end of batch.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::Batc")
+	log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
 
 }
 getBatchOrders();
