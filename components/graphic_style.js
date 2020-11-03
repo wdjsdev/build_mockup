@@ -28,7 +28,7 @@
 		}
 		else if(data.gradient)
 		{
-			this.patternStyleNumber = "0000_No_Pattern";
+			this.patternStyleNumber = "0000";
 		}
 		else
 		{

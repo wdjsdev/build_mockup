@@ -355,8 +355,12 @@ function Garment(config,data,designNumber)
 
 			log.l("Fixing: " + curGraphic.name);
 
-			//if the graphic is a name or number, update the code
-			curGraphic.name = curGraphic.name.replace(nameNumberPat,"fdsp-fdsn_");
+			//if the graphic is a name or number && it hasn't been updated yet
+			//update the code
+			if(!/fdsp-fdsn_/i.test(curGraphic.name))
+			{
+				curGraphic.name = curGraphic.name.replace(nameNumberPat,"fdsp-fdsn_");
+			}
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace(vestigialAppendagePat,"");
