@@ -18,7 +18,7 @@ function loopGarmentsNeeded()
 	log.h("Beginning of loopGarmentsNeeded()");
 	for(var g=0,len=garmentsNeeded.length;g<len;g++)
 	{
-		log.l("Processing garment: " + garmentsNeeded[g])
+		log.l("Processing garmentsNeeded[" + g + "]");
 		garmentsNeeded[g].processGarment();
 		if(garmentsNeeded[g].saveFile)
 		{
