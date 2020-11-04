@@ -18,7 +18,7 @@ function Garment(config,data,designNumber)
 
 	this.init = function()
 	{
-		log.l("Initializing garmemnt object.");
+		log.l("Initializing garment object.");
 		this.setGarmentCodes();
 		this.setStyleNumber();
 		this.getGarments();
@@ -133,6 +133,11 @@ function Garment(config,data,designNumber)
 		}
 
 		this.adultGarmentCode = data.mid;
+
+		if(this.adultGarmentCode == "FD-500")
+		{
+			this.adultGarmentCode = "FD-500W";
+		}
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
