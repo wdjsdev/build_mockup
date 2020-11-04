@@ -227,7 +227,7 @@ function Garment(config,data,designNumber)
 			}
 			phNumber = ph.replace(/[a-z]/gi,"");
 			phSwatch = findPHSwatch(phNumber,colors[ph]);
-			log.l("Recolored " + ph + " with " + colors[ph]);
+			log.l("Recolored " + ph + " with " + colors[ph].swatchName);
 		}
 
 		function findPHSwatch(num,color)
