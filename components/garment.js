@@ -95,6 +95,7 @@ function Garment(config,data,designNumber)
 			{
 				this.openFile(this.graphics[g].file);
 				this.recolorGraphic(this.graphics[g].colors);
+				this.processGraphic(this.graphics[g]);
 				graphicsOpened++;
 
 				graphicSaveFileName = localGraphicsFolderPath + "/" + this.graphics[g].name + ".ai"
