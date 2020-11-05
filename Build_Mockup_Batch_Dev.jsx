@@ -1,14 +1,24 @@
 #target Illustrator
 
-function BuildMockupBatch(orderNumber, teamName)
+function BuildMockupBatch()
 {
 
 	var valid = true;
-	var scriptName = "build_mockup_batch";
+	var scriptName = "build_mockup";
 
 
 	
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
+
+
+	//set batch mode to true
+	//this will disable any file/folder select dialogs
+	//and suppress any messaging from the script
+	//to prevent any holdups from stopping the batch
+	//it's better to have 20% of orders that are incomplete
+	//if it means that 80% were built properly without
+	//any interaction.
+	const BATCH_MODE = true;
 
 
 	logDest.push(getLogDest())
@@ -61,8 +71,8 @@ function BuildMockupBatch(orderNumber, teamName)
 
 
 	//Global Variables
-	// var orderNumber;
-	// var teamName;
+	var orderNumber;
+	var teamName;
 	var orderData;
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
@@ -173,251 +183,233 @@ function BuildMockupBatch(orderNumber, teamName)
 
 
 
-	//set batch mode to true
-	//this will disable any file/folder select dialogs
-	//and suppress any messaging from the script
-	//to prevent any holdups from stopping the batch
-	//it's better to have 20% of orders that are incomplete
-	//if it means that 80% were built properly without
-	//any interaction.
-	const BATCH_MODE = true;
 
-	// var orderNumberFile = File("~/Desktop/order_number.txt");
-	// orderNumberFile.open("r");
-	// orderNumber = orderNumberFile.read();
-	// orderNumberFile.close();
-
-	// orderNumber = orderNumber.replace(/\s/g, "");
-
-
-	// if (!orderNumber)
-	// {
-	// 	log.e("Failed to get an order number from the text file.");
-	// 	valid = false;
-	// }
-
-
-
-
-	//if designNumbers.length > 0 then the user opted not to
-	//build an entire order, but rather a single design number
-	//as such, we don't need to get the order data
-	if (valid && !designNumberOnly)
+	function getBatchOrders()
 	{
-		getOrderData(orderNumber);
-	}
 
-	if (valid && !designNumberOnly)
-	{
-		designNumbers = getDesignNumbers();
-	}
+		//make a new stopwatch object specifically
+		//for measuring the time to batch
+		var batchTimer = new Stopwatch();
+		batchTimer.beginTask("batchOrders");
 
 
-	if (valid)
-	{
-		initSaveLoc();
-	}
+		var needMockPath = "/Volumes/Customization/Design Mockups/Needs Mockup/";
+		var rushFolderPath = needMockPath + "_Paid Rush/";
+		var needMockFolder = Folder(needMockPath);
+		var rushFolder = Folder(rushFolderPath);
 
-	if (valid)
-	{
-		createOrderFolder();
-	}
+		//orders found in the rush folder and needs mockup folder
+		var ordersNeeded = [];
+		var teamNames = [];
+		var orderPdfPat = /([\d]{7})*\.pdf/i;
 
 
-	//
-	//loop each design number to gather the garments and graphics needed
-	//
-	if (valid)
-	{
-		loopDesignNumbers();
-	}
+		var garmentsProcessed = 0;
+		var graphicsProcessed = 0;
+		var ordersProcessed = 0;
 
-	if (valid)
-	{
-		loopGarmentsNeeded();
-		if (garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+
+
+
+		//this represents any orders that already exist
+		//in the dest folder
+		var existingOrders = [];
+
+		var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
+		var exFolder = Folder(exFolderPath);
+		var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
+		var localExFolder = Folder(localExFolderPath);
+		var exFiles = exFolder.getFiles();
+		var localExFiles = localExFolder.getFiles();
+
+
+
+		//trim out any existing orders
+		for (var x = 0; x < exFiles.length; x++)
 		{
-			garmentsNeeded[0].mockupDocument.activate();
-			garmentsNeeded[0].mockupDocument.save();
+			existingOrders.push(exFiles[x].name.substring(0, 7));
 		}
+
+		for(var x=0;x<localExFiles.length;x++)
+		{
+			existingOrders.push(localExFiles[x].name.substring(0,7));
+		}
+
+		//strip out any duplicates from the existingOrders array
+		existingOrders = getUnique(existingOrders);
+
+
+
+		function getFilesFromFolder(folder)
+		{
+			var rushFiles = folder.getFiles();
+			var curON;
+			for (var x = 0; x < rushFiles.length; x++)
+			{
+				curFile = rushFiles[x];
+				// $.writeln("Processing " + curFile.name);
+				if (orderPdfPat.test(curFile.name))
+				{
+					curOrderNum = curFile.name.substring(0, 7);
+
+					if (curOrderNum.indexOf("_") > -1)
+					{
+						curOrderNum = curFile.name.substring(1, 8);
+					}
+					if(existingOrders.indexOf(curOrderNum)>-1)
+					{
+						log.l(curOrderNum + " already exists in the folder. skipping it.");
+						continue;
+					}
+					ordersNeeded.push(curOrderNum);
+
+					teamName = decodeURI(curFile.name);
+					teamName = teamName.replace(/^.*[\d]{7}_/, "");
+
+					teamName = teamName.replace(".pdf", "");
+
+
+					teamNames.push(teamName);
+				}
+
+
+			}
+		}
+		
+
+		getFilesFromFolder(rushFolder);
+		getFilesFromFolder(needMockFolder);
+
+		log.l("ordersNeeded = " + ordersNeeded);
+		log.l("teamNames = " + teamNames);
+
+
+
+		
+		var scriptResults;
+
+		for(var x=0;x<10;x++)
+		{
+			if(x === ordersNeeded.length)
+			{
+				break;
+			}
+			orderNumber = ordersNeeded[x];
+			teamName = teamNames[x];
+			batchTimer.beginTask(orderNumber + "_" + teamName);
+			$.writeln("\n*****\n");
+			$.writeln("Procoessing: " + orderNumber + "_" + teamName);
+			$.writeln("This is garment #" + x + " of the batch.");
+			$.writeln("\n*****\n");
+
+			scriptResults = exec(orderNumber, teamName);	
+
+			garmentsProcessed += scriptResults.garmentCount;
+			graphicsProcessed += scriptResults.graphicCount;
+			ordersProcessed++;
+
+			batchTimer.endTask(orderNumber + "_" + teamName);
+		}
+
+		batchTimer.endTask("batchOrders");
+
+		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
+
 	}
 
 
 
-	// for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
-	// {
-	// 	filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
-	// }
-
-
-	// while(app.documents.length)
-	// {
-	// 	app.documents[app.documents.length-1].close(SaveOptions.DONOTSAVECHANGES);
-	// }
-
-	// endLog();
-
-	if (errorList.length)
+	function exec()
 	{
-		sendErrors(errorList);
+
+
+		orderData = undefined;
+		garmentsNeeded = [];
+		curGarmentIndex = 1;
+		designNumbers = [];
+		designNumberOnly = false; //if the user wants just one design number instead of a whole order
+
+
+
+		saveLoc = undefined;
+		localJobFolder = undefined;
+		localJobFolderPath = undefined;
+		localGraphicsFolderPath = undefined;
+		localGraphicsFolder = undefined;
+		curOrderFolder = undefined;
+		curOrderFolderPath = undefined;
+		currentMockup = undefined;
+		filesToClose = [];
+		graphicsOpened = 0;
+
+		//if designNumbers.length > 0 then the user opted not to
+		//build an entire order, but rather a single design number
+		//as such, we don't need to get the order data
+		if (valid && !designNumberOnly)
+		{
+			getOrderData(orderNumber);
+		}
+
+		if (valid && !designNumberOnly)
+		{
+			designNumbers = getDesignNumbers();
+		}
+
+
+		if (valid)
+		{
+			initSaveLoc();
+		}
+
+		if (valid)
+		{
+			createOrderFolder();
+		}
+
+
+		//
+		//loop each design number to gather the garments and graphics needed
+		//
+		if (valid)
+		{
+			loopDesignNumbers();
+		}
+
+		if (valid)
+		{
+			loopGarmentsNeeded();
+			if (garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+			{
+				garmentsNeeded[0].mockupDocument.activate();
+				garmentsNeeded[0].mockupDocument.save();
+			}
+		}
+
+
+		if (errorList.length)
+		{
+			sendErrors(errorList);
+		}
+
+		log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+
+		
+		
+
+
+		return {garmentCount:garmentsNeeded.length,graphicCount:graphicsOpened};
+
 	}
 
-	log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+	getBatchOrders();
 
 	scriptTimer.endTask("BuildMockup");
+
 	scriptTimer.beginTask("printLog");
 	printLog();
 	scriptTimer.endTask("printLog");
 
-
-	return {garmentCount:garmentsNeeded.length,graphicCount:graphicsOpened};
-
-
 }
 
-function getBatchOrders()
-{
-	#include "~/Desktop/automation/utilities/Utilities_Container.js";
-	DEV_LOGGING = true;
 
-	//make a new stopwatch object specifically
-	//for measuring the time to batch
-	var batchTimer = new Stopwatch();
-	batchTimer.beginTask("batchOrders");
-
-
-	var needMockPath = "/Volumes/Customization/Design Mockups/Needs Mockup/";
-	var rushFolderPath = needMockPath + "_Paid Rush/";
-	var needMockFolder = Folder(needMockPath);
-	var rushFolder = Folder(rushFolderPath);
-
-	//orders found in the rush folder and needs mockup folder
-	var ordersNeeded = [];
-	var teamNames = [];
-	var orderPdfPat = /([\d]{7})*\.pdf/i;
-
-
-	var garmentsProcessed = 0;
-	var graphicsProcessed = 0;
-	var ordersProcessed = 0;
-
-
-
-
-	//this represents any orders that already exist
-	//in the dest folder
-	var existingOrders = [];
-
-	var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
-	var exFolder = Folder(exFolderPath);
-	var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
-	var localExFolder = Folder(localExFolderPath);
-	var exFiles = exFolder.getFiles();
-	var localExFiles = localExFolder.getFiles();
-
-
-
-	//trim out any existing orders
-	for (var x = 0; x < exFiles.length; x++)
-	{
-		existingOrders.push(exFiles[x].name.substring(0, 7));
-	}
-
-	for(var x=0;x<localExFiles.length;x++)
-	{
-		existingOrders.push(localExFiles[x].name.substring(0,7));
-	}
-
-	//strip out any duplicates from the existingOrders array
-	existingOrders = getUnique(existingOrders);
-
-
-
-	function getFilesFromFolder(folder)
-	{
-		var rushFiles = folder.getFiles();
-		var curON;
-		for (var x = 0; x < rushFiles.length; x++)
-		{
-			curFile = rushFiles[x];
-			// $.writeln("Processing " + curFile.name);
-			if (orderPdfPat.test(curFile.name))
-			{
-				curOrderNum = curFile.name.substring(0, 7);
-
-				if (curOrderNum.indexOf("_") > -1)
-				{
-					curOrderNum = curFile.name.substring(1, 8);
-				}
-				if(existingOrders.indexOf(curOrderNum)>-1)
-				{
-					log.l(curOrderNum + " already exists in the folder. skipping it.");
-					continue;
-				}
-				ordersNeeded.push(curOrderNum);
-
-				teamName = decodeURI(curFile.name);
-				teamName = teamName.replace(/^.*[\d]{7}_/, "");
-
-				teamName = teamName.replace(".pdf", "");
-
-
-				teamNames.push(teamName);
-			}
-
-
-		}
-	}
-	
-
-	getFilesFromFolder(rushFolder);
-	getFilesFromFolder(needMockFolder);
-
-	log.l("ordersNeeded = " + ordersNeeded);
-	log.l("teamNames = " + teamNames);
-
-	
-	// var matchIndex;
-	// for (var x = existingOrders.length - 1; x >= 0; x--)
-	// {
-	// 	matchIndex = ordersNeeded.indexOf(existingOrders[x]);
-	// 	if (matchIndex > -1)
-	// 	{
-	// 		log.l("splicing " + existingOrders[x] + " as a duplicate.");
-	// 		ordersNeeded.splice(matchIndex,1);
-	// 		teamNames.splice(matchIndex,1);
-	// 	}
-	// }
-
-	
-	var scriptResults;
-	var curOrderNumber,curTeamName;
-	for(var x=0;x<10;x++)
-	{
-		if(x === ordersNeeded.length)
-		{
-			break;
-		}
-		curOrderNumber = ordersNeeded[x];
-		curTeamName = teamNames[x];
-		batchTimer.beginTask(curOrderNumber + "_" + curTeamName);
-		$.writeln("\n*****\n");
-		$.writeln("Procoessing: " + curOrderNumber + "_" + curTeamName);
-		$.writeln("This is garment #" + x + " of the batch.");
-		$.writeln("\n*****\n");
-
-		scriptResults = BuildMockupBatch(curOrderNumber, curTeamName);	
-
-		garmentsProcessed += scriptResults.garmentCount;
-		graphicsProcessed += scriptResults.graphicCount;
-		ordersProcessed++;
-
-		batchTimer.endTask(curOrderNumber + "_" + curTeamName);
-	}
-
-	batchTimer.endTask("batchOrders");
-
-	log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
-
-}
-getBatchOrders();
+BuildMockupBatch();
