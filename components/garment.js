@@ -413,7 +413,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}([hgbms]{2})?$)/i;
+		var pat = /[_-]([\d]{1,}([hgbms]{1,2})?$)/i;
 		var result = name.match(pat);
 		if(result && result.length)
 		{
