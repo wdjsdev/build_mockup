@@ -12,6 +12,8 @@ function Garment(config,data,designNumber)
 	this.graphics = config.graphics;
 	this.saveFile;
 	this.mockupDocument;
+	this.adultMockupLayer;
+	this.youthMockupLayer;
 	this.mid = data.mid;
 
 
@@ -51,15 +53,19 @@ function Garment(config,data,designNumber)
 		this.openFile(file);
 		this.mockupDocument = currentMockup = app.activeDocument;
 		app.executeMenuCommand("fitall");
+		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
 
 		if(this.youthGarmentFile)
 		{
 			var youthDoc = this.openFile(this.youthGarmentFile);
 			mergeTemplate(currentMockup);
+			this.youthMockupLayer = findSpecificLayer(this.mockupDocument.layers[1],"Mockup");
 			filesToClose.push(youthDoc);
 			currentMockup.activate();
 			app.executeMenuCommand("fitall");
+			app.redraw();
 		}
+
 
 		this.saveFile = this.getSaveFile();
 
@@ -257,7 +263,85 @@ function Garment(config,data,designNumber)
 		}
 	}
 
-	this.applyGraphicStyle = function(placeholder,graphicStyleName)
+	this.processGraphic = function(curGraphic)
+	{
+		 //first identify the type of graphic
+		 //for now, let's subdivide by
+		 	// logos
+		 		//for anything that is a logo, there should only be one option to grab
+		 		//check the production layer and identify the layer that matches the
+		 		//graphic code (i.e. FDS-1242)
+
+		 		//when the logo layer is identified,
+		 		//check the curGraphic.teamNames array to see whether any text needs to be changed
+		 		//if so, dig recursively through
+		 		//the layer to find any instances of textFrames labeled "graphic_text_#"
+		 			//change the contents of the text frame per the matching
+		 			//element of the curGraphic.teamNames array.
+		 	// names/numbers
+		 		//probably need a database of some kind to figure out which name/number instance
+		 		//to grab for given locations.. 
+
+		 var doc = app.activeDocument;
+		 var layers = doc.layers;
+		 var prodLayer = findSpecificLayer(layers,"PRODUCTION");
+		 if(!prodLayer)
+		 {
+		 	log.e("The graphic file: " + curGraphic + " is not optimized for the script yet.");
+		 	return undefined;
+		 }
+
+		 //youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
+		 //and then placed next to the artboard
+		 var youthGroup,adultGroup;
+		 var noteLay,nameLay,numLay,graphicLay;
+
+		 var curLay,curName;
+		 for(var x=0;x<prodLayer.layers.length;x++)
+		 {
+		 	curLay = prodLayer.layers[x];
+		 	curName = curLay.name
+		 	if(curName.toLowerCase().indexOf("note")>-1)
+		 	{
+		 		noteLay = curLay;
+		 	}
+		 	else if (curName.toLowerCase().indexOf("fdsp")>-1)
+		 	{
+		 		nameLay = curLay;
+		 	}
+		 	else if(curName.toLowerCase().indexOf("fdsn")>-1)
+		 	{
+		 		numLay = curLay;
+		 	}
+		 	else if(curName.toLowerCase().indexOf("fds")>-1)
+		 	{
+		 		graphicLay = curLay;
+		 	}
+		 }
+
+
+		 if(nameLay)
+		 {
+		 	if(this.adultMockupLayer)
+		 	{
+		 		var adultName = copyArtToMaster(nameLay.pageItems["name_2"],this.adultMockupLayer);
+		 		adultName.left = this.mockupDocument.artboards[0].artboardRect[0];
+		 		adultName.top = this.mockupDocument.artboards[0].artboardRect[1] + 50;
+		 	}
+		 	if(this.youthMockupLayer)
+		 	{
+		 		var youthName = copyArtToMaster(nameLay.pageItems["name_1.5"], this.youthMockupLayer);
+		 		youthName.left = this.mockupDocument.artboards[1].artboardRect[1];
+		 		youthName.top = this.mockupDocument.artboards[1].artboardRect[1] + 50;
+ 		 	}
+		 	
+		 }
+
+		 
+		 
+	}
+
+	this.applyGraphicStyle = function(placeholder)
 	{
 		log.h ("Applying graphic style: " + placeholder);
 		var doc = app.activeDocument;
@@ -380,8 +464,6 @@ function Garment(config,data,designNumber)
 				continue;
 			}
 			
-			//replace any hyphens with underscores
-			// curGraphic.name = g.replace("-","_");
 
 			log.l("Fixing: " + curGraphic.name);
 
