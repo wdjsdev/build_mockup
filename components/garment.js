@@ -181,9 +181,9 @@ function Garment(config,data,designNumber)
 		var doc = app.activeDocument;
 		hidePPLay();
 		var curGStyle,patternFile;
-		var placeholderPrefix = topOrBottomSwatches();
-		// var placeholderPrefix = "C";
-		var curPlaceholderName;
+		// var placeholderPrefix = topOrBottomSwatches();
+		var placeholderPrefix = "C";
+		var curPlaceholderName,graphicStyleName;
 		for(var ph in colors)
 		{
 			if(/_[\d]*_/.test(ph))
@@ -193,11 +193,20 @@ function Garment(config,data,designNumber)
 			}
 			colors[ph].swatchName = BUILDER_COLOR_CODES[colors[ph].colorCode];
 			curPlaceholderName = placeholderPrefix + ph.substring(1,ph.length);
+			graphicStyleName = curPlaceholderName;
 			colors[ph].id = curPlaceholderName;
 			curGStyle = new GraphicStyle(colors[ph]);
 			curGStyle.init();
 			currentMockup.activate();
-			this.applyGraphicStyle(curPlaceholderName)
+
+			//applyGraphicStyleArguments:
+				//curPlaceholderName = the name of the swatch to change
+				//graphicStyleName = the name of the graphic style to apply
+			this.applyGraphicStyle(curPlaceholderName,graphicStyleName);
+
+			//now, change any "B" colors.
+			this.applyGraphicStyle(curPlaceholderName.replace("C","B"),graphicStyleName);
+
 			log.l("created graphic style: " + curPlaceholderName);
 		}
 		this.garmentColors = data.colors;
@@ -245,13 +254,36 @@ function Garment(config,data,designNumber)
 		}
 	}
 
-	this.applyGraphicStyle = function(placeholder)
+	this.applyGraphicStyle = function(placeholder,graphicStyleName)
 	{
 		log.h ("Applying graphic style: " + placeholder);
 		var doc = app.activeDocument;
 		doc.selection = null;
 		doc.defaultFillColor = makeNewSpotColor(placeholder).color;
 		app.executeMenuCommand("Find Fill Color menu item");
+
+		var newSpotColor = makeNewSpotColor(this.garmentColors[graphicStyleName].swatchName).color;
+
+		changeThemColors();
+
+
+
+		function changeThemColors()
+		{
+			try
+			{
+				var gs = doc.graphicStyles[graphicStyleName];
+				for(var cc=0,len=doc.selection.length;cc<len;cc++)
+				{
+					dig(doc.selection[cc]);
+				}
+			}
+			catch(e)
+			{
+				doc.defaultFillColor = newSpotColor;
+			}
+		}
+		
 
 		function dig(curItem)
 		{
@@ -273,18 +305,7 @@ function Garment(config,data,designNumber)
 		}
 
 
-		try
-		{
-			var gs = doc.graphicStyles[placeholder];
-			for(var cc=0,len=doc.selection.length;cc<len;cc++)
-			{
-				dig(doc.selection[cc]);
-			}
-		}
-		catch(e)
-		{
-			doc.defaultFillColor = makeNewSpotColor(this.garmentColors[placeholder].swatchName).color;
-		}
+		
 	}
 
 	this.getGarments = function()
