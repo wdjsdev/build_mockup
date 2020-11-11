@@ -186,7 +186,7 @@ function Garment(config,data,designNumber)
 		var curPlaceholderName,graphicStyleName;
 		for(var ph in colors)
 		{
-			if(/_[\d]*_/.test(ph))
+			if(/_[\d]*_/.test(ph) || colors[ph].colorCode === "")
 			{
 				//wonky data.. ignore it.
 				continue;
@@ -261,6 +261,7 @@ function Garment(config,data,designNumber)
 		doc.selection = null;
 		doc.defaultFillColor = makeNewSpotColor(placeholder).color;
 		app.executeMenuCommand("Find Fill Color menu item");
+		var gs;
 
 		var newSpotColor = makeNewSpotColor(this.garmentColors[graphicStyleName].swatchName).color;
 
@@ -272,7 +273,7 @@ function Garment(config,data,designNumber)
 		{
 			try
 			{
-				var gs = doc.graphicStyles[graphicStyleName];
+				gs = doc.graphicStyles[graphicStyleName];
 				for(var cc=0,len=doc.selection.length;cc<len;cc++)
 				{
 					dig(doc.selection[cc]);
