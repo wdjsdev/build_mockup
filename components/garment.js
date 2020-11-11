@@ -13,8 +13,11 @@ function Garment(config,data,designNumber)
 	this.saveFile;
 	this.mockupDocument;
 	this.adultMockupLayer;
+	this.adultMockupArtboard;
 	this.youthMockupLayer;
-	this.mid = data.mid;
+	this.youthMockupArtboard;
+
+	this.graphicXPosition = 0;
 
 
 
@@ -54,6 +57,7 @@ function Garment(config,data,designNumber)
 		this.mockupDocument = currentMockup = app.activeDocument;
 		app.executeMenuCommand("fitall");
 		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
+		this.adultMockupArtboard = this.mockupDocument.artboards[0];
 
 		if(this.youthGarmentFile)
 		{
@@ -91,20 +95,36 @@ function Garment(config,data,designNumber)
 		var curGraphic,graphicSaveFile,graphicSaveFileName;
 		var curAppendage;
 		var graphicAppendagePat = /_[\d].ai$/;
+		var numPat = /fdsn/i;
+		var namePat = /fdsp/i;
 		log.l("Looping graphics for the mockup: " + this.saveFile.name);
 		for(var g in this.graphics)
 		{
 			log.l("Processing graphic: " + g);
 			curGraphic = this.graphics[g];
+			curGraphic.key = g;
 
-			if(this.graphics[g].file)
+			if(numPat.test(g))
 			{
-				this.openFile(this.graphics[g].file);
-				this.recolorGraphic(this.graphics[g].colors);
-				this.processGraphic(this.graphics[g]);
+				curGraphic.type = "number";
+			}
+			else if(namePat.test(g))
+			{
+				curGraphic.type = "name";
+			}
+			else
+			{
+				curGraphic.type = "logo";
+			}
+
+			if(curGraphic.file)
+			{
+				this.openFile(curGraphic.file);
+				this.recolorGraphic(curGraphic.colors);
+				this.processGraphic(curGraphic);
 				graphicsOpened++;
 
-				graphicSaveFileName = localGraphicsFolderPath + "/" + this.graphics[g].name + ".ai"
+				graphicSaveFileName = localGraphicsFolderPath + "/" + curGraphic.name + ".ai"
 				graphicSaveFile = File(graphicSaveFileName);
 				while(graphicSaveFile.exists)
 				{
@@ -265,77 +285,103 @@ function Garment(config,data,designNumber)
 
 	this.processGraphic = function(curGraphic)
 	{
-		 //first identify the type of graphic
-		 //for now, let's subdivide by
-		 	// logos
-		 		//for anything that is a logo, there should only be one option to grab
-		 		//check the production layer and identify the layer that matches the
-		 		//graphic code (i.e. FDS-1242)
+		//first identify the type of graphic
+		//for now, let's subdivide by
+			// logos
+				//for anything that is a logo, there should only be one option to grab
+				//check the production layer and identify the layer that matches the
+				//graphic code (i.e. FDS-1242)
 
-		 		//when the logo layer is identified,
-		 		//check the curGraphic.teamNames array to see whether any text needs to be changed
-		 		//if so, dig recursively through
-		 		//the layer to find any instances of textFrames labeled "graphic_text_#"
-		 			//change the contents of the text frame per the matching
-		 			//element of the curGraphic.teamNames array.
-		 	// names/numbers
-		 		//probably need a database of some kind to figure out which name/number instance
-		 		//to grab for given locations.. 
+				//when the logo layer is identified,
+				//check the curGraphic.teamNames array to see whether any text needs to be changed
+				//if so, dig recursively through
+				//the layer to find any instances of textFrames labeled "graphic_text_#"
+					//change the contents of the text frame per the matching
+					//element of the curGraphic.teamNames array.
+			// names/numbers
+				//probably need a database of some kind to figure out which name/number instance
+				//to grab for given locations.. 
 
-		 var doc = app.activeDocument;
-		 var layers = doc.layers;
-		 var prodLayer = findSpecificLayer(layers,"PRODUCTION");
-		 if(!prodLayer)
-		 {
-		 	log.e("The graphic file: " + curGraphic + " is not optimized for the script yet.");
-		 	return undefined;
-		 }
+		var doc = app.activeDocument;
+		var layers = doc.layers;
+		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
+		if(!prodLayer)
+		{
+			log.e("The graphic file: " + curGraphic + " is not optimized for the script yet.");
+			return undefined;
+		}
 
-		 //youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
-		 //and then placed next to the artboard
-		 var youthGroup,adultGroup;
-		 var noteLay,nameLay,numLay,graphicLay;
+		//youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
+		//and then placed next to the artboard
+		var youthGroup,adultGroup;
+		var noteLayer,artLayer;
+		var artItem;
 
-		 var curLay,curName;
-		 for(var x=0;x<prodLayer.layers.length;x++)
-		 {
-		 	curLay = prodLayer.layers[x];
-		 	curName = curLay.name
-		 	if(curName.toLowerCase().indexOf("note")>-1)
-		 	{
-		 		noteLay = curLay;
-		 	}
-		 	else if (curName.toLowerCase().indexOf("fdsp")>-1)
-		 	{
-		 		nameLay = curLay;
-		 	}
-		 	else if(curName.toLowerCase().indexOf("fdsn")>-1)
-		 	{
-		 		numLay = curLay;
-		 	}
-		 	else if(curName.toLowerCase().indexOf("fds")>-1)
-		 	{
-		 		graphicLay = curLay;
-		 	}
-		 }
+		var curLay,curName;
+
+		noteLayer = findSpecificLayer(prodLayer,"notes");
+		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
+
+		if(!artLayer)
+		{
+			errorList.push("The graphic file: " + curGraphic.key + " is not optimized for the script yet.");
+			log.e("The graphic file: " + curGraphic.key + " is not optimized for the script yet.");
+		}
+
+		if(curGraphic.type === "name")
+		{
+			artItem = artLayer.pageItems["name_2"];
+			if(this.adultMockupLayer)
+			{
+				var adultName = copyArtToMaster(artItem, this.mockupDocument, ,this.adultMockupLayer);
+				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			}
+			if(this.youthMockupLayer)
+			{
+				artItem = nameLay.pageItems["name_1.5"]
+				var youthName = copyArtToMaster(artItem,this.mockupDocument, this.youthMockupLayer);
+				youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
+				youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
+			}
+		}
+		else if(curGraphic.type === "number")
+		{
+			////////////////////////
+			////////ATTENTION://////
+			//
+			//	add some logic here to check the graphic locations against
+			// 	a database to determine whether it's a "small number" (like a 
+			//	front/sleeve of a tshirt) or a "big number" (like a back number)
+			//
+			////////////////////////
+			
+			artItem = artLayer.pageItems["number_4"];
+			if(this.adultMockupLayer)
+			{
+				var adultName = copyArtToMaster([artItem], this.mockupDocument, ,this.adultMockupLayer);
+				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;``
+			}
+			if(this.youthMockupLayer)
+			{
+				artItem = nameLay.pageItems["name_1.5"]
+				var youthName = copyArtToMaster(artItem,this.mockupDocument, this.youthMockupLayer);
+				youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
+				youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
+			}
+		}
+		else if(curGraphic.type === "logo")
+		{
+
+		}
 
 
-		 if(nameLay)
-		 {
-		 	if(this.adultMockupLayer)
-		 	{
-		 		var adultName = copyArtToMaster(nameLay.pageItems["name_2"],this.adultMockupLayer);
-		 		adultName.left = this.mockupDocument.artboards[0].artboardRect[0];
-		 		adultName.top = this.mockupDocument.artboards[0].artboardRect[1] + 50;
-		 	}
-		 	if(this.youthMockupLayer)
-		 	{
-		 		var youthName = copyArtToMaster(nameLay.pageItems["name_1.5"], this.youthMockupLayer);
-		 		youthName.left = this.mockupDocument.artboards[1].artboardRect[1];
-		 		youthName.top = this.mockupDocument.artboards[1].artboardRect[1] + 50;
- 		 	}
-		 	
-		 }
+
+		
+		this.graphicXPosition += 50;
+
+		 if(artLayer)
 
 		 
 		 
