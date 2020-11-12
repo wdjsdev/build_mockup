@@ -356,16 +356,21 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			artItem = artLayer.pageItems["number_4"];
+			
+
+			var smallNum, bigNum;
 			if(this.adultMockupLayer)
 			{
-				var adultName = copyArtToMaster([artItem], this.mockupDocument, ,this.adultMockupLayer);
-				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;``
+				smallNum = artLayer.pageItems["number_4"]
+				var frontNum = copyArtToMaster([artItem], this.mockupDocument, ,this.adultMockupLayer);
+				frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+				frontNum.top = this.adultMockupArtboard.artboardRect[1] + 50;
+
+				
 			}
 			if(this.youthMockupLayer)
 			{
-				artItem = nameLay.pageItems["name_1.5"]
+				artItem = nameLay.pageItems["number_3"]
 				var youthName = copyArtToMaster(artItem,this.mockupDocument, this.youthMockupLayer);
 				youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
 				youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
