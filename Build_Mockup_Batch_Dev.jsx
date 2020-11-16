@@ -308,10 +308,19 @@ function BuildMockupBatch()
 			graphicsProcessed += scriptResults.graphicCount;
 			ordersProcessed++;
 
+			log.h("Finished batching order # " + x);
+
 			batchTimer.endTask(orderNumber + "_" + teamName);
 		}
 
 		batchTimer.endTask("batchOrders");
+
+		if (errorList.length)
+		{
+			sendErrors(errorList);
+		}
+
+		log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
 
 		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
 
@@ -386,12 +395,7 @@ function BuildMockupBatch()
 		}
 
 
-		if (errorList.length)
-		{
-			sendErrors(errorList);
-		}
-
-		log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+		
 
 		
 		
@@ -401,7 +405,11 @@ function BuildMockupBatch()
 
 	}
 
+
+
 	getBatchOrders();
+
+
 
 	scriptTimer.endTask("BuildMockup");
 
