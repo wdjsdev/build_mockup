@@ -54,7 +54,11 @@ function locateGraphicFolder(graphicCode,lib)
 	else
 	{
 		log.l(graphicCode + " NOT found.");
-		digForGraphic(graphicsFolder);
+
+		
+		//disabling recursive search because it's too expensive time wise
+		//just ask the user where the file is and be done with it.
+		// digForGraphic(graphicsFolder);
 
 		if(!graphicFolder)
 		{
