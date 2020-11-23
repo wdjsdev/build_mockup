@@ -320,6 +320,8 @@ function BuildMockupBatch()
 			sendErrors(errorList);
 		}
 
+		errorList = [];
+
 		log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
 
 		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
