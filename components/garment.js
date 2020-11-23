@@ -12,6 +12,7 @@ function Garment(config,data,designNumber)
 	this.graphics = config.graphics;
 	this.saveFile;
 	this.mockupDocument;
+	this.mid = data.mid;
 
 
 
@@ -31,13 +32,15 @@ function Garment(config,data,designNumber)
 
 	this.processGarment = function()
 	{
+
+
 		if(this.garmentFile)
 		{
 			this.makeMockup(this.garmentFile);
 		}
 		else
 		{
-			errorList.push("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
+			// errorList.push("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
 			log.e("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
 		}
 	}
@@ -167,9 +170,8 @@ function Garment(config,data,designNumber)
 	{
 		this.styleNumber = data.styleNo;
 
-		var fulldyeStyleNumPat = /full[\s]?dye$/i;
-
-		this.styleNumber = this.styleNumber.replace(fulldyeStyleNumPat,"1000");
+		var alphaStyleNumPat = /^[a-z]*$/i;
+		this.styleNumber = this.styleNumber.replace(alphaStyleNumPat,"1000")
 
 		log.l("Successfully set style number. Converted: " + data.styleNo + " to " + this.styleNumber);
 
@@ -404,6 +406,12 @@ function Garment(config,data,designNumber)
 				continue;
 			}
 
+			if(/emb/i.test(curGraphic.name))
+			{
+				curGraphic.name = curGraphic.name.replace(/^.*\-/,"EMB-");
+				curGraphic.lib = "embroidery";
+			}
+
 			
 
 			curGraphic.folder = locateGraphicFolder(curGraphic.name,curGraphic.lib);
@@ -435,7 +443,7 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}([hgbms]{1,2})?$)/i;
+		var pat = /[_-]([\d]{1,}([hgbmsr]{1,3})?$)/i;
 		var result = name.match(pat);
 		if(result && result.length)
 		{
