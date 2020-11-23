@@ -44,7 +44,7 @@ function locateCTFolder(mid)
 		log.l("Found an entry for " + mid + " in the database.")
 		log.l("CT folder = " + ctLocations[mid]);
 
-		if(ctLocations[mid] === "no_youth_garment")
+		if(ctLocations[mid] === "no_youth_garment" || ctLocations[mid] === "no_mockup")
 		{
 			ctFolder = undefined;
 		}
@@ -57,7 +57,11 @@ function locateCTFolder(mid)
 	else
 	{
 		log.l("Nothing in the database for " + mid + ". Beginning to dig through prepress folders.");
-		digForFolders(prepressFolder);
+
+		//disabling recursive search because it's too expensive time wise
+		//just ask the user where the file is and be done with it.
+		// digForFolders(prepressFolder);
+		
 		if(!ctFolder )
 		{
 			//if it's a youth garment and nothing was found
