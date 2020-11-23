@@ -324,6 +324,8 @@ function BuildMockupBatch()
 
 		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
 
+		log.h("There are " + (ordersNeeded.length - ordersProcessed) + " orders that still need to be built.");
+
 	}
 
 
