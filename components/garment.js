@@ -170,7 +170,7 @@ function Garment(config,data,designNumber)
 	{
 		this.styleNumber = data.styleNo;
 
-		var alphaStyleNumPat = /^[a-z]*$/i;
+		var alphaStyleNumPat = /^[a-z]*[\d]?$/i;
 		this.styleNumber = this.styleNumber.replace(alphaStyleNumPat,"1000")
 
 		log.l("Successfully set style number. Converted: " + data.styleNo + " to " + this.styleNumber);
