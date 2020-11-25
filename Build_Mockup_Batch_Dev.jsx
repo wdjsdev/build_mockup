@@ -4,7 +4,7 @@ function BuildMockupBatch()
 {
 
 	var valid = true;
-	var scriptName = "build_mockup";
+	var scriptName = "build_mockup_batch";
 
 
 	
