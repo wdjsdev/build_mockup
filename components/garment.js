@@ -320,12 +320,13 @@ function Garment(config,data,designNumber)
 		var curLay,curName;
 
 		noteLayer = findSpecificLayer(prodLayer,"notes");
-		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
+		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("_","-"));
 
 		if(!artLayer)
 		{
 			errorList.push("The graphic file: " + curGraphic.key + " is not optimized for the script yet.");
 			log.e("The graphic file: " + curGraphic.key + " is not optimized for the script yet.");
+			return;
 		}
 
 		if(curGraphic.type === "name")
@@ -333,7 +334,7 @@ function Garment(config,data,designNumber)
 			artItem = artLayer.pageItems["name_2"];
 			if(this.adultMockupLayer)
 			{
-				var adultName = copyArtToMaster(artItem, this.mockupDocument, ,this.adultMockupLayer);
+				var adultName = copyArtToMaster(artItem, this.mockupDocument, this.adultMockupLayer);
 				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
 			}
@@ -362,7 +363,7 @@ function Garment(config,data,designNumber)
 			if(this.adultMockupLayer)
 			{
 				smallNum = artLayer.pageItems["number_4"]
-				var frontNum = copyArtToMaster([artItem], this.mockupDocument, ,this.adultMockupLayer);
+				var frontNum = copyArtToMaster(artItem, this.mockupDocument, this.adultMockupLayer);
 				frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 				frontNum.top = this.adultMockupArtboard.artboardRect[1] + 50;
 
@@ -378,7 +379,25 @@ function Garment(config,data,designNumber)
 		}
 		else if(curGraphic.type === "logo")
 		{
+			var newGroup = prodLayer.groupItems.add();
+			newGroup.name = curGraphic.key;
+			doc.selection = null;
+			artLayer.hasSelectedArtwork = true;
+			for(var x=doc.selection.length-1;x>=0;x--)
+			{
+				doc.selection[x].moveToBeginning(newGroup);
+			}
 
+			if(this.adultMockupLayer)
+			{
+				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultMockupLayer);
+				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
+			}
+			if(this.youthMockupLayer)
+			{
+				var youthNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.youthMockupLayer)
+				youthNewGroup.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
+			}
 		}
 
 
@@ -386,13 +405,13 @@ function Garment(config,data,designNumber)
 		
 		this.graphicXPosition += 50;
 
-		 if(artLayer)
+		 
 
 		 
 		 
 	}
 
-	this.applyGraphicStyle = function(placeholder)
+	this.applyGraphicStyle = function(placeholder,graphicStyleName)
 	{
 		log.h ("Applying graphic style: " + placeholder);
 		var doc = app.activeDocument;
