@@ -17,10 +17,25 @@
 
 function getTestSalesOrders()
 {
-	var folderLoc = "~/Desktop/build_mockup_test_orders/";
+	var fileNames = [];
+
+	//get the orders in Need Mockup
+	var folderLoc = customizationPath + "Design Mockups/Needs Mockup/";
 	var files = Folder(folderLoc).getFiles();
 
-	var fileNames = [];
+	
+
+	for(var f=0,len=files.length;f<len;f++)
+	{
+		if(files[f].name.indexOf(".pdf")>-1)
+		{
+			fileNames.push(files[f].name);	
+		}
+		
+	}
+
+	folderLoc = customizationPath + "Design Mockups/In Progress/";
+	files = Folder(folderLoc).getFiles();
 
 	for(var f=0,len=files.length;f<len;f++)
 	{
