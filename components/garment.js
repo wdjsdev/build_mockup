@@ -401,6 +401,14 @@ function Garment(config,data,designNumber)
 			if(this.adultArtworkLayer)
 			{
 				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
+
+				//check to see if the whole group is bigger than 15 inches (at scale)
+				//7.2 is 72 points per inch at 10% scale
+				if(adultNewGroup.width > (15 * 7.2))
+				{
+					var newScale = adultNewGroup.width * (13 * 7.2);
+					adultNewGroup.resize(newScale,newScale,false,true,true,true);
+				}
 				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
 				adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
 			}
