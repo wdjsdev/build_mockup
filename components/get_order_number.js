@@ -22,6 +22,33 @@ function getOrderNumber()
 
 	function promptWindow()
 	{
+
+		//get the previous design number
+		var prevDesignNumber = "";
+		var prevDesignNumberFile = File(prefPath + "prev_design_number.txt");
+		prevDesignNumberFile.open("r");
+		prevDesignNumber = prevDesignNumberFile.read();
+		prevDesignNumberFile.close();
+
+		if(!prevDesignNumber || prevDesignNumber == "")
+		{
+			prevDesignNumber = "tvXGyTwqKmGn";
+		}
+
+		//get the previous order number
+		var prevOrderNumber = "";
+		var prevOrderNumberFile = File(prefPath + "prev_order_number.txt");
+		prevOrderNumberFile.open("r");
+		prevOrderNumber = prevOrderNumberFile.read();
+		prevOrderNumberFile.close();
+
+		if(!prevOrderNumber || prevOrderNumber == "")
+		{
+			prevOrderNumber = "1234567";
+		}
+
+
+
 		var inputResult = {orderNumber:"",teamName:""};
 		var w = new Window("dialog","Enter the Order Number and Team Name");
 			var msg = UI.static(w,"Enter Order Info:");
@@ -31,7 +58,7 @@ function getOrderNumber()
 					var onGroup = UI.group(fullOrderInputGroup);
 						onGroup.orientation = "row";
 						var onMsg = UI.static(onGroup,"Order Number: ");
-						var onInput = UI.edit(onGroup,"1234567",10);
+						var onInput = UI.edit(onGroup,prevOrderNumber,10);
 							onInput.active = true;
 					var tnGroup = UI.group(fullOrderInputGroup);
 						tnGroup.orientation = "row";
@@ -46,7 +73,7 @@ function getOrderNumber()
 				var dnGroup = UI.group(designNumberOnlyGroup);
 					dnGroup.orientation = "row";
 					var dnMsg = UI.static(dnGroup,"Design Number: ");
-					var dnInput = UI.edit(dnGroup,"tvXGyTwqKmGn",13);
+					var dnInput = UI.edit(dnGroup,prevDesignNumber,13);
 					var dnBtn = UI.button(dnGroup,"Create This Design",submitDesignNumberFunction);
 
 			UI.hseparator(w,400);
@@ -90,12 +117,17 @@ function getOrderNumber()
 
 			if(dnPat.test(dnInput.text))
 			{
+				w.close();
 				validDesignNumber = true;
 				designNumbers.push(dnInput.text);
 				teamName = "TEAMNAME";
 				orderNumber = "ORDERNUMBER";
 				designNumberOnly = true;
-				w.close();
+
+				prevDesignNumberFile.open("w");
+				prevDesignNumberFile.write(dnInput.text);
+				prevDesignNumberFile.close();
+				
 			}
 			else
 			{
@@ -110,10 +142,15 @@ function getOrderNumber()
 			
 			if(onPat.test(onInput.text) && tnInput.text !== "")
 			{
+				w.close();
 				validOrderNumber = true;
 				orderNumber = onInput.text;
 				teamName = tnInput.text
-				w.close();
+
+
+				prevOrderNumberFile.open("w");
+				prevOrderNumberFile.write(orderNumber);
+				prevOrderNumberFile.close();
 			}
 			else if(!onPat.test(onInput.text))
 			{

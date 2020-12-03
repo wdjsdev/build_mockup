@@ -235,7 +235,7 @@ function BuildMockup()
 		//method of batching orders later
 		//
 		// orderNumber = 3103844;
-		orderNumber = getTestSalesOrders();
+		// orderNumber = getTestSalesOrders();
 
 
 		// designNumbers.push("N6WHW4dpGfMS");
