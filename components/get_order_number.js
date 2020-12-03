@@ -22,6 +22,18 @@ function getOrderNumber()
 
 	function promptWindow()
 	{
+
+		var prevDesignNumber = "";
+		var prevDesignNumberFile = File(prefPath + "prev_design_number.txt");
+		prevDesignNumberFile.open("r");
+		prevDesignNumber = prevDesignNumberFile.read();
+		prevDesignNumberFile.close();
+
+		if(!prevDesignNumber || prevDesignNumber == "")
+		{
+			prevDesignNumber = "tvXGyTwqKmGn";
+		}
+
 		var inputResult = {orderNumber:"",teamName:""};
 		var w = new Window("dialog","Enter the Order Number and Team Name");
 			var msg = UI.static(w,"Enter Order Info:");
@@ -46,7 +58,7 @@ function getOrderNumber()
 				var dnGroup = UI.group(designNumberOnlyGroup);
 					dnGroup.orientation = "row";
 					var dnMsg = UI.static(dnGroup,"Design Number: ");
-					var dnInput = UI.edit(dnGroup,"tvXGyTwqKmGn",13);
+					var dnInput = UI.edit(dnGroup,prevDesignNumber,13);
 					var dnBtn = UI.button(dnGroup,"Create This Design",submitDesignNumberFunction);
 
 			UI.hseparator(w,400);
@@ -90,12 +102,17 @@ function getOrderNumber()
 
 			if(dnPat.test(dnInput.text))
 			{
+				w.close();
 				validDesignNumber = true;
 				designNumbers.push(dnInput.text);
 				teamName = "TEAMNAME";
 				orderNumber = "ORDERNUMBER";
 				designNumberOnly = true;
-				w.close();
+
+				prevDesignNumberFile.open("w");
+				prevDesignNumberFile.write(dnInput.text);
+				prevDesignNumberFile.close();
+				
 			}
 			else
 			{
