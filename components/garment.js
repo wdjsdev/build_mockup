@@ -123,7 +123,18 @@ function Garment(config,data,designNumber)
 			{
 				this.openFile(curGraphic.file);
 				this.recolorGraphic(curGraphic.colors);
-				this.processGraphic(curGraphic);
+
+				try
+				{
+					this.processGraphic(curGraphic);	
+				}
+				catch(e)
+				{
+					log.e("Failed to process " + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
+
+					log.e("_FIX_GRAPHIC_FILE_" + curGraphic.file.fullName);
+				}
+				
 				graphicsOpened++;
 
 				graphicSaveFileName = localGraphicsFolderPath + "/" + curGraphic.name + ".ai"
@@ -214,6 +225,24 @@ function Garment(config,data,designNumber)
 		var curGStyle,patternFile;
 		// var placeholderPrefix = topOrBottomSwatches();
 		var placeholderPrefix = "C";
+
+
+		//check for paramcolors on the mockup layer.
+		//if they don't exist yet, create them.
+		//just set a boolean variable to determine whether
+		//to add param blocks while recoloring the garment
+		//to ensure that the mockup exporter can work properly
+
+		var needsParam = findSpecificLayer(this.adultMockupLayer,"paramcolors") ? false : true;
+
+		if(needsParam)
+		{
+			var paramLayer = this.adultMockupLayer.layers.add();
+			paramLayer.name = "paramcolors";
+			var paramIndex = 0;
+			var paramBlock;
+		}
+
 		var curPlaceholderName,graphicStyleName;
 		for(var ph in colors)
 		{
@@ -229,6 +258,19 @@ function Garment(config,data,designNumber)
 			curGStyle = new GraphicStyle(colors[ph]);
 			curGStyle.init();
 			currentMockup.activate();
+
+			if(needsParam)
+			{
+				paramBlock = paramLayer.pathItems.rectangle(0,0,5,5);
+				paramBlock.filled = true;
+				paramBlock.fillColor = makeNewSpotColor(ph).color;
+				paramBlock.name = "paramcolor-" + curPlaceholderName;
+				paramBlock.left = this.mockupDocument.artboards[0].artboardRect[0] - 5;
+				paramBlock.top = this.mockupDocument.artboards[0].artboardRect[1] - (5 * paramIndex);
+				paramIndex++;
+			}
+
+
 
 			//applyGraphicStyleArguments:
 				//curPlaceholderName = the name of the swatch to change
@@ -359,19 +401,28 @@ function Garment(config,data,designNumber)
 			
 
 			var smallNum, bigNum;
+			var smallNumLabel, bigNumLabel;
+
+			//this is effectively the "size" of the graphic
+			//for mens, we want a 4" small num and a 9" big num and a 2" name
+			//for womens/youth, 3" small and 8" big num and a 1.5" name
+			// smallNumLabel = 
+			// bigNumLabel = 
+
+
 			if(this.adultArtworkLayer)
 			{
 				smallNum = artLayer.pageItems["number_4"];
 				var frontNum = copyArtToMaster(smallNum, this.mockupDocument, this.adultArtworkLayer);
 				frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				frontNum.top = this.adultMockupArtboard.artboardRect[1] + 50;
+				frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
 
 				this.graphicXPosition += frontNum.width + 50;
 
 				bigNum = artLayer.pageItems["number_9"];
 				var backNum = copyArtToMaster(bigNum,this.mockupDocument,this.adultArtworkLayer);
 				backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				backNum.top = this.adultMockupArtboard.artboardRect[1] + 50;
+				backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
 
 				this.graphicXPosition += backNum.width + 50;
 				
@@ -388,27 +439,70 @@ function Garment(config,data,designNumber)
 		}
 		else if(curGraphic.type === "logo")
 		{
-			var newGroup = prodLayer.groupItems.add();
-			newGroup.name = curGraphic.key;
+			
 			doc.selection = null;
 			artLayer.hasSelectedArtwork = true;
-			newGroup.selected = false;
-			for(var x=doc.selection.length-1;x>=0;x--)
+			
+
+			app.executeMenuCommand("group");
+			if(doc.selection.length)
 			{
-				doc.selection[x].moveToBeginning(newGroup);
+				var newGroup = doc.selection[0].duplicate();
+				newGroup.top += newGroup.height + 50;
 			}
 
+
+			//try to update graphic text...
+			if(curGraphic.teamNames)
+			{
+				for(var n=0;n < curGraphic.teamNames.length;n++)
+				{
+					try
+					{
+						newGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+					}
+					catch(e)
+					{
+						// oh well..
+						//fix this later...
+					}
+				}
+			}
+			
+			var newScale;
 			if(this.adultArtworkLayer)
 			{
+				
+				newGroup.name = artLayer.name
+				if(newGroup.width > newGroup.height)
+				{
+					newScale = ((13 * 7.2) / newGroup.width);	
+				}
+				else
+				{
+					newScale = ((13 * 7.2) / newGroup.height);
+				}
+				newScale *= 100; //convert to percentage
+				
+				newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+
 				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
 
-				//check to see if the whole group is bigger than 15 inches (at scale)
+				////////////////////////
+				////////ATTENTION://////
+				//
+				//		FIGURE OUT A WAY TO INCORPORATE THE NOTES TOO...
+				//
+				////////////////////////
+
+				//check to see if the whole group is bigger than 2 inches (at full scale)
 				//7.2 is 72 points per inch at 10% scale
-				if(adultNewGroup.width > (15 * 7.2))
-				{
-					var newScale = adultNewGroup.width * (13 * 7.2);
-					adultNewGroup.resize(newScale,newScale,false,true,true,true);
-				}
+
+				// if(adultNewGroup.width > (5 * 7.2))
+				// {
+				// 	var newScale = adultNewGroup.width * (13 * 7.2);
+				// 	adultNewGroup.resize(newScale,newScale,false,true,true,true);
+				// }
 				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
 				adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
 			}
