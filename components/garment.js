@@ -189,7 +189,7 @@ function Garment(config,data,designNumber)
 		else if(girlsCodePat.test(this.adultGarmentCode))
 		{
 			this.youthGarmentCode = this.adultGarmentCode;
-			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"");
+			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"W");
 		}
 		else if(youthCodePat.test(this.adultGarmentCode))
 		{
