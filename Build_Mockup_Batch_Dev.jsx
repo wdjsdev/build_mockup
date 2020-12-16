@@ -421,6 +421,7 @@ function BuildMockupBatch()
 	printLog();
 	scriptTimer.endTask("printLog");
 
+	copyOrdersToAssetFolder();
 }
 
 

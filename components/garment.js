@@ -99,7 +99,7 @@ function Garment(config,data,designNumber)
 		var graphicAppendagePat = /_[\d].ai$/;
 		var numPat = /fdsn/i;
 		var namePat = /fdsp/i;
-		log.l("Looping graphics for the mockup: " + this.saveFile.name);
+		log.h("Looping graphics for the mockup: " + this.saveFile.name);
 		for(var g in this.graphics)
 		{
 			log.l("Processing graphic: " + g);
@@ -219,7 +219,7 @@ function Garment(config,data,designNumber)
 
 	this.recolorGarment = function(colors)
 	{
-		log.h("Recoloring garment.");
+		log.l("Recoloring garment.");
 		var doc = app.activeDocument;
 		hidePPLay();
 		var curGStyle,patternFile;
@@ -270,6 +270,8 @@ function Garment(config,data,designNumber)
 				paramIndex++;
 			}
 
+			log.l("Recoloring " + ph + " with " + colors[ph].swatchName);
+
 
 
 			//applyGraphicStyleArguments:
@@ -287,7 +289,7 @@ function Garment(config,data,designNumber)
 
 	this.recolorGraphic = function(colors)
 	{
-		log.h("Recoloring graphic");
+		log.l("Recoloring graphic");
 		var doc = app.activeDocument;
 		var swatches = [];
 
@@ -529,7 +531,7 @@ function Garment(config,data,designNumber)
 
 	this.applyGraphicStyle = function(placeholder,graphicStyleName)
 	{
-		log.h ("Applying graphic style: " + placeholder);
+		log.l ("Applying graphic style: " + placeholder);
 		var doc = app.activeDocument;
 		doc.selection = null;
 		doc.defaultFillColor = makeNewSpotColor(placeholder).color;
