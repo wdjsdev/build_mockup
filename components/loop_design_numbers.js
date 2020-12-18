@@ -39,6 +39,11 @@ function loopDesignNumbers()
 			errorList.push(curDesignNumber + " has been skipped.");
 			continue;
 		}
+		else if(curBuilderData.error)
+		{
+			log.e(curBuilderData.error);
+			continue;
+		}
 
 		if(curBuilderData.config && curBuilderData.configReverse)
 		{
