@@ -4,6 +4,7 @@ function Garment(config,data,designNumber)
 {
 	this.designNumber = designNumber;
 	this.garmentCode = "";
+	this.garmentWearer = ""; //this is either M, W, or Y 
 	this.garmentFolder;
 	this.garmentFile;
 	this.styleNumber = "";
@@ -184,20 +185,24 @@ function Garment(config,data,designNumber)
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
+			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
 		}
 		else if(girlsCodePat.test(this.adultGarmentCode))
 		{
+			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"W");
 		}
 		else if(youthCodePat.test(this.adultGarmentCode))
 		{
+			this.garmentWearer = "M";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(youthCodePat,"");
 		}
 		else
 		{
+			this.garmentWearer = "M";
 			this.youthGarmentCode = this.adultGarmentCode + "Y";
 
 		}
@@ -350,6 +355,15 @@ function Garment(config,data,designNumber)
 
 		var doc = app.activeDocument;
 		var layers = doc.layers;
+		//youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
+		//and then placed next to the artboard
+		var youthGroup,adultGroup;
+		var noteLayer,artLayer;
+		var noteGroup;
+		var artItem;
+		var curLay,curName;
+
+
 		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
 		noteLayer = findSpecificLayer(prodLayer,"notes");
 		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("_","-"));
@@ -359,6 +373,33 @@ function Garment(config,data,designNumber)
 			artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
 		}
 
+		if(!artLayer)
+		{
+			//check to see whether there are specific "wearer" layers
+			//options are "MENS", "WOMENS", "YOUTH";
+			//if these layers exist, determine which is the correct one
+			//and use that layer as the artLayer
+			var mensLayer = findSpecificLayer(artLayer,"MENS");
+			var womensLayer = findSpecificLayer(artLayer,"WOMENS");
+			var youthLayer = findSpecificLayer(artLayer,"YOUTH");
+
+			if(mensLayer && womensLayer && youthLayer)
+			{
+				log.l("This graphic file has artwork sublayers.");
+				if(this.garmentWearer && this.garmentWearer = "W")
+				{
+					artLayer = womensLayer;
+					noteLayer = findSpecificLayer(artLayer,"notes");
+				}
+				else
+				{
+					artLayer = mensLayer;
+					noteLayer = findSpecificLayer(artLayer,"notes");
+				}
+			}
+		}
+
+
 		
 		if(!prodLayer || !artLayer)
 		{
@@ -366,19 +407,27 @@ function Garment(config,data,designNumber)
 			return undefined;
 		}
 
-		//youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
-		//and then placed next to the artboard
-		var youthGroup,adultGroup;
-		var noteLayer,artLayer;
-		var artItem;
 
-		var curLay,curName;
-
+		if(noteLayer)
+		{
+			app.selection = null;
+			noteLayer.hasSelectedArtwork = true;
+			app.executeMenuCommand("group");
+			noteGroup = docRef.selection[0];
+		}
 		
 
 
 		if(curGraphic.type === "name")
 		{
+
+			////////////////////////
+			////////ATTENTION://////
+			//
+			//		add logic here to get the correct size name
+			//		according to the wearer.. mens/womens/youth
+			//
+			////////////////////////
 			artItem = artLayer.pageItems["name_2"];
 			if(this.adultArtworkLayer)
 			{
@@ -442,6 +491,8 @@ function Garment(config,data,designNumber)
 		else if(curGraphic.type === "logo")
 		{
 			
+
+
 			doc.selection = null;
 			artLayer.hasSelectedArtwork = true;
 			
@@ -465,8 +516,7 @@ function Garment(config,data,designNumber)
 					}
 					catch(e)
 					{
-						// oh well..
-						//fix this later...
+						log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
 					}
 				}
 			}
@@ -487,24 +537,11 @@ function Garment(config,data,designNumber)
 				newScale *= 100; //convert to percentage
 				
 				newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+				noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 
 				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
 
-				////////////////////////
-				////////ATTENTION://////
-				//
-				//		FIGURE OUT A WAY TO INCORPORATE THE NOTES TOO...
-				//
-				////////////////////////
 
-				//check to see if the whole group is bigger than 2 inches (at full scale)
-				//7.2 is 72 points per inch at 10% scale
-
-				// if(adultNewGroup.width > (5 * 7.2))
-				// {
-				// 	var newScale = adultNewGroup.width * (13 * 7.2);
-				// 	adultNewGroup.resize(newScale,newScale,false,true,true,true);
-				// }
 				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
 				adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
 			}
