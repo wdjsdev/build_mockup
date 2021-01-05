@@ -7,6 +7,7 @@ function BuildMockupBatch()
 	var scriptName = "build_mockup_batch";
 
 
+
 	
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
 
@@ -276,7 +277,7 @@ function BuildMockupBatch()
 			}
 		}
 		
-
+		
 		getFilesFromFolder(rushFolder);
 		getFilesFromFolder(needMockFolder);
 

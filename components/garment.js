@@ -56,11 +56,13 @@ function Garment(config,data,designNumber)
 	{
 		this.openFile(file);
 		this.mockupDocument = currentMockup = app.activeDocument;
+
+		
 		app.executeMenuCommand("fitall");
 		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
 		this.adultArtworkLayer = findSpecificLayer(this.mockupDocument.layers[0],"Artwork Layer");
 		this.adultMockupArtboard = this.mockupDocument.artboards[0];
-
+		
 
 		if(this.youthGarmentFile)
 		{
@@ -73,13 +75,22 @@ function Garment(config,data,designNumber)
 			app.redraw();
 		}
 
+		// this.mockupDocument.rulerOrigin = [this.adultMockupArtboard.artboardRect[0],this.adultMockupArtboard.artboardRect[1]];
+
 
 		this.saveFile = this.getSaveFile();
 
 		currentMockup.saveAs(this.saveFile);
 		curGarmentIndex++;
 		
-		this.recolorGarment(this.garmentColors);
+		if(this.adultMockupLayer)
+		{
+			this.recolorGarment(this.garmentColors);
+		}
+		else
+		{
+			log.e("Failed to find a mockup layer");
+		}
 
 		if(this.saveFile)
 		{
@@ -215,8 +226,18 @@ function Garment(config,data,designNumber)
 	{
 		this.styleNumber = data.styleNo;
 
+		//check for an alphabetic style number
 		var alphaStyleNumPat = /^[a-z]*[\d]?$/i;
 		this.styleNumber = this.styleNumber.replace(alphaStyleNumPat,"1000")
+
+		//check for a style number with one or more letters appended to the end
+		//example: FD-5060_1007A
+		var appendedLetterPat = /([\d]*)[a-z]*/i;
+		var appendageMatch = this.styleNumber.match(appendedLetterPat);
+		if(appendageMatch && appendageMatch.length && appendageMatch.length > 1)
+		{
+			this.styleNumber = appendageMatch[1];
+		}
 
 		log.l("Successfully set style number. Converted: " + data.styleNo + " to " + this.styleNumber);
 
@@ -359,12 +380,26 @@ function Garment(config,data,designNumber)
 		//and then placed next to the artboard
 		var youthGroup,adultGroup;
 		var noteLayer,artLayer;
-		var noteGroup;
+		var noteGroup,masterNoteGroup;
 		var artItem;
 		var curLay,curName;
+		var scaleLogo = true;
+
+
+		//check to see whether this is a background graphic
+		//if so.. don't scale it
+		if(/bg/i.test(curGraphic.key))
+		{
+			scaleLogo = false;
+		}
 
 
 		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
+		if(!prodLayer)
+		{
+			log.e("The graphic file: " + curGraphic + " is missing the PRODUCTION layer.");
+			return undefined;
+		}
 		noteLayer = findSpecificLayer(prodLayer,"notes");
 		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("_","-"));
 
@@ -379,14 +414,15 @@ function Garment(config,data,designNumber)
 			//options are "MENS", "WOMENS", "YOUTH";
 			//if these layers exist, determine which is the correct one
 			//and use that layer as the artLayer
-			var mensLayer = findSpecificLayer(artLayer,"MENS");
-			var womensLayer = findSpecificLayer(artLayer,"WOMENS");
-			var youthLayer = findSpecificLayer(artLayer,"YOUTH");
+			var mensLayer = findSpecificLayer(prodLayer,"MENS");
+			var womensLayer = findSpecificLayer(prodLayer,"WOMENS");
+			var youthLayer = findSpecificLayer(prodLayer,"YOUTH");
 
 			if(mensLayer && womensLayer && youthLayer)
 			{
+				scaleLogo = false;
 				log.l("This graphic file has artwork sublayers.");
-				if(this.garmentWearer && this.garmentWearer = "W")
+				if(this.garmentWearer && this.garmentWearer === "W")
 				{
 					artLayer = womensLayer;
 					noteLayer = findSpecificLayer(artLayer,"notes");
@@ -401,19 +437,35 @@ function Garment(config,data,designNumber)
 
 
 		
-		if(!prodLayer || !artLayer)
+		if(!artLayer)
 		{
-			log.e("The graphic file: " + curGraphic + " is not optimized for the script yet.");
+			log.e("The graphic file: " + curGraphic + " is missing an artwork layer.");
 			return undefined;
 		}
 
 
 		if(noteLayer)
 		{
+			noteLayer.locked = false;
+			noteLayer.visible = true;
 			app.selection = null;
 			noteLayer.hasSelectedArtwork = true;
 			app.executeMenuCommand("group");
-			noteGroup = docRef.selection[0];
+			noteGroup = doc.selection[0];
+			app.selection = null;
+			noteGroup.name = artLayer.name + " notes";
+			if(noteLayer.parent.name !== prodLayer.name)
+			{
+				noteGroup.moveToBeginning(prodLayer);
+			}
+			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any")
+
+			if(!masterNoteGroup)
+			{
+				masterNoteGroup = this.adultMockupLayer.groupItems.add();
+				masterNoteGroup.name = "Graphic Notes";	
+			}
+			
 		}
 		
 
@@ -485,16 +537,18 @@ function Garment(config,data,designNumber)
 			// 	youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
 			// 	youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
 			// }
-
-			
 		}
 		else if(curGraphic.type === "logo")
 		{
-			
-
-
 			doc.selection = null;
 			artLayer.hasSelectedArtwork = true;
+
+			if(noteGroup)
+			{
+				noteGroup.selected = false;
+			}
+
+			var logoMoveAmount = 0;
 			
 
 			app.executeMenuCommand("group");
@@ -524,26 +578,56 @@ function Garment(config,data,designNumber)
 			var newScale;
 			if(this.adultArtworkLayer)
 			{
-				
-				newGroup.name = artLayer.name
-				if(newGroup.width > newGroup.height)
+				if(noteGroup)
 				{
-					newScale = ((13 * 7.2) / newGroup.width);	
+					noteGroup.move(newGroup,ElementPlacement.PLACEATBEGINNING);
+				}
+				newGroup.name = artLayer.name
+				if(scaleLogo)
+				{
+					if(newGroup.width > newGroup.height)
+					{
+						newScale = ((13 * 7.2) / newGroup.width);	
+					}
+					else
+					{
+						newScale = ((13 * 7.2) / newGroup.height);
+					}
+					newScale *= 100; //convert to percentage
+					
+					newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 				}
 				else
-				{
-					newScale = ((13 * 7.2) / newGroup.height);
+				{	
+					newScale = 100;
 				}
-				newScale *= 100; //convert to percentage
+
+				logoMoveAmount = newGroup.height + 50;
 				
-				newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
-				noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
-
+				
+				//copy the artwork group 
 				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
-
-
 				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
 				adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+
+				noteGroup = findSpecificPageItem(adultNewGroup,"notes","any");
+				if(noteGroup)
+				{
+					noteGroup.move(masterNoteGroup,ElementPlacement.PLACEATBEGINNING);
+					setCenterPoint(noteGroup,getCenterPoint(adultNewGroup));
+				}
+
+				//copy the notes to the mockup layer
+				// if(noteGroup)
+				// {
+				// 	noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);	
+				// 	var noteGroupCopy = copyArtToMaster(noteGroup,this.mockupDocument,this.adultMockupLayer);
+				// 	setCenterPoint(noteGroupCopy,getCenterPoint(adultNewGroup));
+				// }
+
+
+
+				
 			}
 			// if(this.youthMockupLayer)
 			// {
@@ -551,8 +635,15 @@ function Garment(config,data,designNumber)
 			// 	youthNewGroup.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
 			// 	youthNewGroup.top = this.youthMockupArtboard.artboardRect[0] + youthNewGroup.height + 50;
 			// }
-
-			this.graphicXPosition += newGroup.width + 50;
+			if(noteGroup)
+			{
+				this.graphicXPosition += noteGroup.width + 50;
+			}
+			else
+			{
+				this.graphicXPosition += newGroup.width + 50;	
+			}
+			
 		}
 
 
