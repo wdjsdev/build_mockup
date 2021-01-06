@@ -240,7 +240,7 @@ function BuildMockup()
 		
 
 		//hood graphics
-		designNumbers.push("Gu07DyuSKnor");
+		designNumbers.push("067Pl0lpMBVv");
 
 
 		// designNumbers.push("XMQaJbyxDOWU");

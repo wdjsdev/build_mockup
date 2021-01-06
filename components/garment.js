@@ -134,7 +134,7 @@ function Garment(config,data,designNumber)
 			if(curGraphic.file)
 			{
 				this.openFile(curGraphic.file);
-				this.recolorGraphic(curGraphic.colors);
+				this.recolorGraphic(curGraphic.colors,curGraphic.type);
 
 				try
 				{
@@ -313,7 +313,7 @@ function Garment(config,data,designNumber)
 		this.garmentColors = data.colors;
 	}
 
-	this.recolorGraphic = function(colors)
+	this.recolorGraphic = function(colors,graphicType)
 	{
 		log.l("Recoloring graphic");
 		var doc = app.activeDocument;
@@ -327,7 +327,7 @@ function Garment(config,data,designNumber)
 
 
 
-		var phNumber,phSwatch;
+		var phNumber,phSwatches,curPhSwatch;
 		for(var ph in colors)
 		{
 			if(/_[\d]*_/.test(ph))
@@ -336,12 +336,34 @@ function Garment(config,data,designNumber)
 				continue;
 			}
 			phNumber = ph.replace(/[a-z]/gi,"");
-			phSwatch = findPHSwatch(phNumber,colors[ph]);
+
+			phSwatches = findPHSwatch(phNumber,colors[ph]);
+
+
+			for(var x=0;x<phSwatches.length;x++)
+			{
+				curPhSwatch = phSwatches[x]
+				if(graphicType === "name" && curPhSwatch.name.toLowerCase().indexOf("name") > -1)
+				{
+					mergeSwatches(curPhSwatch.name,colors[ph].swatchName);
+				}
+				else if(graphicType === "number" && curPhSwatch.name.toLowerCase().indexOf("num") > -1 )
+				{
+					mergeSwatches(curPhSwatch.name,colors[ph].swatchName);
+				}
+				else if(graphicType === "logo")
+				{
+					mergeSwatches(curPhSwatch.name,colors[ph].swatchName);		
+				}
+			}
+
+			
 			log.l("Recolored " + ph + " with " + colors[ph].swatchName);
 		}
 
 		function findPHSwatch(num,color)
 		{
+			var result = [];
 			color.swatchName = BUILDER_COLOR_CODES[color.colorCode];
 			var swatchName;
 			for(var s=0,len=swatches.length;s<len;s++)
@@ -349,9 +371,10 @@ function Garment(config,data,designNumber)
 				swatchName = swatches[s].name.replace(/[a-z]/gi,"");
 				if(swatchName == num)
 				{
-					mergeSwatches(swatches[s].name,color.swatchName);
+					result.push(swatches[s])
 				}
 			}
+			return result;
 		}
 	}
 
