@@ -42,24 +42,13 @@
 			// this.getSourceFile();
 			
 			this.doc = app.activeDocument;
-			var firstLayer = this.doc.layers[0];
-			this.firstLayerLockStatus = false;
-			this.firstLayerVisStatus = false;
+			var tmpLay = this.doc.layers.add();s
 
 			if(this.plainFill)
 			{
 				//create and re-color the target block
-				if(firstLayer.locked)
-				{
-					this.firstLayerLockStatus = true;
-				}
-				if(firstLayer.visible)
-				{
-					this.firstLayerVisStatus = true;
-				}
-				firstLayer.locked = false;
-				firstLayer.visible = true;
-				this.targetBlock = firstLayer.pathItems.rectangle(103,710,152,152);
+				app.redraw();
+				this.targetBlock = tmpLay.pathItems.rectangle(103,710,152,152);
 				this.targetBlock.filled = true;
 				this.targetBlock.stroked = false;
 				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
@@ -80,8 +69,6 @@
 				this.targetBlock.remove();
 				this.targetBlock = null;
 
-				firstLayer.locked = this.firstLayerLockStatus;
-				firstLayer.visible = this.firstLayerVisStatus;
 
 			}
 
@@ -244,6 +231,7 @@
 				log.e("Failed to find the graphic style source file.::data = " + JSON.stringify(data));
 				return;
 			}
+			tmpLay.remove();
 
 
 
