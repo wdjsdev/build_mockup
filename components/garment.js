@@ -74,6 +74,23 @@ function Garment(config,data,designNumber)
 			app.executeMenuCommand("fitall");
 			app.redraw();
 		}
+		
+		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
+		if(!this.adultMockupLayer)
+		{
+			this.adultMockupLayer = this.mockupDocument.layers.add();
+			this.adultMockupLayer.name = "Mockup";
+		}
+
+		this.adultArtworkLayer = findSpecificLayer(this.mockupDocument.layers[0],"Artwork Layer");
+		if(!this.adultArtworkLayer)
+		{
+			this.adultArtworkLayer = this.mockupDocument.layers.add();
+			this.adultArtworkLayer.name = "Artwork";
+		}
+		
+		this.adultMockupArtboard = this.mockupDocument.artboards[0];
+		
 
 		// this.mockupDocument.rulerOrigin = [this.adultMockupArtboard.artboardRect[0],this.adultMockupArtboard.artboardRect[1]];
 
@@ -89,7 +106,7 @@ function Garment(config,data,designNumber)
 		}
 		else
 		{
-			log.e("Failed to find a mockup layer");
+			log.e("No mockup layer found. Skipping recolorGarment function.");
 		}
 
 		if(this.saveFile)
@@ -546,10 +563,15 @@ function Garment(config,data,designNumber)
 				this.graphicXPosition += frontNum.width + 50;
 
 				bigNum = artLayer.pageItems["number_9"];
-				var backNum = copyArtToMaster(bigNum,this.mockupDocument,this.adultArtworkLayer);
-				backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
 
+				if(this.adultArtworkLayer)
+				{
+
+
+					var backNum = copyArtToMaster(bigNum,this.mockupDocument,this.adultArtworkLayer);
+					backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+					backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
+				}
 				this.graphicXPosition += backNum.width + 50;
 				
 			}
@@ -627,17 +649,21 @@ function Garment(config,data,designNumber)
 
 				logoMoveAmount = newGroup.height + 50;
 				
-				
-				//copy the artwork group 
-				var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
-				adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
-				adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
-
-				noteGroup = findSpecificPageItem(adultNewGroup,"notes","any");
-				if(noteGroup)
+				if(this.adultArtworkLayer)
 				{
-					noteGroup.move(masterNoteGroup,ElementPlacement.PLACEATBEGINNING);
-					setCenterPoint(noteGroup,getCenterPoint(adultNewGroup));
+
+
+					//copy the artwork group 
+					var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
+					adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
+					adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+
+					noteGroup = findSpecificPageItem(adultNewGroup,"notes","any");
+					if(noteGroup)
+					{
+						noteGroup.move(masterNoteGroup,ElementPlacement.PLACEATBEGINNING);
+						setCenterPoint(noteGroup,getCenterPoint(adultNewGroup));
+					}
 				}
 
 				//copy the notes to the mockup layer
