@@ -423,7 +423,7 @@ function Garment(config,data,designNumber)
 		//youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
 		//and then placed next to the artboard
 		var youthGroup,adultGroup;
-		var noteLayer,artLayer;
+		var noteLayer,artLayer,artCopyGroup;
 		var noteGroup,masterNoteGroup;
 		var artItem;
 		var curLay,curName;
@@ -487,30 +487,63 @@ function Garment(config,data,designNumber)
 			return undefined;
 		}
 
+		//disabling this in favor of grouping the notes with the
+		//artwork and then copy both to the master file  together
+		//and only then split them into artwork and notes layers
+		//respectively. This should help ensure the position of
+		//the notes is appropriate relative to the artwork
+		//
+		// if(noteLayer)
+		// {
+		// 	noteLayer.locked = false;
+		// 	noteLayer.visible = true;
+		// 	app.selection = null;
+		// 	noteLayer.hasSelectedArtwork = true;
+		// 	app.executeMenuCommand("group");
+		// 	noteGroup = doc.selection[0];
+		// 	app.selection = null;
+		// 	noteGroup.name = artLayer.name + " notes";
+		// 	if(noteLayer.parent.name !== prodLayer.name)
+		// 	{
+		// 		noteGroup.moveToBeginning(prodLayer);
+		// 	}
+		// 	masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any")
+
+		// 	if(!masterNoteGroup)
+		// 	{
+		// 		masterNoteGroup = this.adultMockupLayer.groupItems.add();
+		// 		masterNoteGroup.name = "Graphic Notes";	
+		// 	}
+			
+		// }
 
 		if(noteLayer)
 		{
-			noteLayer.locked = false;
-			noteLayer.visible = true;
-			app.selection = null;
-			noteLayer.hasSelectedArtwork = true;
-			app.executeMenuCommand("group");
-			noteGroup = doc.selection[0];
-			app.selection = null;
-			noteGroup.name = artLayer.name + " notes";
-			if(noteLayer.parent.name !== prodLayer.name)
-			{
-				noteGroup.moveToBeginning(prodLayer);
-			}
-			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any")
-
+			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
 			if(!masterNoteGroup)
 			{
 				masterNoteGroup = this.adultMockupLayer.groupItems.add();
-				masterNoteGroup.name = "Graphic Notes";	
 			}
-			
+
+			noteGroup = (function()
+			{
+				noteLayer.locked = false;
+				noteLayer.visible = true;
+				var newGroup = noteLayer.groupItems.add();
+				newGroup.name = artLayer.name + " notes";
+				for(var x = noteLayer.pageItems.length-1;x>=1;x--)
+				{
+					noteLayer.pageItems[x].moveToBeginning(newGroup);
+				}
+				return newGroup;
+			})();
 		}
+
+		//container group for all artwork that will be
+		//duplicated to the master file. this whole group
+		//will be placed and positioned, then split into its
+		//component parts.
+		artCopyGroup = artLayer.groupItems.add();
 		
 
 
@@ -524,12 +557,21 @@ function Garment(config,data,designNumber)
 			//		according to the wearer.. mens/womens/youth
 			//
 			////////////////////////
-			artItem = artLayer.pageItems["name_2"];
+			
+			if(noteGroup)
+			{
+				noteGroup = noteGroup.duplicate(artCopyGroup);
+			}
+			artItem = artLayer.pageItems["name_2"].duplicate(artCopyGroup);
 			if(this.adultArtworkLayer)
 			{
 				var adultName = copyArtToMaster(artItem, this.mockupDocument, this.adultArtworkLayer);
 				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			}
+			if(noteGroup)
+			{
+				adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
 			}
 
 			this.graphicXPosition += artItem.width + 50
@@ -545,66 +587,45 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			
-
 			var smallNum, bigNum;
-			var smallNumLabel, bigNumLabel;
 
-			//this is effectively the "size" of the graphic
-			//for mens, we want a 4" small num and a 9" big num and a 2" name
-			//for womens/youth, 3" small and 8" big num and a 1.5" name
-			// smallNumLabel = 
-			// bigNumLabel = 
-
-
-			if(this.adultArtworkLayer)
-			{
-				smallNum = artLayer.pageItems["number_4"];
-				var frontNum = copyArtToMaster(smallNum, this.mockupDocument, this.adultArtworkLayer);
-				frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
-
-				this.graphicXPosition += frontNum.width + 50;
-
-				bigNum = artLayer.pageItems["number_9"];
-
-				if(this.adultArtworkLayer)
-				{
-
-
-					var backNum = copyArtToMaster(bigNum,this.mockupDocument,this.adultArtworkLayer);
-					backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-					backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
-				}
-				this.graphicXPosition += backNum.width + 50;
-				
-			}
-			// if(this.youthMockupLayer)
-			// {
-			// 	artItem = nameLay.pageItems["number_3"]
-			// 	var youthName = copyArtToMaster(artItem,this.mockupDocument, this.youthMockupLayer);
-			// 	youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			// 	youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
-			// }
-		}
-		else if(curGraphic.type === "logo")
-		{
-			doc.selection = null;
-			artLayer.hasSelectedArtwork = true;
 
 			if(noteGroup)
 			{
-				noteGroup.selected = false;
+				noteGroup = noteGroup.duplicate(artCopyGroup);
 			}
 
-			var logoMoveAmount = 0;
-			
+			smallNum = artLayer.pageItems["number_4"].duplicate(artCopyGroup);
+			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
+			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
 
-			app.executeMenuCommand("group");
-			if(doc.selection.length)
+			if(noteGroup)
 			{
-				var newGroup = doc.selection[0].duplicate();
-				newGroup.top += newGroup.height + 50;
+				smallNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			}
+
+
+
+			artCopyGroup = artLayer.groupItems.add();
+			this.graphicXPosition += frontNum.width + 50;
+
+			bigNum = artLayer.pageItems["number_9"].duplicate(artCopyGroup);
+
+			var backNum = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
+			backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
+			this.graphicXPosition += backNum.width + 50;
+
+		}
+		else if(curGraphic.type === "logo")
+		{
+			app.selection = null;
+			artCopyGroup.name = artLayer.name;
+
+			for(var x = artLayer.pageItems.length-1;x>=0;x--)
+			{
+				artLayer.pageItems[x].moveToBeginning(artCopyGroup);
 			}
 
 
@@ -615,7 +636,7 @@ function Garment(config,data,designNumber)
 				{
 					try
 					{
-						newGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+						artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
 					}
 					catch(e)
 					{
@@ -625,77 +646,50 @@ function Garment(config,data,designNumber)
 			}
 			
 			var newScale;
-			if(this.adultArtworkLayer)
+			
+			
+			if(scaleLogo)
 			{
-				if(noteGroup)
+				if(artCopyGroup.width > artCopyGroup.height)
 				{
-					noteGroup.move(newGroup,ElementPlacement.PLACEATBEGINNING);
-				}
-				newGroup.name = artLayer.name
-				if(scaleLogo)
-				{
-					if(newGroup.width > newGroup.height)
-					{
-						newScale = ((13 * 7.2) / newGroup.width);	
-					}
-					else
-					{
-						newScale = ((13 * 7.2) / newGroup.height);
-					}
-					newScale *= 100; //convert to percentage
-					
-					newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+					newScale = ((13 * 7.2) / artCopyGroup.width);	
 				}
 				else
-				{	
-					newScale = 100;
-				}
-
-				logoMoveAmount = newGroup.height + 50;
-				
-				if(this.adultArtworkLayer)
 				{
-
-
-					//copy the artwork group 
-					var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
-					adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
-					adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
-
-					noteGroup = findSpecificPageItem(adultNewGroup,"notes","any");
-					if(noteGroup)
-					{
-						noteGroup.move(masterNoteGroup,ElementPlacement.PLACEATBEGINNING);
-						setCenterPoint(noteGroup,getCenterPoint(adultNewGroup));
-					}
+					newScale = ((13 * 7.2) / artCopyGroup.height);
 				}
-
-				//copy the notes to the mockup layer
-				// if(noteGroup)
-				// {
-				// 	noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);	
-				// 	var noteGroupCopy = copyArtToMaster(noteGroup,this.mockupDocument,this.adultMockupLayer);
-				// 	setCenterPoint(noteGroupCopy,getCenterPoint(adultNewGroup));
-				// }
-
-
-
+				newScale *= 100; //convert to percentage
 				
-			}
-			// if(this.youthMockupLayer)
-			// {
-			// 	var youthNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.youthMockupLayer)
-			// 	youthNewGroup.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			// 	youthNewGroup.top = this.youthMockupArtboard.artboardRect[0] + youthNewGroup.height + 50;
-			// }
-			if(noteGroup)
-			{
-				this.graphicXPosition += noteGroup.width + 50;
 			}
 			else
-			{
-				this.graphicXPosition += newGroup.width + 50;	
+			{	
+				newScale = 100;
 			}
+
+			if(noteGroup)
+			{
+				noteGroup.moveToBeginning(artCopyGroup);
+			}
+
+			artCopyGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+			
+
+
+			//copy the artwork group 
+			var adultNewGroup = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
+			adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
+			adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+
+			this.graphicXPosition += adultNewGroup.width + 50;
+			
+			if(noteGroup)
+			{
+				adultNewGroup.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			}
+
+
+			
+
 			
 		}
 
