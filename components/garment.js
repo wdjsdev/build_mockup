@@ -67,7 +67,7 @@ function Garment(config,data,designNumber)
 		if(this.youthGarmentFile)
 		{
 			var youthDoc = this.openFile(this.youthGarmentFile);
-			mergeTemplate(currentMockup);
+			mergeTemplate(this.mockupDocument);
 			this.youthMockupLayer = findSpecificLayer(this.mockupDocument.layers[1],"Mockup");
 			filesToClose.push(youthDoc);
 			currentMockup.activate();
@@ -562,19 +562,18 @@ function Garment(config,data,designNumber)
 			{
 				noteGroup = noteGroup.duplicate(artCopyGroup);
 			}
-			artItem = artLayer.pageItems["name_2"].duplicate(artCopyGroup);
-			if(this.adultArtworkLayer)
-			{
-				var adultName = copyArtToMaster(artItem, this.mockupDocument, this.adultArtworkLayer);
-				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
-			}
+			artLayer.pageItems["name_2"].duplicate(artCopyGroup);
+
+			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
+			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			
 			if(noteGroup)
 			{
 				adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
 			}
 
-			this.graphicXPosition += artItem.width + 50
+			this.graphicXPosition += artItem.width + 50;
 		}
 		else if(curGraphic.type === "number")
 		{
@@ -595,14 +594,14 @@ function Garment(config,data,designNumber)
 				noteGroup = noteGroup.duplicate(artCopyGroup);
 			}
 
-			smallNum = artLayer.pageItems["number_4"].duplicate(artCopyGroup);
+			artLayer.pageItems["number_4"].duplicate(artCopyGroup);
 			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
 
 			if(noteGroup)
 			{
-				smallNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+				frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
 			}
 
 
@@ -623,7 +622,7 @@ function Garment(config,data,designNumber)
 			app.selection = null;
 			artCopyGroup.name = artLayer.name;
 
-			for(var x = artLayer.pageItems.length-1;x>=0;x--)
+			for(var x = artLayer.pageItems.length-1;x>=1;x--)
 			{
 				artLayer.pageItems[x].moveToBeginning(artCopyGroup);
 			}

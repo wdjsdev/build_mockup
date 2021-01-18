@@ -16,5 +16,8 @@
 function mergeTemplate(masterFile)
 {
 	var mtPath = customizationPath + "Library/Scripts/mockup_scripts/Merge_Templates.jsx";
+
+	//dev path
+	// var mtPath = desktopPath + "automation/merge_templates/Merge_Templates_Dev.jsx";
 	eval("#include \"" + mtPath + "\"");
 }
