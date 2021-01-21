@@ -210,6 +210,10 @@ function Garment(config,data,designNumber)
 		{
 			this.adultGarmentCode = "FD-500W";
 		}
+		else if(this.adultGarmentCode == "FD-400")
+		{
+			this.adultGarmentCode = "FD-400W";
+		}
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
