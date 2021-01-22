@@ -558,20 +558,22 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			if(noteGroup)
-			{
-				noteGroup = noteGroup.duplicate(artCopyGroup);
-			}
+			//turn off for production
+			//the graphic files need fixing before importing the notes for name/number files
+			// if(noteGroup)
+			// {
+			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
+			// }
 			artLayer.pageItems["name_2"].duplicate(artCopyGroup);
 
 			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 			adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
 			
-			if(noteGroup)
-			{
-				adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			}
+			// if(noteGroup)
+			// {
+			// 	adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			// }
 
 			this.graphicXPosition += artItem.width + 50;
 		}
@@ -589,20 +591,22 @@ function Garment(config,data,designNumber)
 			var smallNum, bigNum;
 
 
-			if(noteGroup)
-			{
-				noteGroup = noteGroup.duplicate(artCopyGroup);
-			}
+			//turn off for production
+			//the graphic files need fixing before importing the notes for name/number files
+			// if(noteGroup)
+			// {
+			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
+			// }
 
 			artLayer.pageItems["number_4"].duplicate(artCopyGroup);
 			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
 
-			if(noteGroup)
-			{
-				frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			}
+			// if(noteGroup)
+			// {
+			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			// }
 
 
 
