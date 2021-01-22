@@ -575,7 +575,7 @@ function Garment(config,data,designNumber)
 			// 	adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
 			// }
 
-			this.graphicXPosition += artItem.width + 50;
+			this.graphicXPosition += artCopyGroup.width + 50;
 		}
 		else if(curGraphic.type === "number")
 		{
@@ -628,23 +628,45 @@ function Garment(config,data,designNumber)
 
 			for(var x = artLayer.pageItems.length-1;x>=1;x--)
 			{
-				artLayer.pageItems[x].moveToBeginning(artCopyGroup);
+				artLayer.pageItems[x].duplicate(artCopyGroup);
+				app.redraw();
 			}
 
 
+
+			////////////////////////
+			////////ATTENTION://////
+			//
+			//		this needs fixin. look at artpackmaker to try and
+			//		reuse code for updating text without breaking character styles
+			//
+			////////////////////////
 			//try to update graphic text...
 			if(curGraphic.teamNames)
 			{
+				var curFrame,curText;
 				for(var n=0;n < curGraphic.teamNames.length;n++)
 				{
-					try
+					curText = curGraphic.teamNames[n].toUpperCase();
+					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
+					if(curFrame)
 					{
-						artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+						curFrame.contents = curText;
+						log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
 					}
-					catch(e)
+					else
 					{
-						log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+						log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
 					}
+					// try
+					// {
+					// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+					// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
+					// }
+					// catch(e)
+					// {
+					// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+					// }
 				}
 			}
 			
@@ -674,6 +696,7 @@ function Garment(config,data,designNumber)
 				noteGroup.moveToBeginning(artCopyGroup);
 			}
 
+			
 			artCopyGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 			
 
