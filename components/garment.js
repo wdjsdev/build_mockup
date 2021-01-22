@@ -450,72 +450,42 @@ function Garment(config,data,designNumber)
 		if(!artLayer)
 		{
 			artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
-		}
-
-		if(!artLayer)
-		{
-			//check to see whether there are specific "wearer" layers
-			//options are "MENS", "WOMENS", "YOUTH";
-			//if these layers exist, determine which is the correct one
-			//and use that layer as the artLayer
-			var mensLayer = findSpecificLayer(prodLayer,"MENS");
-			var womensLayer = findSpecificLayer(prodLayer,"WOMENS");
-			var youthLayer = findSpecificLayer(prodLayer,"YOUTH");
-
-			if(mensLayer && womensLayer && youthLayer)
+			if(!artLayer)
 			{
-				scaleLogo = false;
-				log.l("This graphic file has artwork sublayers.");
-				if(this.garmentWearer && this.garmentWearer === "W")
+				//check to see whether there are specific "wearer" layers
+				//options are "MENS", "WOMENS", "YOUTH";
+				//if these layers exist, determine which is the correct one
+				//and use that layer as the artLayer
+				var mensLayer = findSpecificLayer(prodLayer,"MENS");
+				var womensLayer = findSpecificLayer(prodLayer,"WOMENS");
+				var youthLayer = findSpecificLayer(prodLayer,"YOUTH");
+
+				if(mensLayer && womensLayer && youthLayer)
 				{
-					artLayer = womensLayer;
-					noteLayer = findSpecificLayer(artLayer,"notes");
-				}
-				else
-				{
-					artLayer = mensLayer;
-					noteLayer = findSpecificLayer(artLayer,"notes");
+					scaleLogo = false;
+					log.l("This graphic file has artwork sublayers.");
+					if(this.garmentWearer && this.garmentWearer === "W")
+					{
+						artLayer = womensLayer;
+						noteLayer = findSpecificLayer(artLayer,"notes");
+					}
+					else
+					{
+						artLayer = mensLayer;
+						noteLayer = findSpecificLayer(artLayer,"notes");
+					}
 				}
 			}
 		}
 
-
-		
+		//still no art layer?
 		if(!artLayer)
 		{
 			log.e("The graphic file: " + curGraphic + " is missing an artwork layer.");
 			return undefined;
 		}
 
-		//disabling this in favor of grouping the notes with the
-		//artwork and then copy both to the master file  together
-		//and only then split them into artwork and notes layers
-		//respectively. This should help ensure the position of
-		//the notes is appropriate relative to the artwork
-		//
-		// if(noteLayer)
-		// {
-		// 	noteLayer.locked = false;
-		// 	noteLayer.visible = true;
-		// 	app.selection = null;
-		// 	noteLayer.hasSelectedArtwork = true;
-		// 	app.executeMenuCommand("group");
-		// 	noteGroup = doc.selection[0];
-		// 	app.selection = null;
-		// 	noteGroup.name = artLayer.name + " notes";
-		// 	if(noteLayer.parent.name !== prodLayer.name)
-		// 	{
-		// 		noteGroup.moveToBeginning(prodLayer);
-		// 	}
-		// 	masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any")
-
-		// 	if(!masterNoteGroup)
-		// 	{
-		// 		masterNoteGroup = this.adultMockupLayer.groupItems.add();
-		// 		masterNoteGroup.name = "Graphic Notes";	
-		// 	}
-			
-		// }
+		artLayer.name = artLayer.name.replace(/_/g,"-");
 
 		if(noteLayer)
 		{
@@ -523,6 +493,7 @@ function Garment(config,data,designNumber)
 			if(!masterNoteGroup)
 			{
 				masterNoteGroup = this.adultMockupLayer.groupItems.add();
+				masterNoteGroup.name = "graphic notes";
 			}
 
 			noteGroup = (function()
@@ -620,6 +591,11 @@ function Garment(config,data,designNumber)
 			backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
 			this.graphicXPosition += backNum.width + 50;
 
+			// if(noteGroup)
+			// {
+			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);	
+			// }
+
 		}
 		else if(curGraphic.type === "logo")
 		{
@@ -658,6 +634,8 @@ function Garment(config,data,designNumber)
 					{
 						log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
 					}
+					curFrame = undefined;
+					curText = undefined;
 					// try
 					// {
 					// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
