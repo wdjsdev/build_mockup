@@ -67,7 +67,7 @@ function Garment(config,data,designNumber)
 		if(this.youthGarmentFile)
 		{
 			var youthDoc = this.openFile(this.youthGarmentFile);
-			mergeTemplate(currentMockup);
+			mergeTemplate(this.mockupDocument);
 			this.youthMockupLayer = findSpecificLayer(this.mockupDocument.layers[1],"Mockup");
 			filesToClose.push(youthDoc);
 			currentMockup.activate();
@@ -210,10 +210,7 @@ function Garment(config,data,designNumber)
 		{
 			this.adultGarmentCode += "W";
 		}
-		// else if(this.adultGarmentCode == "FD-400")
-		// {
-		// 	this.adultGarmentCode = "FD-400W";
-		// }
+
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
@@ -423,7 +420,7 @@ function Garment(config,data,designNumber)
 		//youthGroup and adultGroup are groupItems that will be duplicated into the mockup file
 		//and then placed next to the artboard
 		var youthGroup,adultGroup;
-		var noteLayer,artLayer;
+		var noteLayer,artLayer,artCopyGroup;
 		var noteGroup,masterNoteGroup;
 		var artItem;
 		var curLay,curName;
@@ -450,67 +447,71 @@ function Garment(config,data,designNumber)
 		if(!artLayer)
 		{
 			artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
-		}
-
-		if(!artLayer)
-		{
-			//check to see whether there are specific "wearer" layers
-			//options are "MENS", "WOMENS", "YOUTH";
-			//if these layers exist, determine which is the correct one
-			//and use that layer as the artLayer
-			var mensLayer = findSpecificLayer(prodLayer,"MENS");
-			var womensLayer = findSpecificLayer(prodLayer,"WOMENS");
-			var youthLayer = findSpecificLayer(prodLayer,"YOUTH");
-
-			if(mensLayer && womensLayer && youthLayer)
+			if(!artLayer)
 			{
-				scaleLogo = false;
-				log.l("This graphic file has artwork sublayers.");
-				if(this.garmentWearer && this.garmentWearer === "W")
+				//check to see whether there are specific "wearer" layers
+				//options are "MENS", "WOMENS", "YOUTH";
+				//if these layers exist, determine which is the correct one
+				//and use that layer as the artLayer
+				var mensLayer = findSpecificLayer(prodLayer,"MENS");
+				var womensLayer = findSpecificLayer(prodLayer,"WOMENS");
+				var youthLayer = findSpecificLayer(prodLayer,"YOUTH");
+
+				if(mensLayer && womensLayer && youthLayer)
 				{
-					artLayer = womensLayer;
-					noteLayer = findSpecificLayer(artLayer,"notes");
-				}
-				else
-				{
-					artLayer = mensLayer;
-					noteLayer = findSpecificLayer(artLayer,"notes");
+					scaleLogo = false;
+					log.l("This graphic file has artwork sublayers.");
+					if(this.garmentWearer && this.garmentWearer === "W")
+					{
+						artLayer = womensLayer;
+						noteLayer = findSpecificLayer(artLayer,"notes");
+					}
+					else
+					{
+						artLayer = mensLayer;
+						noteLayer = findSpecificLayer(artLayer,"notes");
+					}
 				}
 			}
 		}
 
-
-		
+		//still no art layer?
 		if(!artLayer)
 		{
 			log.e("The graphic file: " + curGraphic + " is missing an artwork layer.");
 			return undefined;
 		}
 
+		artLayer.name = artLayer.name.replace(/_/g,"-");
 
 		if(noteLayer)
 		{
-			noteLayer.locked = false;
-			noteLayer.visible = true;
-			app.selection = null;
-			noteLayer.hasSelectedArtwork = true;
-			app.executeMenuCommand("group");
-			noteGroup = doc.selection[0];
-			app.selection = null;
-			noteGroup.name = artLayer.name + " notes";
-			if(noteLayer.parent.name !== prodLayer.name)
-			{
-				noteGroup.moveToBeginning(prodLayer);
-			}
-			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any")
-
+			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
 			if(!masterNoteGroup)
 			{
 				masterNoteGroup = this.adultMockupLayer.groupItems.add();
-				masterNoteGroup.name = "Graphic Notes";	
+				masterNoteGroup.name = "graphic notes";
 			}
-			
+
+			noteGroup = (function()
+			{
+				noteLayer.locked = false;
+				noteLayer.visible = true;
+				var newGroup = noteLayer.groupItems.add();
+				newGroup.name = artLayer.name + " notes";
+				for(var x = noteLayer.pageItems.length-1;x>=1;x--)
+				{
+					noteLayer.pageItems[x].moveToBeginning(newGroup);
+				}
+				return newGroup;
+			})();
 		}
+
+		//container group for all artwork that will be
+		//duplicated to the master file. this whole group
+		//will be placed and positioned, then split into its
+		//component parts.
+		artCopyGroup = artLayer.groupItems.add();
 		
 
 
@@ -524,15 +525,25 @@ function Garment(config,data,designNumber)
 			//		according to the wearer.. mens/womens/youth
 			//
 			////////////////////////
-			artItem = artLayer.pageItems["name_2"];
-			if(this.adultArtworkLayer)
-			{
-				var adultName = copyArtToMaster(artItem, this.mockupDocument, this.adultArtworkLayer);
-				adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
-			}
+			
+			//turn off for production
+			//the graphic files need fixing before importing the notes for name/number files
+			// if(noteGroup)
+			// {
+			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
+			// }
+			artLayer.pageItems["name_2"].duplicate(artCopyGroup);
 
-			this.graphicXPosition += artItem.width + 50
+			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
+			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			
+			// if(noteGroup)
+			// {
+			// 	adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			// }
+
+			this.graphicXPosition += artCopyGroup.width + 50;
 		}
 		else if(curGraphic.type === "number")
 		{
@@ -545,157 +556,141 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			
-
 			var smallNum, bigNum;
-			var smallNumLabel, bigNumLabel;
-
-			//this is effectively the "size" of the graphic
-			//for mens, we want a 4" small num and a 9" big num and a 2" name
-			//for womens/youth, 3" small and 8" big num and a 1.5" name
-			// smallNumLabel = 
-			// bigNumLabel = 
 
 
-			if(this.adultArtworkLayer)
-			{
-				smallNum = artLayer.pageItems["number_4"];
-				var frontNum = copyArtToMaster(smallNum, this.mockupDocument, this.adultArtworkLayer);
-				frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-				frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
-
-				this.graphicXPosition += frontNum.width + 50;
-
-				bigNum = artLayer.pageItems["number_9"];
-
-				if(this.adultArtworkLayer)
-				{
-
-
-					var backNum = copyArtToMaster(bigNum,this.mockupDocument,this.adultArtworkLayer);
-					backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-					backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
-				}
-				this.graphicXPosition += backNum.width + 50;
-				
-			}
-			// if(this.youthMockupLayer)
+			//turn off for production
+			//the graphic files need fixing before importing the notes for name/number files
+			// if(noteGroup)
 			// {
-			// 	artItem = nameLay.pageItems["number_3"]
-			// 	var youthName = copyArtToMaster(artItem,this.mockupDocument, this.youthMockupLayer);
-			// 	youthName.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			// 	youthName.top = this.youthMockupArtboard.artboardRect[1] + 50;
+			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
+
+			artLayer.pageItems["number_4"].duplicate(artCopyGroup);
+			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
+			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
+
+			// if(noteGroup)
+			// {
+			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			// }
+
+
+
+			artCopyGroup = artLayer.groupItems.add();
+			this.graphicXPosition += frontNum.width + 50;
+
+			bigNum = artLayer.pageItems["number_9"].duplicate(artCopyGroup);
+
+			var backNum = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
+			backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
+			this.graphicXPosition += backNum.width + 50;
+
+			// if(noteGroup)
+			// {
+			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);	
+			// }
+
 		}
 		else if(curGraphic.type === "logo")
 		{
-			doc.selection = null;
-			artLayer.hasSelectedArtwork = true;
+			app.selection = null;
+			artCopyGroup.name = artLayer.name;
 
-			if(noteGroup)
+			for(var x = artLayer.pageItems.length-1;x>=1;x--)
 			{
-				noteGroup.selected = false;
-			}
-
-			var logoMoveAmount = 0;
-			
-
-			app.executeMenuCommand("group");
-			if(doc.selection.length)
-			{
-				var newGroup = doc.selection[0].duplicate();
-				newGroup.top += newGroup.height + 50;
+				artLayer.pageItems[x].duplicate(artCopyGroup);
+				app.redraw();
 			}
 
 
+
+			////////////////////////
+			////////ATTENTION://////
+			//
+			//		this needs fixin. look at artpackmaker to try and
+			//		reuse code for updating text without breaking character styles
+			//
+			////////////////////////
 			//try to update graphic text...
 			if(curGraphic.teamNames)
 			{
+				var curFrame,curText;
 				for(var n=0;n < curGraphic.teamNames.length;n++)
 				{
-					try
+					curText = curGraphic.teamNames[n].toUpperCase();
+					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
+					if(curFrame)
 					{
-						newGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+						curFrame.contents = curText;
+						log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
 					}
-					catch(e)
+					else
 					{
-						log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+						log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
 					}
+					curFrame = undefined;
+					curText = undefined;
+					// try
+					// {
+					// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+					// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
+					// }
+					// catch(e)
+					// {
+					// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+					// }
 				}
 			}
 			
 			var newScale;
-			if(this.adultArtworkLayer)
+			
+			
+			if(scaleLogo)
 			{
-				if(noteGroup)
+				if(artCopyGroup.width > artCopyGroup.height)
 				{
-					noteGroup.move(newGroup,ElementPlacement.PLACEATBEGINNING);
-				}
-				newGroup.name = artLayer.name
-				if(scaleLogo)
-				{
-					if(newGroup.width > newGroup.height)
-					{
-						newScale = ((13 * 7.2) / newGroup.width);	
-					}
-					else
-					{
-						newScale = ((13 * 7.2) / newGroup.height);
-					}
-					newScale *= 100; //convert to percentage
-					
-					newGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+					newScale = ((13 * 7.2) / artCopyGroup.width);	
 				}
 				else
-				{	
-					newScale = 100;
-				}
-
-				logoMoveAmount = newGroup.height + 50;
-				
-				if(this.adultArtworkLayer)
 				{
-
-
-					//copy the artwork group 
-					var adultNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.adultArtworkLayer);
-					adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
-					adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
-
-					noteGroup = findSpecificPageItem(adultNewGroup,"notes","any");
-					if(noteGroup)
-					{
-						noteGroup.move(masterNoteGroup,ElementPlacement.PLACEATBEGINNING);
-						setCenterPoint(noteGroup,getCenterPoint(adultNewGroup));
-					}
+					newScale = ((13 * 7.2) / artCopyGroup.height);
 				}
-
-				//copy the notes to the mockup layer
-				// if(noteGroup)
-				// {
-				// 	noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);	
-				// 	var noteGroupCopy = copyArtToMaster(noteGroup,this.mockupDocument,this.adultMockupLayer);
-				// 	setCenterPoint(noteGroupCopy,getCenterPoint(adultNewGroup));
-				// }
-
-
-
+				newScale *= 100; //convert to percentage
 				
-			}
-			// if(this.youthMockupLayer)
-			// {
-			// 	var youthNewGroup = copyArtToMaster(newGroup,this.mockupDocument,this.youthMockupLayer)
-			// 	youthNewGroup.left = this.youthMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			// 	youthNewGroup.top = this.youthMockupArtboard.artboardRect[0] + youthNewGroup.height + 50;
-			// }
-			if(noteGroup)
-			{
-				this.graphicXPosition += noteGroup.width + 50;
 			}
 			else
-			{
-				this.graphicXPosition += newGroup.width + 50;	
+			{	
+				newScale = 100;
 			}
+
+			if(noteGroup)
+			{
+				noteGroup.moveToBeginning(artCopyGroup);
+			}
+
+			
+			artCopyGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+			
+
+
+			//copy the artwork group 
+			var adultNewGroup = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
+			adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
+			adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+
+			this.graphicXPosition += adultNewGroup.width + 50;
+			
+			if(noteGroup)
+			{
+				adultNewGroup.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			}
+
+
+			
+
 			
 		}
 
