@@ -532,11 +532,20 @@ function Garment(config,data,designNumber)
 			// {
 			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
-			artLayer.pageItems["name_2"].duplicate(artCopyGroup);
+			var nameLabel = "2";
+			if(this.garmentWearer === "W" || this.garmentWearer === "Y")
+			{
+				nameLabel = "1.5";
+			}
+
+			var nameFrame = artLayer.pageItems["name_" + nameLabel];
+			nameFrame.duplicate(artCopyGroup);
 
 			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			adultName.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+
+			ungroup(adultName);
 			
 			// if(noteGroup)
 			// {
@@ -557,6 +566,23 @@ function Garment(config,data,designNumber)
 			////////////////////////
 			
 			var smallNum, bigNum;
+			var smallLabel, bigLabel;
+
+			if(this.garmentWearer === "W")
+			{
+				smallLabel = "3";
+				bigLabel = "8";
+			}
+			else if(this.garmentWearer === "Y" ||  this.garmentWearer === "G")
+			{
+				smallLabel = "3";
+				bigLabel = "8";
+			}
+			else
+			{
+				smallLabel = "4";
+				bigLabel = "9";
+			}
 
 
 			//turn off for production
@@ -566,11 +592,17 @@ function Garment(config,data,designNumber)
 			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
 
-			// artLayer.pageItems["number_" + smallLabel].duplicate(artCopyGroup);
-			artLayer.pageItems["number_4"].duplicate(artCopyGroup);
+			smallNum = artLayer.pageItems["number_" + smallLabel];
+
+			smallNum = smallNum.duplicate(artCopyGroup);
+
 			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
+			frontNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+
+			this.graphicXPosition += artCopyGroup.width + 50;
+
+			ungroup(frontNum);
 
 			// if(noteGroup)
 			// {
@@ -580,15 +612,20 @@ function Garment(config,data,designNumber)
 
 
 			artCopyGroup = artLayer.groupItems.add();
-			this.graphicXPosition += artCopyGroup.width + 50;
+			
 
-			bigNum = artLayer.pageItems["number_9"].duplicate(artCopyGroup);
+			artLayer.pageItems["number_" + bigLabel].duplicate(artCopyGroup);
 			// bigNum = artLayer.pageItems["number_" + largeLabel].duplicate(artCopyGroup);
 
 			var backNum = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
 			backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
+			backNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+			
 			this.graphicXPosition += artCopyGroup.width + 50;
+			
+			ungroup(backNum);
+			
+			
 
 			// if(noteGroup)
 			// {
@@ -647,7 +684,7 @@ function Garment(config,data,designNumber)
 				}
 			}
 			
-			var newScale;
+			var newScale = 100;
 			
 			
 			if(scaleLogo)
@@ -664,6 +701,7 @@ function Garment(config,data,designNumber)
 					{
 						newScale = ((1.3 * 72) / ah);
 					}
+					newScale *= 100;
 				}
 				//else if the graphic is approximately 4" wide (at .1 scale)
 				//28 points = ~.4 inches
@@ -673,17 +711,10 @@ function Garment(config,data,designNumber)
 					{
 						//scale to .3 inches at max dimension
 						newScale = (.3*72)/(aw>ah ? aw:ah);
+						newScale *= 100;
 					}
 				}
 				
-
-
-				newScale *= 100; //convert to percentage
-				
-			}
-			else
-			{	
-				newScale = 100;
 			}
 
 			if(noteGroup)
@@ -698,8 +729,8 @@ function Garment(config,data,designNumber)
 
 			//copy the artwork group 
 			var adultNewGroup = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
-			adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+			adultNewGroup.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			adultNewGroup.top = this.adultMockupArtboard.artboardRect[1] + adultNewGroup.height + 50;
 
 			this.graphicXPosition += adultNewGroup.width + 50;
 			
@@ -714,6 +745,10 @@ function Garment(config,data,designNumber)
 			
 		}
 
+		if(artCopyGroup.pageItems.length === 0)
+		{
+			artCopyGroup.remove();
+		}
 
 
 		
