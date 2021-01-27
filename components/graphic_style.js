@@ -89,6 +89,9 @@
 					//variables to hold the above pattern or below pattern layers
 					var gbp,gap;
 
+					//appearance layer. represents parent layer of the pattern and/or gradient
+					var appLay; 
+
 					var livePatternLayer = findSpecificLayer(this.doc.layers,"Live Pattern");
 					if(!livePatternLayer)
 					{
@@ -103,7 +106,8 @@
 						//loop the livePatternLayer's layers and fix the names
 						var curLay;
 						var belPat = /^.*_bel.*_.*/i;
-						var aboPat = /^.*_abo.*_.*/i
+						var aboPat = /^.*_abo.*_.*/i;
+						var noGradPat = /^.*no_pat.*/i;
 						for(var n=0,len=livePatternLayer.layers.length;n<len;n++)
 						{
 							curLay = livePatternLayer.layers[n];
@@ -114,9 +118,13 @@
 							{
 								gbp = curLay;
 							}
-							if(aboPat.test(curLay.name))
+							else if(aboPat.test(curLay.name))
 							{
 								gap = curLay;
+							}
+							else if(noGradPat.test(curLay.name))
+							{
+								gbp = curLay;
 							}
 						}
 					}
