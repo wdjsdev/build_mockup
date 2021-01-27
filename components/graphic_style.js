@@ -42,7 +42,7 @@
 			// this.getSourceFile();
 			
 			this.doc = app.activeDocument;
-			var tmpLay = this.doc.layers.add();s
+			var tmpLay = this.doc.layers.add();
 
 			if(this.plainFill)
 			{
