@@ -99,7 +99,7 @@ function getDesignNumbers()
 		}
 		
 	}
-
+	log.h("Order Number: " + orderNumber + " has " + result.length + " design numbers.::designNumbers = ::" + result.join("\n"));
 	scriptTimer.endTask("getDesignNumbers");
 	return result;
 }
