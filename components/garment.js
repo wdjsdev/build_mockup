@@ -5,6 +5,8 @@ function Garment(config,data,designNumber)
 	this.designNumber = designNumber;
 	this.garmentCode = "";
 	this.garmentWearer = ""; //this is either M, W, or Y 
+	this.bigLogoSize = 1.3; //default is 13 inches at 10% scale
+	this.smallLogoSize = .4; // default is 4 inches at 10% scale
 	this.garmentFolder;
 	this.garmentFile;
 	this.styleNumber = "";
@@ -206,36 +208,41 @@ function Garment(config,data,designNumber)
 
 		this.adultGarmentCode = data.mid;
 
-		if(this.adultGarmentCode == "FD-500")
+		if(this.adultGarmentCode == "FD-500" || this.adultGarmentCode == "FD-400")
 		{
-			this.adultGarmentCode = "FD-500W";
+			this.adultGarmentCode += "W";
 		}
-		else if(this.adultGarmentCode == "FD-400")
-		{
-			this.adultGarmentCode = "FD-400W";
-		}
+
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
 			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
+			this.bigLogoSize = 1.1;
+			this.smallLogoSize = .3;
 		}
 		else if(girlsCodePat.test(this.adultGarmentCode))
 		{
-			this.garmentWearer = "W";
+			this.garmentWearer = "G";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"W");
+			this.bigLogoSize = .95;
+			this.smallLogoSize = .3;
 		}
 		else if(youthCodePat.test(this.adultGarmentCode))
 		{
-			this.garmentWearer = "M";
+			this.garmentWearer = "Y";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(youthCodePat,"");
+			this.bigLogoSize = .95;
+			this.smallLogoSize = .3;
 		}
 		else
 		{
 			this.garmentWearer = "M";
 			this.youthGarmentCode = this.adultGarmentCode + "Y";
+			this.bigLogoSize = 1.3;
+			this.smallLogoSize = .4;
 
 		}
 		log.l("set adultGarmentCode to " + this.adultGarmentCode);
@@ -481,7 +488,7 @@ function Garment(config,data,designNumber)
 		//still no art layer?
 		if(!artLayer)
 		{
-			log.e("The graphic file: " + curGraphic + " is missing an artwork layer.");
+			log.e("The graphic file: " + curGraphic.key + " is missing an artwork layer.");
 			return undefined;
 		}
 
@@ -535,11 +542,20 @@ function Garment(config,data,designNumber)
 			// {
 			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
-			artLayer.pageItems["name_2"].duplicate(artCopyGroup);
+			var nameLabel = "2";
+			if(this.garmentWearer === "W" || this.garmentWearer === "Y")
+			{
+				nameLabel = "1.5";
+			}
+
+			var nameFrame = artLayer.pageItems["name_" + nameLabel];
+			nameFrame.duplicate(artCopyGroup);
 
 			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			adultName.top = this.adultMockupArtboard.artboardRect[1] + 50;
+			adultName.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+
+			ungroup(adultName);
 			
 			// if(noteGroup)
 			// {
@@ -560,6 +576,23 @@ function Garment(config,data,designNumber)
 			////////////////////////
 			
 			var smallNum, bigNum;
+			var smallLabel, bigLabel;
+
+			if(this.garmentWearer === "W")
+			{
+				smallLabel = "3";
+				bigLabel = "8";
+			}
+			else if(this.garmentWearer === "Y" ||  this.garmentWearer === "G")
+			{
+				smallLabel = "3";
+				bigLabel = "8";
+			}
+			else
+			{
+				smallLabel = "4";
+				bigLabel = "9";
+			}
 
 
 			//turn off for production
@@ -569,10 +602,17 @@ function Garment(config,data,designNumber)
 			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
 
-			artLayer.pageItems["number_4"].duplicate(artCopyGroup);
+			smallNum = artLayer.pageItems["number_" + smallLabel];
+
+			smallNum = smallNum.duplicate(artCopyGroup);
+
 			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			frontNum.top = this.adultMockupArtboard.artboardRect[1] + frontNum.height + 50;
+			frontNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+
+			this.graphicXPosition += artCopyGroup.width + 50;
+
+			ungroup(frontNum);
 
 			// if(noteGroup)
 			// {
@@ -582,14 +622,20 @@ function Garment(config,data,designNumber)
 
 
 			artCopyGroup = artLayer.groupItems.add();
-			this.graphicXPosition += frontNum.width + 50;
+			
 
-			bigNum = artLayer.pageItems["number_9"].duplicate(artCopyGroup);
+			artLayer.pageItems["number_" + bigLabel].duplicate(artCopyGroup);
+			// bigNum = artLayer.pageItems["number_" + largeLabel].duplicate(artCopyGroup);
 
 			var backNum = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
 			backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			backNum.top = this.adultMockupArtboard.artboardRect[1] + backNum.height + 50;
-			this.graphicXPosition += backNum.width + 50;
+			backNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
+			
+			this.graphicXPosition += artCopyGroup.width + 50;
+			
+			ungroup(backNum);
+			
+			
 
 			// if(noteGroup)
 			// {
@@ -648,25 +694,40 @@ function Garment(config,data,designNumber)
 				}
 			}
 			
-			var newScale;
+			var newScale = 100;
 			
 			
 			if(scaleLogo)
 			{
-				if(artCopyGroup.width > artCopyGroup.height)
+				var aw = artCopyGroup.width;
+				var ah = artCopyGroup.height;
+
+				//logo is bigger than 1.3"
+				//scale it to 1.3
+				if(aw > this.bigLogoSize *72 || ah > this.bigLogoSize *72)
 				{
-					newScale = ((13 * 7.2) / artCopyGroup.width);	
+					if(aw > ah)
+					{
+						newScale = ((this.bigLogoSize  * 72) / aw);	
+					}
+					else
+					{
+						newScale = ((this.bigLogoSize  * 72) / ah);
+					}
+					newScale *= 100;
 				}
+				//else if the graphic is approximately 4" wide (at .1 scale)
+				//28 points = ~.4 inches
 				else
 				{
-					newScale = ((13 * 7.2) / artCopyGroup.height);
+					if(this.garmentWearer === "W" || this.garmentWearer === "Y")
+					{
+						//scale to this.smallLogoSize inches at max dimension
+						newScale = (this.smallLogoSize * 72) / (aw > ah ? aw : ah);
+						newScale *= 100;
+					}
 				}
-				newScale *= 100; //convert to percentage
 				
-			}
-			else
-			{	
-				newScale = 100;
 			}
 
 			if(noteGroup)
@@ -674,15 +735,15 @@ function Garment(config,data,designNumber)
 				noteGroup.moveToBeginning(artCopyGroup);
 			}
 
-			
+			log.l("Resizing logo. newScale = " + newScale)
 			artCopyGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 			
 
 
 			//copy the artwork group 
 			var adultNewGroup = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
-			adultNewGroup.left = this.adultMockupArtboard.artboardRect[1] + this.graphicXPosition;
-			adultNewGroup.top = this.adultMockupArtboard.artboardRect[0] + adultNewGroup.height + 50;
+			adultNewGroup.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
+			adultNewGroup.top = this.adultMockupArtboard.artboardRect[1] + adultNewGroup.height + 50;
 
 			this.graphicXPosition += adultNewGroup.width + 50;
 			
@@ -697,6 +758,10 @@ function Garment(config,data,designNumber)
 			
 		}
 
+		if(artCopyGroup.pageItems.length === 0)
+		{
+			artCopyGroup.remove();
+		}
 
 
 		
