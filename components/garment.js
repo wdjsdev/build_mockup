@@ -5,6 +5,8 @@ function Garment(config,data,designNumber)
 	this.designNumber = designNumber;
 	this.garmentCode = "";
 	this.garmentWearer = ""; //this is either M, W, or Y 
+	this.bigLogoSize = 1.3; //default is 13 inches at 10% scale
+	this.smallLogoSize = .4; // default is 4 inches at 10% scale
 	this.garmentFolder;
 	this.garmentFile;
 	this.styleNumber = "";
@@ -216,23 +218,31 @@ function Garment(config,data,designNumber)
 		{
 			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
+			this.bigLogoSize = 1.1;
+			this.smallLogoSize = .3;
 		}
 		else if(girlsCodePat.test(this.adultGarmentCode))
 		{
 			this.garmentWearer = "G";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"W");
+			this.bigLogoSize = .95;
+			this.smallLogoSize = .3;
 		}
 		else if(youthCodePat.test(this.adultGarmentCode))
 		{
 			this.garmentWearer = "Y";
 			this.youthGarmentCode = this.adultGarmentCode;
 			this.adultGarmentCode = this.youthGarmentCode.replace(youthCodePat,"");
+			this.bigLogoSize = .95;
+			this.smallLogoSize = .3;
 		}
 		else
 		{
 			this.garmentWearer = "M";
 			this.youthGarmentCode = this.adultGarmentCode + "Y";
+			this.bigLogoSize = 1.3;
+			this.smallLogoSize = .4;
 
 		}
 		log.l("set adultGarmentCode to " + this.adultGarmentCode);
@@ -691,26 +701,29 @@ function Garment(config,data,designNumber)
 			{
 				var aw = artCopyGroup.width;
 				var ah = artCopyGroup.height;
-				if(aw > 1.3*72 || ah > 1.3*72)
+
+				//logo is bigger than 1.3"
+				//scale it to 1.3
+				if(aw > this.bigLogoSize *72 || ah > this.bigLogoSize *72)
 				{
 					if(aw > ah)
 					{
-						newScale = ((1.3 * 72) / aw);	
+						newScale = ((this.bigLogoSize  * 72) / aw);	
 					}
 					else
 					{
-						newScale = ((1.3 * 72) / ah);
+						newScale = ((this.bigLogoSize  * 72) / ah);
 					}
 					newScale *= 100;
 				}
 				//else if the graphic is approximately 4" wide (at .1 scale)
 				//28 points = ~.4 inches
-				else if((aw + 5 > 28 && aw - 5 < 28) || (ah + 5 > 28 && ah -5 < 28))
+				else
 				{
 					if(this.garmentWearer === "W" || this.garmentWearer === "Y")
 					{
-						//scale to .3 inches at max dimension
-						newScale = (.3*72)/(aw>ah ? aw:ah);
+						//scale to this.smallLogoSize inches at max dimension
+						newScale = (this.smallLogoSize * 72) / (aw > ah ? aw : ah);
 						newScale *= 100;
 					}
 				}
