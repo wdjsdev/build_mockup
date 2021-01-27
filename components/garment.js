@@ -543,7 +543,7 @@ function Garment(config,data,designNumber)
 			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
 			// }
 			var nameLabel = "2";
-			if(this.garmentWearer === "W" || this.garmentWearer === "Y")
+			if(this.garmentWearer === "Y")
 			{
 				nameLabel = "1.5";
 			}
