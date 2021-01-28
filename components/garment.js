@@ -135,7 +135,7 @@ function Garment(config,data,designNumber)
 		{
 			log.l("Processing graphic: " + g);
 			curGraphic = this.graphics[g];
-			curGraphic.key = g;
+			// curGraphic.name = g;
 
 			if(numPat.test(g))
 			{
@@ -152,6 +152,7 @@ function Garment(config,data,designNumber)
 
 			if(curGraphic.file)
 			{
+				log.l("full file name = " + curGraphic.file.fullName);
 				this.openFile(curGraphic.file);
 				this.recolorGraphic(curGraphic.colors,curGraphic.type);
 
@@ -439,7 +440,7 @@ function Garment(config,data,designNumber)
 
 		//check to see whether this is a background graphic or ghosted graphic
 		//if so.. don't scale it
-		if(/(bg)|(g$)/i.test(curGraphic.key))
+		if(/(bg)|(g$)/i.test(curGraphic.name))
 		{
 			scaleLogo = false;
 		}
@@ -448,15 +449,15 @@ function Garment(config,data,designNumber)
 		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
 		if(!prodLayer)
 		{
-			log.e("The graphic file: " + curGraphic.key + " is missing the PRODUCTION layer.");
+			log.e("The graphic file: " + curGraphic.name + " is missing the PRODUCTION layer.");
 			return undefined;
 		}
 		noteLayer = findSpecificLayer(prodLayer,"notes");
-		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("_","-"));
+		artLayer = findSpecificLayer(prodLayer,curGraphic.name.replace("_","-"));
 
 		if(!artLayer)
 		{
-			artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
+			artLayer = findSpecificLayer(prodLayer,curGraphic.name.replace("-","_"));
 			if(!artLayer)
 			{
 				//check to see whether there are specific "wearer" layers
@@ -470,7 +471,7 @@ function Garment(config,data,designNumber)
 				if(mensLayer && womensLayer && youthLayer)
 				{
 					scaleLogo = false;
-					log.l(curGraphic.key + " has artwork sublayers.");
+					log.l(curGraphic.name + " has artwork sublayers.");
 					if(this.garmentWearer && this.garmentWearer === "W")
 					{
 						artLayer = womensLayer;
@@ -493,7 +494,7 @@ function Garment(config,data,designNumber)
 		//still no art layer?
 		if(!artLayer)
 		{
-			log.e("The graphic file: " + curGraphic.key + " is missing an artwork layer.");
+			log.e("The graphic file: " + curGraphic.name + " is missing an artwork layer.");
 			return undefined;
 		}
 
@@ -687,7 +688,7 @@ function Garment(config,data,designNumber)
 					////////////////////////
 
 
-					
+
 					curText = curGraphic.teamNames[n].toUpperCase();
 					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
 					if(curFrame)
