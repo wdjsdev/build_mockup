@@ -46,11 +46,6 @@ function Garment(config,data,designNumber)
 		{
 			this.makeMockup(this.garmentFile);
 		}
-		else
-		{
-			// errorList.push("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
-			log.e("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
-		}
 	}
 
 
@@ -162,9 +157,7 @@ function Garment(config,data,designNumber)
 				}
 				catch(e)
 				{
-					log.e("Failed to process " + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
-
-					log.e("_FIX_GRAPHIC_FILE_" + curGraphic.file.fullName);
+					log.e("_FIX_GRAPHIC_FILE_::" + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
 				}
 				
 				graphicsOpened++;

@@ -47,6 +47,7 @@ function locateCTFolder(mid)
 		if(ctLocations[mid] === "no_youth_garment" || ctLocations[mid] === "no_mockup")
 		{
 			ctFolder = undefined;
+			log.l(mid + " is on the no_mockup list.");
 		}
 		else
 		{
@@ -82,6 +83,11 @@ function locateCTFolder(mid)
 			writeDatabase(CTFL,"var ctLocations = " + JSON.stringify(ctLocations));
 			log.l("added {" + mid + ", " + ctFolder.fsName + "} to ctLocations database.");
 		}
+		else
+		{
+			log.e("Failed to find the proper ct folder..");
+		}
+
 
 	}
 
