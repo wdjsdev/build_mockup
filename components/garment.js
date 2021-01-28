@@ -218,7 +218,7 @@ function Garment(config,data,designNumber)
 		{
 			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
-			this.bigLogoSize = 1.1;
+			this.bigLogoSize = 1.15;
 			this.smallLogoSize = .3;
 		}
 		else if(girlsCodePat.test(this.adultGarmentCode))
