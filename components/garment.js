@@ -437,9 +437,9 @@ function Garment(config,data,designNumber)
 		var scaleLogo = true;
 
 
-		//check to see whether this is a background graphic
+		//check to see whether this is a background graphic or ghosted graphic
 		//if so.. don't scale it
-		if(/bg/i.test(curGraphic.key))
+		if(/(bg)|(g$)/i.test(curGraphic.key))
 		{
 			scaleLogo = false;
 		}
@@ -448,7 +448,7 @@ function Garment(config,data,designNumber)
 		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
 		if(!prodLayer)
 		{
-			log.e("The graphic file: " + curGraphic + " is missing the PRODUCTION layer.");
+			log.e("The graphic file: " + curGraphic.key + " is missing the PRODUCTION layer.");
 			return undefined;
 		}
 		noteLayer = findSpecificLayer(prodLayer,"notes");
@@ -470,17 +470,22 @@ function Garment(config,data,designNumber)
 				if(mensLayer && womensLayer && youthLayer)
 				{
 					scaleLogo = false;
-					log.l("This graphic file has artwork sublayers.");
+					log.l(curGraphic.key + " has artwork sublayers.");
 					if(this.garmentWearer && this.garmentWearer === "W")
 					{
 						artLayer = womensLayer;
 						noteLayer = findSpecificLayer(artLayer,"notes");
+						
 					}
 					else
 					{
 						artLayer = mensLayer;
 						noteLayer = findSpecificLayer(artLayer,"notes");
 					}
+
+
+					log.l("set artLayer to " + artLayer.name);
+					log.l("set noteLayer to " + noteLayer.name);
 				}
 			}
 		}
@@ -669,6 +674,20 @@ function Garment(config,data,designNumber)
 				var curFrame,curText;
 				for(var n=0;n < curGraphic.teamNames.length;n++)
 				{
+
+					////////////////////////
+					////////ATTENTION://////
+					//
+					//		
+					//
+					//add some logic here to check the first and second character
+					//of the given text to see whether it's uppercase, titlecase, or lowercase
+					//......kind of.... this might work as a temporary patch until i get the 
+					//artpackmaker logic sorted out.
+					////////////////////////
+
+
+					
 					curText = curGraphic.teamNames[n].toUpperCase();
 					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
 					if(curFrame)
