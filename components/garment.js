@@ -130,7 +130,7 @@ function Garment(config,data,designNumber)
 		{
 			log.l("Processing graphic: " + g);
 			curGraphic = this.graphics[g];
-			// curGraphic.name = g;
+			curGraphic.name = g;
 
 			if(numPat.test(g))
 			{
@@ -683,7 +683,7 @@ function Garment(config,data,designNumber)
 
 
 					curText = curGraphic.teamNames[n].toUpperCase();
-					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
+					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1),"any");
 					if(curFrame)
 					{
 						curFrame.contents = curText;
