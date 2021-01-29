@@ -654,7 +654,7 @@ function Garment(config,data,designNumber)
 			}
 
 			//try to update graphic text...
-			if(curGraphic.teamNames)
+			if(curGraphic.teamNames && curGraphic.teamNames.length)
 			{
 				updateGraphicText(curGraphic.teamNames,artCopyGroup);
 
