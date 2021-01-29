@@ -361,7 +361,11 @@ function Garment(config,data,designNumber)
 
 			phSwatches = findPHSwatch(phNumber,colors[ph]);
 
-
+			if(!colors[ph].swatchName || colors[ph].swatchName === "")
+			{
+				log.e("colors[" + ph + "] has no swatch data.");
+				continue;
+			}
 			for(var x=0;x<phSwatches.length;x++)
 			{
 				curPhSwatch = phSwatches[x]

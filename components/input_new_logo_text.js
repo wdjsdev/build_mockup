@@ -113,33 +113,45 @@ function inputNewLogoText(frame,newContents)
 	var middleChar = new style();
 	middleChar.init(frame.textRanges[Math.floor(frame.textRanges.length/2)]);
 	
+	frame.contents = trimSpaces(newContents);
 
-	frame.contents = newContents;
-
-
-	var range,prevSpace;
-	for(var x=0;x<frame.textRanges.length;x++)
+	if(frame.contents !== " " && frame.contents !== "")
 	{
-		range = frame.textRanges[x];
-		if(range.contents == " ")
+		
+		var range,prevSpace;
+		for(var x=0;x<frame.textRanges.length;x++)
 		{
-			prevSpace = true;
-			continue;
+			range = frame.textRanges[x];
+			if(range.contents == " ")
+			{
+				prevSpace = true;
+				continue;
+			}
+			if(x===0 || prevSpace)
+			{
+				applyStyle(range,firstChar);
+				prevSpace = false;
+			}
+			else if(x === frame.textRanges.length - 1)
+			{
+				applyStyle(range,lastChar);
+			}
+			else
+			{
+				applyStyle(range,middleChar);
+			}
 		}
-		if(x===0 || prevSpace)
+		try
 		{
-			applyStyle(range,firstChar);
-			prevSpace = false;
+			resizeArchedText(frame);	
 		}
-		else if(x === frame.textRanges.length - 1)
+		catch(e)
 		{
-			applyStyle(range,lastChar);
-		}
-		else
-		{
-			applyStyle(range,middleChar);
+			log.e("Failed to resize arched text.::e = " + e + "::e.line = " + e.line);
 		}
 	}
-	resizeArchedText(frame);
+
+
+	
 
 }
