@@ -653,58 +653,40 @@ function Garment(config,data,designNumber)
 				app.redraw();
 			}
 
-
-
-			////////////////////////
-			////////ATTENTION://////
-			//
-			//		this needs fixin. look at artpackmaker to try and
-			//		reuse code for updating text without breaking character styles
-			//
-			////////////////////////
 			//try to update graphic text...
 			if(curGraphic.teamNames)
 			{
-				var curFrame,curText;
-				for(var n=0;n < curGraphic.teamNames.length;n++)
-				{
-
-					////////////////////////
-					////////ATTENTION://////
-					//
-					//		
-					//
-					//add some logic here to check the first and second character
-					//of the given text to see whether it's uppercase, titlecase, or lowercase
-					//......kind of.... this might work as a temporary patch until i get the 
-					//artpackmaker logic sorted out.
-					////////////////////////
+				updateGraphicText(curGraphic.teamNames,artCopyGroup);
 
 
+				// var curFrame,curText,graphicTextFrames = [];
+				// for(var n=0;n < curGraphic.teamNames.length;n++)
+				// {
 
-					curText = curGraphic.teamNames[n].toUpperCase();
-					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1),"any");
-					if(curFrame)
-					{
-						curFrame.contents = curText;
-						log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
-					}
-					else
-					{
-						log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
-					}
-					curFrame = undefined;
-					curText = undefined;
-					// try
-					// {
-					// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
-					// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
-					// }
-					// catch(e)
-					// {
-					// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
-					// }
-				}
+				// 	curText = curGraphic.teamNames[n].toUpperCase();
+
+				// 	// curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1),"any");
+				// 	if(curFrame)
+				// 	{
+				// 		curFrame.contents = curText;
+				// 		log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
+				// 	}
+				// 	else
+				// 	{
+				// 		log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
+				// 	}
+				// 	curFrame = undefined;
+				// 	curText = undefined;
+				// 	// try
+				// 	// {
+				// 	// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+				// 	// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
+				// 	// }
+				// 	// catch(e)
+				// 	// {
+				// 	// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+				// 	// }
+				// }
 			}
 			
 			var newScale = 100;
