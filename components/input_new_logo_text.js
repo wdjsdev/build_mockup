@@ -113,6 +113,7 @@ function inputNewLogoText(frame,newContents)
 	var middleChar = new style();
 	middleChar.init(frame.textRanges[Math.floor(frame.textRanges.length/2)]);
 	
+	log.l("updating old contents: " + frame.contents + ", to: " + newContents);
 	frame.contents = trimSpaces(newContents);
 
 	if(frame.contents !== " " && frame.contents !== "")
