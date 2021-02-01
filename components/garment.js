@@ -46,11 +46,6 @@ function Garment(config,data,designNumber)
 		{
 			this.makeMockup(this.garmentFile);
 		}
-		else
-		{
-			// errorList.push("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
-			log.e("Failed to find a mockup or converted template file for: " + this.garmentCode + "_" + this.styleNumber);
-		}
 	}
 
 
@@ -135,7 +130,7 @@ function Garment(config,data,designNumber)
 		{
 			log.l("Processing graphic: " + g);
 			curGraphic = this.graphics[g];
-			curGraphic.key = g;
+			curGraphic.name = g;
 
 			if(numPat.test(g))
 			{
@@ -152,6 +147,7 @@ function Garment(config,data,designNumber)
 
 			if(curGraphic.file)
 			{
+				log.l("full file name = " + curGraphic.file.fullName);
 				this.openFile(curGraphic.file);
 				this.recolorGraphic(curGraphic.colors,curGraphic.type);
 
@@ -161,9 +157,7 @@ function Garment(config,data,designNumber)
 				}
 				catch(e)
 				{
-					log.e("Failed to process " + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
-
-					log.e("_FIX_GRAPHIC_FILE_" + curGraphic.file.fullName);
+					log.e("_FIX_GRAPHIC_FILE_::" + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
 				}
 				
 				graphicsOpened++;
@@ -218,7 +212,7 @@ function Garment(config,data,designNumber)
 		{
 			this.garmentWearer = "W";
 			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
-			this.bigLogoSize = 1.1;
+			this.bigLogoSize = 1.15;
 			this.smallLogoSize = .3;
 		}
 		else if(girlsCodePat.test(this.adultGarmentCode))
@@ -367,7 +361,11 @@ function Garment(config,data,designNumber)
 
 			phSwatches = findPHSwatch(phNumber,colors[ph]);
 
-
+			if(!colors[ph].swatchName || colors[ph].swatchName === "")
+			{
+				log.e("colors[" + ph + "] has no swatch data.");
+				continue;
+			}
 			for(var x=0;x<phSwatches.length;x++)
 			{
 				curPhSwatch = phSwatches[x]
@@ -437,9 +435,9 @@ function Garment(config,data,designNumber)
 		var scaleLogo = true;
 
 
-		//check to see whether this is a background graphic
+		//check to see whether this is a background graphic or ghosted graphic
 		//if so.. don't scale it
-		if(/bg/i.test(curGraphic.key))
+		if(/(bg)|(g$)/i.test(curGraphic.name))
 		{
 			scaleLogo = false;
 		}
@@ -448,15 +446,15 @@ function Garment(config,data,designNumber)
 		var prodLayer = findSpecificLayer(layers,"PRODUCTION");
 		if(!prodLayer)
 		{
-			log.e("The graphic file: " + curGraphic + " is missing the PRODUCTION layer.");
+			log.e("The graphic file: " + curGraphic.name + " is missing the PRODUCTION layer.");
 			return undefined;
 		}
 		noteLayer = findSpecificLayer(prodLayer,"notes");
-		artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("_","-"));
+		artLayer = findSpecificLayer(prodLayer,curGraphic.name.replace("_","-"));
 
 		if(!artLayer)
 		{
-			artLayer = findSpecificLayer(prodLayer,curGraphic.key.replace("-","_"));
+			artLayer = findSpecificLayer(prodLayer,curGraphic.name.replace("-","_"));
 			if(!artLayer)
 			{
 				//check to see whether there are specific "wearer" layers
@@ -470,17 +468,22 @@ function Garment(config,data,designNumber)
 				if(mensLayer && womensLayer && youthLayer)
 				{
 					scaleLogo = false;
-					log.l("This graphic file has artwork sublayers.");
+					log.l(curGraphic.name + " has artwork sublayers.");
 					if(this.garmentWearer && this.garmentWearer === "W")
 					{
 						artLayer = womensLayer;
 						noteLayer = findSpecificLayer(artLayer,"notes");
+						
 					}
 					else
 					{
 						artLayer = mensLayer;
 						noteLayer = findSpecificLayer(artLayer,"notes");
 					}
+
+
+					log.l("set artLayer to " + artLayer.name);
+					log.l("set noteLayer to " + noteLayer.name);
 				}
 			}
 		}
@@ -488,7 +491,7 @@ function Garment(config,data,designNumber)
 		//still no art layer?
 		if(!artLayer)
 		{
-			log.e("The graphic file: " + curGraphic.key + " is missing an artwork layer.");
+			log.e("The graphic file: " + curGraphic.name + " is missing an artwork layer.");
 			return undefined;
 		}
 
@@ -536,14 +539,9 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			//turn off for production
-			//the graphic files need fixing before importing the notes for name/number files
-			// if(noteGroup)
-			// {
-			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
-			// }
+			
 			var nameLabel = "2";
-			if(this.garmentWearer === "W" || this.garmentWearer === "Y")
+			if(this.garmentWearer === "Y")
 			{
 				nameLabel = "1.5";
 			}
@@ -551,16 +549,23 @@ function Garment(config,data,designNumber)
 			var nameFrame = artLayer.pageItems["name_" + nameLabel];
 			nameFrame.duplicate(artCopyGroup);
 
+			if(noteGroup && noteGroup.pageItems.length)
+			{
+				noteGroup.left = (artCopyGroup.left + artCopyGroup.width/2) - noteGroup.width/2;
+				noteGroup.duplicate(artCopyGroup);
+			}
+
 			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
 			adultName.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
 
+		
+			if(noteGroup && noteGroup.pageItems.length)
+			{
+				adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			}
+
 			ungroup(adultName);
-			
-			// if(noteGroup)
-			// {
-			// 	adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			// }
 
 			this.graphicXPosition += artCopyGroup.width + 50;
 		}
@@ -593,18 +598,17 @@ function Garment(config,data,designNumber)
 				smallLabel = "4";
 				bigLabel = "9";
 			}
-
-
-			//turn off for production
-			//the graphic files need fixing before importing the notes for name/number files
-			// if(noteGroup)
-			// {
-			// 	noteGroup = noteGroup.duplicate(artCopyGroup);
-			// }
+			
 
 			smallNum = artLayer.pageItems["number_" + smallLabel];
 
 			smallNum = smallNum.duplicate(artCopyGroup);
+
+			if(noteGroup && noteGroup.pageItems.length)
+			{
+				noteGroup.left = (artCopyGroup.left + artCopyGroup.width/2) - noteGroup.width/2;
+				noteGroup.duplicate(artCopyGroup);
+			}
 
 			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
 			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
@@ -612,14 +616,14 @@ function Garment(config,data,designNumber)
 
 			this.graphicXPosition += artCopyGroup.width + 50;
 
+			
+
+			if(noteGroup && noteGroup.pageItems.length)
+			{
+				frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
+			}
+
 			ungroup(frontNum);
-
-			// if(noteGroup)
-			// {
-			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			// }
-
-
 
 			artCopyGroup = artLayer.groupItems.add();
 			
@@ -654,44 +658,40 @@ function Garment(config,data,designNumber)
 				app.redraw();
 			}
 
-
-
-			////////////////////////
-			////////ATTENTION://////
-			//
-			//		this needs fixin. look at artpackmaker to try and
-			//		reuse code for updating text without breaking character styles
-			//
-			////////////////////////
 			//try to update graphic text...
-			if(curGraphic.teamNames)
+			if(curGraphic.teamNames && curGraphic.teamNames.length)
 			{
-				var curFrame,curText;
-				for(var n=0;n < curGraphic.teamNames.length;n++)
-				{
-					curText = curGraphic.teamNames[n].toUpperCase();
-					curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1));
-					if(curFrame)
-					{
-						curFrame.contents = curText;
-						log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
-					}
-					else
-					{
-						log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
-					}
-					curFrame = undefined;
-					curText = undefined;
-					// try
-					// {
-					// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
-					// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
-					// }
-					// catch(e)
-					// {
-					// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
-					// }
-				}
+				updateGraphicText(curGraphic.teamNames,artCopyGroup);
+
+
+				// var curFrame,curText,graphicTextFrames = [];
+				// for(var n=0;n < curGraphic.teamNames.length;n++)
+				// {
+
+				// 	curText = curGraphic.teamNames[n].toUpperCase();
+
+				// 	// curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1),"any");
+				// 	if(curFrame)
+				// 	{
+				// 		curFrame.contents = curText;
+				// 		log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
+				// 	}
+				// 	else
+				// 	{
+				// 		log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
+				// 	}
+				// 	curFrame = undefined;
+				// 	curText = undefined;
+				// 	// try
+				// 	// {
+				// 	// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
+				// 	// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
+				// 	// }
+				// 	// catch(e)
+				// 	// {
+				// 	// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
+				// 	// }
+				// }
 			}
 			
 			var newScale = 100;
