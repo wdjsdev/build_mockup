@@ -289,7 +289,28 @@ function BuildMockupBatch()
 		
 		var scriptResults;
 
-		for(var x=0;x<10;x++)
+		var numBatchOrders = 0;
+
+
+		var w = new Window("dialog");
+			var numOrdersMsg = UI.static(w,"There are " + ordersNeeded.length + " orders.");
+			var promptMsg = UI.static(w,"How many orders do you want to batch?");
+			var input = UI.edit(w,"10",4);
+			var submit = UI.button(w,"Let's Go!!",function()
+			{
+				if(input.text === "")
+				{
+					alert("enter a number");
+					return;
+				}
+
+				numBatchOrders = parseInt(input.text);
+				w.close();
+
+			})
+		w.show();
+
+		for(var x=0;x<numBatchOrders;x++)
 		{
 			if(x === ordersNeeded.length)
 			{
