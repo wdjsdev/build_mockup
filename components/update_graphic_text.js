@@ -20,7 +20,7 @@ function updateGraphicText(arr, group)
 		{
 			curItem = inGroup.pageItems[d];
 			log.l("curItem.typename = " + curItem.typename);
-			if(curItem.typename === "TextFrame" && curItem.name.indexOf("graphic_text")>-1)
+			if(curItem.typename === "TextFrame" && curItem.name.toLowerCase().indexOf("graphic_text")>-1)
 			{
 				tmpName = curItem.name;
 				arrIndex = parseInt(tmpName.substring(tmpName.length-1,tmpName.length)) - 1;
