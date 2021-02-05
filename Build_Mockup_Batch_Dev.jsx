@@ -92,6 +92,7 @@ function BuildMockupBatch()
 	var currentMockup;
 	var filesToClose = [];
 	var graphicsOpened = 0;
+	var curDesignNumber;
 
 
 

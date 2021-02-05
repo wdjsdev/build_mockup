@@ -25,7 +25,17 @@ function updateGraphicText(arr, group)
 				tmpName = curItem.name;
 				arrIndex = parseInt(tmpName.substring(tmpName.length-1,tmpName.length)) - 1;
 				arrIndex = parseInt(tmpName.charAt(tmpName.length-1)) -1;
-				inputNewLogoText(curItem,arr[arrIndex]);
+
+				if(arr[arrIndex])
+				{
+					inputNewLogoText(curItem,arr[arrIndex]);	
+				}
+				else
+				{
+					log.e("Design Number: " + curDesignNumber + " is missing data for " + tmpName);
+					curItem.contents = "";
+				}
+				
 			}
 			else if(curItem.typename === "GroupItem")
 			{

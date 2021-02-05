@@ -141,6 +141,7 @@ function BuildMockup()
 	var currentMockup;
 	var filesToClose = [];
 	var graphicsOpened = 0;
+	var curDesignNumber;
 
 	//regex to remove superfluous appendages from graphic codes
 	//for example, the builder occasionally uses a code like: FDS-325LS
@@ -244,7 +245,7 @@ function BuildMockup()
 		// designNumbers.push("2OrTtaFUtfOG");
 
 
-		designNumbers.push("wTR97PraWfLc");
+		designNumbers.push("fmZDL9I77Z2q");
 
 		//
 	}
