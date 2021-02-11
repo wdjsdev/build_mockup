@@ -6,7 +6,7 @@ function BuildMockupBatch()
 	var valid = true;
 	var scriptName = "build_mockup_batch";
 
-
+	app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 
 	
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
@@ -212,6 +212,7 @@ function BuildMockupBatch()
 
 
 
+		var scriptResults;
 
 		//this represents any orders that already exist
 		//in the dest folder
@@ -219,7 +220,7 @@ function BuildMockupBatch()
 
 		var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
 		var exFolder = Folder(exFolderPath);
-		var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
+		var localExFolderPath = desktopPath + "boombah/mockup_builder/";
 		var localExFolder = Folder(localExFolderPath);
 		var exFiles = exFolder.getFiles();
 		var localExFiles = localExFolder.getFiles();
@@ -277,81 +278,110 @@ function BuildMockupBatch()
 
 			}
 		}
+
+
+		function processOrders(ordersNeeded,teamNames)
+		{
+			for(var x=0;x<ordersNeeded.length;x++)
+			{
+				orderNumber = ordersNeeded[x];
+				teamName = teamNames[x];
+				batchTimer.beginTask(orderNumber + "_" + teamName);
+				log.l("\n*****\n");
+				log.l("Processing: " + orderNumber + "_" + teamName);
+				log.l("This is batch order number #" + x);
+				log.l("\n*****\n");
+
+				scriptResults = exec(orderNumber, teamName);	
+
+				garmentsProcessed += scriptResults.garmentCount;
+				graphicsProcessed += scriptResults.graphicCount;
+				ordersProcessed++;
+
+				log.h("Finished batching order # " + x);
+
+				batchTimer.endTask(orderNumber + "_" + teamName);
+			}
+		}
 		
 		
+		//process the rush orders, if any
 		getFilesFromFolder(rushFolder);
+
+		if(ordersNeeded.length)
+		{
+			log.h("Batching " + ordersNeeded.length + " rush orders.::teamNames = " + teamNames.join(", "));
+			processOrders(ordersNeeded,teamNames);
+			copyOrdersToAssetFolder();
+			ordersNeeded = [];
+			teamNames = [];
+		}
+
+
+		//process the regular needs mockup folder 
 		getFilesFromFolder(needMockFolder);
 
-		log.l("ordersNeeded = " + ordersNeeded);
-		log.l("teamNames = " + teamNames);
-
-
-		function submitDlg()
+		if(ordersNeeded.length)
 		{
-			if(input.text === "")
+			var numBatchOrders;
+			if(ordersNeeded.length > 10)
 			{
-				alert("enter a number");
-				return;
-			}
+				var w = new Window("dialog");
+					var numOrdersMsg = UI.static(w,"There are " + ordersNeeded.length + " orders.");
+					var promptMsg = UI.static(w,"How many orders do you want to batch?");
+					var input = UI.edit(w,ordersNeeded.length + "",4);
+					var submit = UI.button(w,"Let's Go!!",submitDlg)
 
-			numBatchOrders = parseInt(input.text);
-			w.close();
+
+					input.addEventListener("keydown",function(k)
+					{
+						if(k.keyName == "Enter")
+						{
+							submitDlg()
+						}
+					});
+
+					function submitDlg()
+					{
+						if(input.text === "")
+						{
+							alert("enter a number");
+							return;
+						}
+
+						numBatchOrders = parseInt(input.text);
+						ordersNeeded = ordersNeeded.slice(0,numBatchOrders);
+						teamNames = teamNames.slice(0,numBatchOrders);
+						w.close();
+					}
+
+
+
+				w.show();
+			}
+			log.h("Batching " + ordersNeeded.length + " rush orders.::teamNames = " + teamNames.join(", "));
+			processOrders(ordersNeeded,teamNames);
+			copyOrdersToAssetFolder();
+			ordersNeeded = [];
+			teamNames = [];
 		}
+
+
+
 		
-		var scriptResults;
+		
+		
 
-		var numBatchOrders = 0;
+		
+		
 
-
-		var w = new Window("dialog");
-			var numOrdersMsg = UI.static(w,"There are " + ordersNeeded.length + " orders.");
-			var promptMsg = UI.static(w,"How many orders do you want to batch?");
-			var input = UI.edit(w,"10",4);
-			var submit = UI.button(w,"Let's Go!!",submitDlg)
-
-
-			input.addEventListener("keydown",function(k)
-			{
-				if(k.keyName == "Enter")
-				{
-					submitDlg()
-				}
-			});
-
-
-
-		w.show();
-
-		for(var x=0;x<numBatchOrders;x++)
-		{
-			if(x === ordersNeeded.length)
-			{
-				break;
-			}
-			orderNumber = ordersNeeded[x];
-			teamName = teamNames[x];
-			batchTimer.beginTask(orderNumber + "_" + teamName);
-			$.writeln("\n*****\n");
-			$.writeln("Procoessing: " + orderNumber + "_" + teamName);
-			$.writeln("This is garment #" + x + " of the batch.");
-			$.writeln("\n*****\n");
-
-			scriptResults = exec(orderNumber, teamName);	
-
-			garmentsProcessed += scriptResults.garmentCount;
-			graphicsProcessed += scriptResults.graphicCount;
-			ordersProcessed++;
-
-			log.h("Finished batching order # " + x);
-
-			batchTimer.endTask(orderNumber + "_" + teamName);
-		}
+		
 
 		batchTimer.endTask("batchOrders");
 
 		if (errorList.length)
 		{
-			sendErrors(errorList);
+			log.e("Script errors: ::" + errorList.join("\n"));
 		}
 
 		errorList = [];
@@ -360,13 +390,12 @@ function BuildMockupBatch()
 
 		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
 
-		log.h("There are " + (ordersNeeded.length - ordersProcessed) + " orders that still need to be built.");
 
 	}
 
 
 
-	function exec()
+	function exec(orderNumber,teamName)
 	{
 
 
