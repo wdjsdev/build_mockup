@@ -178,6 +178,9 @@ function BuildMockupBatch()
 	}
 
 
+	var rushMode = false; //currently processing rush orders?
+	var rushPrefix = "_RUSH_"
+
 
 	//
 	//Gather and include the components
@@ -199,6 +202,7 @@ function BuildMockupBatch()
 		var rushFolderPath = needMockPath + "_Paid Rush/";
 		var needMockFolder = Folder(needMockPath);
 		var rushFolder = Folder(rushFolderPath);
+
 
 		//orders found in the rush folder and needs mockup folder
 		var ordersNeeded = [];
@@ -311,10 +315,12 @@ function BuildMockupBatch()
 		if(ordersNeeded.length)
 		{
 			log.h("Batching " + ordersNeeded.length + " rush orders.::teamNames = " + teamNames.join(", "));
+			rushMode = true;
 			processOrders(ordersNeeded,teamNames);
 			copyOrdersToAssetFolder();
 			ordersNeeded = [];
 			teamNames = [];
+			rushMode = false;
 		}
 
 
