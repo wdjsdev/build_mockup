@@ -208,6 +208,7 @@ function BuildMockupBatch()
 		var ordersNeeded = [];
 		var teamNames = [];
 		var orderPdfPat = /([\d]{7})*\.pdf/i;
+		var orderNumPat = /([\d]{7})/;
 
 
 		var garmentsProcessed = 0;
@@ -257,7 +258,11 @@ function BuildMockupBatch()
 				// $.writeln("Processing " + curFile.name);
 				if (orderPdfPat.test(curFile.name))
 				{
-					curOrderNum = curFile.name.substring(0, 7);
+					curOrderNum = curFile.name.match(orderNumPat);
+					if(curOrderNum && curOrderNum.length && curOrderNum.length > 1)
+					{
+						curOrderNum = curOrderNum[1];
+					}
 
 					if (curOrderNum.indexOf("_") > -1)
 					{
