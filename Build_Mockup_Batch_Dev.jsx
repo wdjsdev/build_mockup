@@ -230,17 +230,41 @@ function BuildMockupBatch()
 		var exFiles = exFolder.getFiles();
 		var localExFiles = localExFolder.getFiles();
 
+		//rush order pattern
+		var rushPat = /_rush_/i;
+		var leadUnderscorePat = /^_/;
 
+		var onPat = /[\d]{7}/
 
 		//trim out any existing orders
+		var curOn;
 		for (var x = 0; x < exFiles.length; x++)
 		{
-			existingOrders.push(exFiles[x].name.substring(0, 7));
+			curOn = exFiles[x].name.match(onPat);
+			if(curOn)
+			{
+				existingOrders.push(curOn[0]);	
+			}
+			else
+			{
+				log.l(exFiles[x].name + " didn't have a proper order number???::curOn = " + curOn);
+			}
+			// existingOrders.push(exFiles[x].name.replace(rushPat,"").replace(leadUnderscorePat,"").substring(0, 7));
+			
 		}
 
 		for(var x=0;x<localExFiles.length;x++)
 		{
-			existingOrders.push(localExFiles[x].name.substring(0,7));
+			curOn = localExFiles[x].name.match(onPat);
+			if(curOn)
+			{
+				existingOrders.push(curOn[0]);	
+			}
+			else
+			{
+				log.l(localExFiles[x].name + " didn't have a proper order number???::curOn = " + curOn);
+			}
+			// existingOrders.push(localExFiles[x].name.substring(0,7));
 		}
 
 		//strip out any duplicates from the existingOrders array
