@@ -80,7 +80,16 @@
 
 				if(this.sourceFile)
 				{
-					app.open(this.sourceFile);
+					try
+					{
+						app.open(this.sourceFile);	
+					}
+					catch(e)
+					{
+						log.e("failed to open " + this.sourceFile.fullName);
+						return
+					}
+					
 					this.doc = app.activeDocument;
 					
 					this.swatches = this.doc.swatches;
