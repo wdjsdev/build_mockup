@@ -6,7 +6,7 @@ function BuildMockupBatch()
 	var valid = true;
 	var scriptName = "build_mockup_batch";
 
-	// app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+	app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 
 	
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
