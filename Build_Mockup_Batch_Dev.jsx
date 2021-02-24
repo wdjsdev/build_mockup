@@ -497,12 +497,12 @@ function BuildMockupBatch()
 		stats.totalGarments += garmentsNeeded.length;
 		stats.totalGraphics += graphicsOpened;
 		stats.averageGraphicsPerGarment = stats.totalGraphics / stats.totalGarments;
+		stats.averageOrdersPerDay = stats.totalOrders/stats.totalDays;
 
 		var curDate = getDate();
 		if (!stats.dates[curDate])
 		{
 			stats.totalDays++;
-			stats.averageOrdersPerDay = stats.totalOrders/stats.totalDays;
 			stats.dates[curDate] = {
 				"ordersProcessed": [], //orderNumber_teamName
 				"totalOrders": 0,
