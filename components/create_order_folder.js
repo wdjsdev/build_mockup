@@ -45,7 +45,7 @@ function createOrderFolder()
 	}
 
 	//if rush mode, prepend rush tag
- 		if(rushMode)
+	if(rushMode)
 	{
 		folderString = rushPrefix + folderString;
 	}
