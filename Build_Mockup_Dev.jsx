@@ -126,6 +126,7 @@ function BuildMockup()
 	var curGarmentIndex = 1;
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
+	var rushMode = false;
 
 	var womensCodePat = /w$/i;
 	var youthCodePat = /y$/i;
@@ -236,7 +237,7 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3174886";
+		orderNumber = "3184237";
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		

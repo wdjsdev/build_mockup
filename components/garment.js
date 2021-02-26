@@ -281,15 +281,18 @@ function Garment(config,data,designNumber)
 		//to add param blocks while recoloring the garment
 		//to ensure that the mockup exporter can work properly
 
-		var needsParam = findSpecificLayer(this.adultMockupLayer,"paramcolors") ? false : true;
+		var paramLayer = findSpecificLayer(this.adultMockupLayer,"paramcolors") ? false : true;
 
-		if(needsParam)
+		if(paramLayer)
 		{
-			var paramLayer = this.adultMockupLayer.layers.add();
-			paramLayer.name = "paramcolors";
-			var paramIndex = 0;
-			var paramBlock;
+			paramLayer.remove();
 		}
+
+		paramLayer = this.adultMockupLayer.layers.add();
+		paramLayer.name = "paramcolors";
+		var paramIndex = 0;
+		var paramBlock;
+
 
 		var curPlaceholderName,graphicStyleName;
 		for(var ph in colors)
@@ -307,16 +310,15 @@ function Garment(config,data,designNumber)
 			curGStyle.init();
 			currentMockup.activate();
 
-			if(needsParam)
-			{
-				paramBlock = paramLayer.pathItems.rectangle(0,0,5,5);
-				paramBlock.filled = true;
-				paramBlock.fillColor = makeNewSpotColor(ph).color;
-				paramBlock.name = "paramcolor-" + curPlaceholderName;
-				paramBlock.left = this.mockupDocument.artboards[0].artboardRect[0] - 5;
-				paramBlock.top = this.mockupDocument.artboards[0].artboardRect[1] - (5 * paramIndex);
-				paramIndex++;
-			}
+
+			paramBlock = paramLayer.pathItems.rectangle(0,0,5,5);
+			paramBlock.filled = true;
+			paramBlock.fillColor = makeNewSpotColor(ph).color;
+			paramBlock.name = "paramcolor-" + curPlaceholderName;
+			paramBlock.left = this.mockupDocument.artboards[0].artboardRect[0] - 5;
+			paramBlock.top = this.mockupDocument.artboards[0].artboardRect[1] - (5 * paramIndex);
+			paramIndex++;
+
 
 			log.l("Recoloring " + ph + " with " + colors[ph].swatchName);
 
