@@ -393,7 +393,7 @@ function BuildMockupBatch()
 
 				w.show();
 			}
-			log.h("Batching " + ordersNeeded.length + " rush orders.::teamNames = " + teamNames.join(", "));
+			log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
 			processOrders(ordersNeeded, teamNames);
 			copyOrdersToAssetFolder();
 			ordersNeeded = [];

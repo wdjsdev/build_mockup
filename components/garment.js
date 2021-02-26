@@ -281,7 +281,7 @@ function Garment(config,data,designNumber)
 		//to add param blocks while recoloring the garment
 		//to ensure that the mockup exporter can work properly
 
-		var paramLayer = findSpecificLayer(this.adultMockupLayer,"paramcolors") ? false : true;
+		var paramLayer = findSpecificLayer(this.adultMockupLayer,"paramcolors");
 
 		if(paramLayer)
 		{
