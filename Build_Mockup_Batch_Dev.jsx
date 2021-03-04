@@ -273,11 +273,12 @@ function BuildMockupBatch()
 
 		function getFilesFromFolder(folder)
 		{
-			var rushFiles = folder.getFiles();
+			var salesOrders = folder.getFiles("*.pdf");
+			totalNeedsMockOrders += salesOrders.length;
 			var curON;
-			for (var x = 0; x < rushFiles.length; x++)
+			for (var x = 0; x < salesOrders.length; x++)
 			{
-				curFile = rushFiles[x];
+				curFile = salesOrders[x];
 				// $.writeln("Processing " + curFile.name);
 				if (orderPdfPat.test(curFile.name))
 				{
@@ -309,6 +310,8 @@ function BuildMockupBatch()
 
 
 			}
+
+
 		}
 
 
@@ -336,9 +339,12 @@ function BuildMockupBatch()
 			}
 		}
 
+		var totalNeedsMockOrders = 0;
 
 		//process the rush orders, if any
 		getFilesFromFolder(rushFolder);
+
+		var onLen = ordersNeeded.length;
 
 		if (ordersNeeded.length)
 		{
@@ -355,6 +361,8 @@ function BuildMockupBatch()
 		//process the regular needs mockup folder 
 		getFilesFromFolder(needMockFolder);
 
+		log.h("We are " + (totalNeedsMockOrders - garmentsNeeded.length) + " orders ahead of the mockup artists.");
+
 		if (ordersNeeded.length)
 		{
 			var numBatchOrders;
@@ -363,7 +371,7 @@ function BuildMockupBatch()
 				var w = new Window("dialog");
 				var numOrdersMsg = UI.static(w, "There are " + ordersNeeded.length + " orders.");
 				var promptMsg = UI.static(w, "How many orders do you want to batch?");
-				var input = UI.edit(w, ordersNeeded.length + "", 4);
+				var input = UI.edit(w, (ordersNeeded.length >= 20 ? 20 : ordersNeeded.length) + "", 4);
 				var submit = UI.button(w, "Let's Go!!", submitDlg)
 
 
@@ -541,7 +549,15 @@ function BuildMockupBatch()
 	scriptTimer.endTask("printLog");
 
 	copyOrdersToAssetFolder();
-}
+
+	alert("all done.");
+
+	for(var x=app.documents.length-1;x>=0;x--)
+	{
+		app.documents[x].close(SaveOptions.DONOTSAVECHANGES);
+	}
+}	
+
 
 
 BuildMockupBatch();
