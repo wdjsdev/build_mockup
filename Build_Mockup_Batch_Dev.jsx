@@ -498,7 +498,8 @@ function BuildMockupBatch()
 
 		//log the stats for this order
 
-		var statsPath = desktopPath + "automation/build_mockup/stats.js";
+		// var statsPath = desktopPath + "automation/build_mockup/stats.js";
+		var statsPath = dataPath + "build_mockup_data/batch_stats.js";
 		eval("#include \"" + statsPath + "\"");
 
 		stats.totalOrders++;
