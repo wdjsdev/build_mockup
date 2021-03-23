@@ -8,7 +8,8 @@ function Garment(config,data,designNumber)
 	this.bigLogoSize = 1.3; //default is 13 inches at 10% scale
 	this.smallLogoSize = .4; // default is 4 inches at 10% scale
 	this.garmentFolder;
-	this.garmentFile;
+	this.adultGarmentFile;
+	this.youthGarmentFile;
 	this.styleNumber = "";
 	this.fileSuffix; //this is like a _A or _B for reversible garments
 	this.garmentColors = data.colors;
@@ -40,58 +41,74 @@ function Garment(config,data,designNumber)
 
 	this.processGarment = function()
 	{
-
-
-		if(this.garmentFile)
+		if(this.adultGarmentFile)
 		{
-			this.makeMockup(this.garmentFile);
+			this.openCT(this.adultGarmentFile);
+			this.adultMockupLayer = findSpecificLayer(app.activeDocument.layers[0],"Mockup");
+			this.adultArtworkLayer = findSpecificLayer(app.activeDocument.layers[0],"Artwork Layer");
+			this.adultMockupArtboard = app.activeDocument.artboards[0];
+			
+			// debugger;
+
+			if(!this.adultMockupLayer)
+			{
+				this.adultMockupLayer = app.activeDocument.layers.add();
+				this.adultMockupLayer.name = "Mockup";
+			}
+
+			if(!this.adultArtworkLayer)
+			{
+				this.adultArtworkLayer = app.activeDocument.layers.add();
+				this.adultArtworkLayer.name = "Artwork";
+			}
 		}
+		if(this.youthGarmentFile)
+		{
+			this.openCT(this.youthGarmentFile);
+
+			//if there's and audult and youth, merge the youth file into the adult file
+			if(this.adultGarmentFile)
+			{
+				var youthDoc = this.openFile(this.youthGarmentFile);
+				mergeTemplate(this.mockupDocument);
+				filesToClose.push(youthDoc);
+				currentMockup.activate();
+				app.executeMenuCommand("fitall");
+			}
+
+
+
+			this.youthMockupLayer = findSpecificLayer(app.activeDocument.layers[1],"Mockup");
+			this.youthArtworkLayer = findSpecificLayer(app.activeDocument.layers[1],"Artwork Layer");
+			this.youthMockupArtboard = app.activeDocument.artboards[1];
+
+			// debugger;
+			if(!this.youthMockupLayer)
+			{
+				this.youthMockupLayer = app.activeDocument.layers.add();
+				this.youthMockupLayer.name = "Mockup";
+			}
+
+			if(!this.youthArtworkLayer)
+			{
+				this.youthArtworkLayer = app.activeDocument.layers.add();
+				this.youthArtworkLayer.name = "Artwork";
+			}
+		}
+
+		this.mockupDocument = currentMockup = app.activeDocument;
+		this.processMockup(this.mockupDocument)
+	}
+
+	this.openCT = function(file)
+	{
+		this.openFile(file);
+		app.executeMenuCommand("fitall");
 	}
 
 
-	this.makeMockup = function(file)
+	this.processMockup = function(file)
 	{
-		this.openFile(file);
-		this.mockupDocument = currentMockup = app.activeDocument;
-
-		
-		app.executeMenuCommand("fitall");
-		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
-		this.adultArtworkLayer = findSpecificLayer(this.mockupDocument.layers[0],"Artwork Layer");
-		this.adultMockupArtboard = this.mockupDocument.artboards[0];
-		
-
-		if(this.youthGarmentFile)
-		{
-			var youthDoc = this.openFile(this.youthGarmentFile);
-			mergeTemplate(this.mockupDocument);
-			this.youthMockupLayer = findSpecificLayer(this.mockupDocument.layers[1],"Mockup");
-			filesToClose.push(youthDoc);
-			currentMockup.activate();
-			app.executeMenuCommand("fitall");
-			app.redraw();
-		}
-		
-		this.adultMockupLayer = findSpecificLayer(this.mockupDocument.layers[0],"Mockup");
-		if(!this.adultMockupLayer)
-		{
-			this.adultMockupLayer = this.mockupDocument.layers.add();
-			this.adultMockupLayer.name = "Mockup";
-		}
-
-		this.adultArtworkLayer = findSpecificLayer(this.mockupDocument.layers[0],"Artwork Layer");
-		if(!this.adultArtworkLayer)
-		{
-			this.adultArtworkLayer = this.mockupDocument.layers.add();
-			this.adultArtworkLayer.name = "Artwork";
-		}
-		
-		this.adultMockupArtboard = this.mockupDocument.artboards[0];
-		
-
-		// this.mockupDocument.rulerOrigin = [this.adultMockupArtboard.artboardRect[0],this.adultMockupArtboard.artboardRect[1]];
-
-
 		this.saveFile = this.getSaveFile();
 
 		currentMockup.saveAs(this.saveFile);
@@ -207,11 +224,15 @@ function Garment(config,data,designNumber)
 			this.adultGarmentCode += "W";
 		}
 
+		var singleWearerGarments = ["FD-5060","FD-5060G","FD-5060Y","FD-5060W","FD-5070","FD-5070G","FD-5070Y","FD-5070W","FD-5077","FD-5077G","FD-5077Y","FD-5077W","PS-5075","PS-5075G","PS-5075Y","PS-5075W","PS-5082","PS-5082G","PS-5082Y","PS-5082W","PS-5094","PS-5094G","PS-5094Y","PS-5094W","PS-5095","PS-5095G","PS-5095Y","PS-5095W","PS-5098","PS-5098G","PS-5098Y","PS-5098W","PS-5105","PS-5105G","PS-5105Y","PS-5105W","PS-5106","PS-510G6","PS-510Y6","PS-510W6"];
+		var isSingleWearerGarment = singleWearerGarments.indexOf(this.adultGarmentCode) > -1 ? true : false;
 
 		if(womensCodePat.test(this.adultGarmentCode))
 		{
 			this.garmentWearer = "W";
-			this.youthGarmentCode = this.adultGarmentCode.replace(womensCodePat,"G");
+
+			this.youthGarmentCode = isSingleWearerGarment ? undefined : this.adultGarmentCode.replace(womensCodePat,"G");
+
 			this.bigLogoSize = 1.15;
 			this.smallLogoSize = .3;
 		}
@@ -219,7 +240,9 @@ function Garment(config,data,designNumber)
 		{
 			this.garmentWearer = "G";
 			this.youthGarmentCode = this.adultGarmentCode;
-			this.adultGarmentCode = this.youthGarmentCode.replace(girlsCodePat,"W");
+
+			this.adultGarmentCode = isSingleWearerGarment ? undefined : this.youthGarmentCode.replace(girlsCodePat,"W");
+
 			this.bigLogoSize = .95;
 			this.smallLogoSize = .3;
 		}
@@ -227,14 +250,16 @@ function Garment(config,data,designNumber)
 		{
 			this.garmentWearer = "Y";
 			this.youthGarmentCode = this.adultGarmentCode;
-			this.adultGarmentCode = this.youthGarmentCode.replace(youthCodePat,"");
+
+			this.adultGarmentCode = isSingleWearerGarment ? undefined : this.youthGarmentCode.replace(youthCodePat,"");
+
 			this.bigLogoSize = .95;
 			this.smallLogoSize = .3;
 		}
 		else
 		{
 			this.garmentWearer = "M";
-			this.youthGarmentCode = this.adultGarmentCode + "Y";
+			this.youthGarmentCode = isSingleWearerGarment ? undefined : this.adultGarmentCode + "Y";
 			this.bigLogoSize = 1.3;
 			this.smallLogoSize = .4;
 
@@ -834,25 +859,25 @@ function Garment(config,data,designNumber)
 	{
 		log.l("Getting garments.");
 		scriptTimer.beginTask("getGarments");
-		this.adultGarmentFolder = locateCTFolder(this.adultGarmentCode);
+		this.adultGarmentFolder = this.adultGarmentCode ? locateCTFolder(this.adultGarmentCode) : undefined;
 		
 		//if this garment is a bag, there's no youth sizing.. skip this part.
-		if(data.garment.toLowerCase().indexOf("bag") === -1)
+		if(this.youthGarmentCode && data.garment.toLowerCase().indexOf("bag") === -1)
 		{
 			this.youthGarmentFolder = locateCTFolder(this.youthGarmentCode);
 		}
-		if(this.adultGarmentFolder)
+		if(this.adultGarmentFolder && this.adultGarmentCode)
 		{
-			// this.garmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
-			this.garmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix);
+			// this.adultGarmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
+			this.adultGarmentFile = getFile(this.adultGarmentFolder,this.styleNumber,this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
-		if(this.youthGarmentFolder)
+		if(this.youthGarmentFolder && this.youthGarmentCode)
 		{
 			// this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
 			this.youthGarmentFile = getFile(this.youthGarmentFolder,this.styleNumber,this.youthGarmentCode + "_" + this.styleNumber + this.fileSuffix);
 		}
 
-		log.l("adult garment file: " + this.garmentFile);
+		log.l("adult garment file: " + this.adultGarmentFile);
 		log.l("youth garment file: " + this.youthGarmentFile);
 
 		scriptTimer.endTask("getGarments");

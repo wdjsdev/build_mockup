@@ -237,7 +237,7 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3184237";
+		orderNumber = "3227428";
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		
@@ -294,6 +294,7 @@ function BuildMockup()
 	{
 		loopDesignNumbers();
 	}
+
 
 	if(valid)
 	{
