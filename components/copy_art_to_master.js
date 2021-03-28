@@ -1,14 +1,10 @@
-function copyArtToMaster(art,destDoc,destLay,destAbRect)
+function copyArtToMaster(art,destDoc,destLay,pos)
 {
-	// var copyGroup = art.parent.groupItems.add();
-	// for(var x = artArray.length - 1; x>=0;x--)
-	// {
-	// 	artArray[x].moveToBeginning(copyGroup);
-	// }
 	var result = art.duplicate(destDoc);
 	result.moveToBeginning(destLay);
-	// destDoc.selection = null;
-	// result.selected = true;
-	// app.executeMenuCommand("ungroup");
+	// destDoc.artboards.setActiveArtboardIndex(destAbIndex);
+	result.left = pos[0];
+	result.top = pos[1];
+
 	return result;
 }

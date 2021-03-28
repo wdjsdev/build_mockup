@@ -6,7 +6,6 @@ function BuildMockup()
 	const BATCH_MODE = false;
 
 	
-	
 	function getUtilities()
 	{
 		var result = [];
@@ -237,7 +236,8 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3227428";
+		// orderNumber = "3229655";
+		designNumbers.push("1bHhJPs7Ktrc");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		
@@ -246,7 +246,7 @@ function BuildMockup()
 		// designNumbers.push("2OrTtaFUtfOG");
 
 
-		// designNumbers.push("fmZDL9I77Z2q");
+		
 
 		//
 	}

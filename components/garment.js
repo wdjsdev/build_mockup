@@ -3,9 +3,10 @@
 function Garment(config,data,designNumber)
 {
 	this.designNumber = designNumber;
-	this.garmentCode = "";
+	this.adultGarmentCode = "";
+	this.youthGarmentCode = "";
 	this.garmentWearer = ""; //this is either M, W, or Y 
-	this.bigLogoSize = 1.3; //default is 13 inches at 10% scale
+	this.bigLogoSize = 3; //default is 13 inches at 10% scale
 	this.smallLogoSize = .4; // default is 4 inches at 10% scale
 	this.garmentFolder;
 	this.adultGarmentFile;
@@ -16,13 +17,15 @@ function Garment(config,data,designNumber)
 	this.graphics = config.graphics;
 	this.saveFile;
 	this.mockupDocument;
+
+	this.mainMockupLayer;
 	this.adultMockupLayer;
 	this.adultMockupArtboard;
 	this.youthMockupLayer;
 	this.youthMockupArtboard;
 
 	this.graphicXPosition = 0;
-
+	this.youthXOffset = 0;
 
 
 
@@ -44,21 +47,25 @@ function Garment(config,data,designNumber)
 		if(this.adultGarmentFile)
 		{
 			this.openCT(this.adultGarmentFile);
-			this.adultMockupLayer = findSpecificLayer(app.activeDocument.layers[0],"Mockup");
-			this.adultArtworkLayer = findSpecificLayer(app.activeDocument.layers[0],"Artwork Layer");
-			this.adultMockupArtboard = app.activeDocument.artboards[0];
-			
+			this.mockupDocument = app.activeDocument;
 			// debugger;
+			var adultLayer = findSpecificLayer(this.mockupDocument,this.adultGarmentCode,"any");
+			this.adultMockupLayer = this.mainMockupLayer = findSpecificLayer(adultLayer,"Mockup");
+			this.adultArtworkLayer = findSpecificLayer(adultLayer,"Artwork Layer");
+			this.adultMockupArtboard = this.mainMockupArtboard = this.mockupDocument.artboards[0];
+			
+			
+
 
 			if(!this.adultMockupLayer)
 			{
-				this.adultMockupLayer = app.activeDocument.layers.add();
+				this.adultMockupLayer = this.mockupDocument.layers.add();
 				this.adultMockupLayer.name = "Mockup";
 			}
 
 			if(!this.adultArtworkLayer)
 			{
-				this.adultArtworkLayer = app.activeDocument.layers.add();
+				this.adultArtworkLayer = this.mockupDocument.layers.add();
 				this.adultArtworkLayer.name = "Artwork";
 			}
 		}
@@ -72,17 +79,34 @@ function Garment(config,data,designNumber)
 				var youthDoc = this.openFile(this.youthGarmentFile);
 				mergeTemplate(this.mockupDocument);
 				filesToClose.push(youthDoc);
-				currentMockup.activate();
+				this.mockupDocument.activate();
 				app.executeMenuCommand("fitall");
+				app.redraw();
+			}
+			else
+			{
+				this.mockupDocument = app.activeDocument;
 			}
 
+			var youthLayer = findSpecificLayer(this.mockupDocument.layers,this.youthGarmentCode,"any");
 
+			this.youthMockupLayer = findSpecificLayer(youthLayer,"Mockup");
+			this.youthArtworkLayer = findSpecificLayer(youthLayer,"Artwork Layer");
+			this.youthMockupArtboard = this.mockupDocument.artboards[this.adultGarmentFile ? 1 : 0];
 
-			this.youthMockupLayer = findSpecificLayer(app.activeDocument.layers[1],"Mockup");
-			this.youthArtworkLayer = findSpecificLayer(app.activeDocument.layers[1],"Artwork Layer");
-			this.youthMockupArtboard = app.activeDocument.artboards[1];
+			if(this.youthMockupArtboard && this.adultMockupArtboard)
+			{
+				this.youthXOffset = this.youthMockupArtboard.artboardRect[0] - this.adultMockupArtboard.artboardRect[0];
+			}
 
-			// debugger;
+			if(!this.adultMockupLayer)
+			{
+				this.mainMockupLayer = this.youthMockupLayer;
+				this.mainMockupArtboard = this.youthMockupArtboard;
+			}
+
+			
+
 			if(!this.youthMockupLayer)
 			{
 				this.youthMockupLayer = app.activeDocument.layers.add();
@@ -114,7 +138,7 @@ function Garment(config,data,designNumber)
 		currentMockup.saveAs(this.saveFile);
 		curGarmentIndex++;
 		
-		if(this.adultMockupLayer)
+		if(this.mainMockupLayer)
 		{
 			this.recolorGarment(this.garmentColors);
 		}
@@ -168,14 +192,14 @@ function Garment(config,data,designNumber)
 				this.openFile(curGraphic.file);
 				this.recolorGraphic(curGraphic.colors,curGraphic.type);
 
-				try
-				{
+				// try
+				// {
 					this.processGraphic(curGraphic);	
-				}
-				catch(e)
-				{
-					log.e("_FIX_GRAPHIC_FILE_::" + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
-				}
+				// }
+				// catch(e)
+				// {
+				// 	log.e("_FIX_GRAPHIC_FILE_::" + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
+				// }
 				
 				graphicsOpened++;
 
@@ -224,6 +248,9 @@ function Garment(config,data,designNumber)
 			this.adultGarmentCode += "W";
 		}
 
+
+		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
+		//just build this garment without merging anything else into it.
 		var singleWearerGarments = ["FD-5060","FD-5060G","FD-5060Y","FD-5060W","FD-5070","FD-5070G","FD-5070Y","FD-5070W","FD-5077","FD-5077G","FD-5077Y","FD-5077W","PS-5075","PS-5075G","PS-5075Y","PS-5075W","PS-5082","PS-5082G","PS-5082Y","PS-5082W","PS-5094","PS-5094G","PS-5094Y","PS-5094W","PS-5095","PS-5095G","PS-5095Y","PS-5095W","PS-5098","PS-5098G","PS-5098Y","PS-5098W","PS-5105","PS-5105G","PS-5105Y","PS-5105W","PS-5106","PS-510G6","PS-510Y6","PS-510W6"];
 		var isSingleWearerGarment = singleWearerGarments.indexOf(this.adultGarmentCode) > -1 ? true : false;
 
@@ -306,14 +333,14 @@ function Garment(config,data,designNumber)
 		//to add param blocks while recoloring the garment
 		//to ensure that the mockup exporter can work properly
 
-		var paramLayer = findSpecificLayer(this.adultMockupLayer,"paramcolors");
+		var paramLayer = findSpecificLayer(this.mainMockupLayer,"paramcolors");
 
 		if(paramLayer)
 		{
 			paramLayer.remove();
 		}
 
-		paramLayer = this.adultMockupLayer.layers.add();
+		paramLayer = this.mainMockupLayer.layers.add();
 		paramLayer.name = "paramcolors";
 		var paramIndex = 0;
 		var paramBlock;
@@ -456,10 +483,18 @@ function Garment(config,data,designNumber)
 		//and then placed next to the artboard
 		var youthGroup,adultGroup;
 		var noteLayer,artLayer,artCopyGroup;
-		var noteGroup,masterNoteGroup;
+		var noteGroup,adultMasterNoteGroup,youthMasterNoteGroup;
+		var youthName,adultName,youthFrontNumber,youthBackNumber,adultFrontNumber,adultBackNumber;
+		var youthLogo,adultLogo;
+		var noteCopy;
 		var artItem;
 		var curLay,curName;
 		var scaleLogo = true;
+
+		
+
+		var pos;
+
 
 
 		//check to see whether this is a background graphic or ghosted graphic
@@ -527,11 +562,25 @@ function Garment(config,data,designNumber)
 		if(noteLayer)
 		{
 			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
-			if(!masterNoteGroup)
+			if(this.adultMockupLayer)
 			{
-				masterNoteGroup = this.adultMockupLayer.groupItems.add();
-				masterNoteGroup.name = "graphic notes";
+				adultMasterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
+				if(!adultMasterNoteGroup)
+				{
+					adultMasterNoteGroup = this.adultMockupLayer.groupItems.add();
+					adultMasterNoteGroup.name = "graphic notes";
+				}
 			}
+			if(this.youthMockupLayer)
+			{
+				youthMasterNoteGroup = findSpecificPageItem(this.youthMockupLayer,"graphic notes","any");
+				if(!youthMasterNoteGroup)
+				{
+					youthMasterNoteGroup = this.youthMockupLayer.groupItems.add();
+					youthMasterNoteGroup.name = "graphic notes";
+				}
+			}
+			
 
 			noteGroup = (function()
 			{
@@ -543,58 +592,101 @@ function Garment(config,data,designNumber)
 				{
 					noteLayer.pageItems[x].moveToBeginning(newGroup);
 				}
-				return newGroup;
+				return newGroup.pageItems.length ? newGroup : undefined;
 			})();
 		}
 
-		//container group for all artwork that will be
-		//duplicated to the master file. this whole group
-		//will be placed and positioned, then split into its
-		//component parts.
-		artCopyGroup = artLayer.groupItems.add();
+
 		
+
+		const GRAPHIC_SPACING = 50;
 
 
 		if(curGraphic.type === "name")
-		{
+		{			
+			var adultNameLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].name : sizingDb["M"].name;
+			var youthNameLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].name : sizingDb["Y"].name;
+			var curWidth;
+			if(this.adultArtworkLayer)
+			{
 
-			////////////////////////
-			////////ATTENTION://////
-			//
-			//		add logic here to get the correct size name
-			//		according to the wearer.. mens/womens/youth
-			//
-			////////////////////////
+				var adultNameFrame = findSpecificPageItem(artLayer,"name_" + adultNameLabel,"any");
+
+
+				if(adultNameFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(adultNameFrame,[noteCopy]);
+					}
+					adultNameFrame.duplicate(artCopyGroup);
+					pos  = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
+					
+					curWidth = adultNameFrame.width;
+
+					adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer,pos);
+
+
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						adultName.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+					}
+
+					ungroup(adultName);
+				}
+				else
+				{
+					log.e("Failed to find a player name matching: name_" + adultNameLabel + "::" + JSON.stringify(curGraphic));
+					return undefined;
+				}
+				
+			}
+
+			if(this.youthArtworkLayer)
+			{
+
+				var youthNameFrame = findSpecificPageItem(artLayer,"name_" + youthNameLabel,"any");
+
+				if(youthNameFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(youthNameFrame,[noteCopy]);
+					}
+					youthNameFrame.duplicate(artCopyGroup);
+					pos  = [this.graphicXPosition + this.youthXOffset, artCopyGroup.height + GRAPHIC_SPACING];
+
+					if(!curWidth)
+					{
+						curWidth = youthNameFrame.width;
+					}
+
+					youthName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.youthArtworkLayer,pos);
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						youthName.pageItems[noteGroup.name].moveToBeginning(youthMasterNoteGroup);
+					}
+					
+					ungroup(youthName);
+				}
+				else
+				{
+					log.e("Failed to find a player name matching: name_" + adultNameLabel + "::" + JSON.stringify(curGraphic));
+					return undefined;
+				}
+
+
+				
+
+			}
+
+			this.graphicXPosition += curWidth + GRAPHIC_SPACING;
+
 			
-			
-			var nameLabel = "2";
-			if(this.garmentWearer === "Y")
-			{
-				nameLabel = "1.5";
-			}
-
-			var nameFrame = artLayer.pageItems["name_" + nameLabel];
-			nameFrame.duplicate(artCopyGroup);
-
-			if(noteGroup && noteGroup.pageItems.length)
-			{
-				noteGroup.left = (artCopyGroup.left + artCopyGroup.width/2) - noteGroup.width/2;
-				noteGroup.duplicate(artCopyGroup);
-			}
-
-			var adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
-			adultName.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			adultName.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
-
-		
-			if(noteGroup && noteGroup.pageItems.length)
-			{
-				adultName.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			}
-
-			ungroup(adultName);
-
-			this.graphicXPosition += artCopyGroup.width + 50;
 		}
 		else if(curGraphic.type === "number")
 		{
@@ -607,77 +699,169 @@ function Garment(config,data,designNumber)
 			//
 			////////////////////////
 			
-			var smallNum, bigNum;
-			var smallLabel, bigLabel;
 
-			if(this.garmentWearer === "W")
+			
+			var adultFrontNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].smallNum : sizingDb["M"].smallNum;
+			var youthFrontNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].smallNum : sizingDb["Y"].smallNum;
+			var adultBackNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].bigNum : sizingDb["M"].bigNum;
+			var youthBackNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].bigNum : sizingDb["Y"].bigNum;
+			//go get the front number and copy it to the master.
+
+			
+			
+
+
+
+			var deltaXPosition = 0;
+			if(this.adultArtworkLayer)
 			{
-				smallLabel = "3";
-				bigLabel = "8";
+				var adultFrontNumberFrame = findSpecificPageItem(artLayer,"number_" + adultFrontNumLabel,"imatch");
+
+				if(adultFrontNumberFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(adultFrontNumberFrame,[noteCopy]);
+					}
+					adultFrontNumberFrame.duplicate(artCopyGroup);
+					pos = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
+					adultFrontNumber = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer,pos);
+
+					this.graphicXPosition += adultFrontNumberFrame.width + GRAPHIC_SPACING;
+					deltaXPosition += adultFrontNumberFrame.width + GRAPHIC_SPACING;
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						adultFrontNumber.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+					}
+
+					ungroup(adultFrontNumber);
+				}
+
+
+
+				//
+				var adultBackNumberFrame = findSpecificPageItem(artLayer,"number_" + adultBackNumLabel,"imatch");
+				if(adultBackNumberFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(adultBackNumberFrame,[noteCopy]);
+					}
+					adultBackNumberFrame.duplicate(artCopyGroup);
+					pos = [this.graphicXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					adultBackNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer,pos);
+
+					this.graphicXPosition += adultBackNumber.width + GRAPHIC_SPACING;
+					deltaXPosition += adultBackNumber.width + GRAPHIC_SPACING;
+
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						adultBackNumber.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+					}
+					
+					ungroup(adultBackNumber);
+				}
+
 			}
-			else if(this.garmentWearer === "Y" ||  this.garmentWearer === "G")
+
+			if(this.youthArtworkLayer)
 			{
-				smallLabel = "3";
-				bigLabel = "8";
+				this.mockupDocument.activate()
+				this.mockupDocument.artboards.setActiveArtboardIndex(this.adultMockupLayer ? 1:0);
+				doc.activate();
+				
+				var youthFrontNumberFrame = findSpecificPageItem(artLayer,"number_" + youthFrontNumLabel,"imatch");
+
+				if(youthFrontNumberFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(youthFrontNumberFrame,[noteCopy]);
+					}
+					youthFrontNumberFrame.duplicate(artCopyGroup);
+					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					youthFrontNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.youthArtworkLayer,pos);
+
+
+					//if there's an adult mockup in the master,
+					//then we don't need to increment x position
+					//since that would have been done in the adult condition above
+					if(!this.adultArtworkLayer)
+					{
+						this.graphicXPosition += youthFrontNumberFrame.width + GRAPHIC_SPACING;	
+					}
+
+					deltaXPosition -= youthFrontNumberFrame.width + GRAPHIC_SPACING;
+					
+					if(noteGroup && noteGroup.pageItems.length)
+					{
+						youthFrontNumber.pageItems[noteGroup.name].moveToBeginning(youthMasterNoteGroup);
+					}
+
+					ungroup(youthFrontNumber);
+				}
+
+
+				var youthBackNumberFrame = findSpecificPageItem(artLayer,"number_" + youthBackNumLabel,"imatch");
+
+				if(youthBackNumberFrame)
+				{
+					artCopyGroup = artLayer.groupItems.add();
+					if(noteGroup)
+					{
+						noteCopy = noteGroup.duplicate(artCopyGroup);
+						alignObjectsToCenter(youthBackNumberFrame,[noteCopy]);
+					}
+					youthBackNumberFrame.duplicate(artCopyGroup);
+					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					youthBackNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.youthArtworkLayer,pos);
+
+					
+					//if there's an adult mockup in the master,
+					//then we don't need to increment x position
+					//since that would have been done in the adult condition above
+					if(!this.adultArtworkLayer)
+					{
+						this.graphicXPosition += youthFrontNumber.width + GRAPHIC_SPACING;	
+					}
+
+					if(noteGroup)
+					{
+						youthBackNumber.pageItems[noteGroup.name].moveToBeginning(youthMasterNoteGroup);
+					}
+					
+					ungroup(youthFrontNumber);
+				}
+
 			}
-			else
-			{
-				smallLabel = "4";
-				bigLabel = "9";
-			}
-			
-
-			smallNum = artLayer.pageItems["number_" + smallLabel];
-
-			smallNum = smallNum.duplicate(artCopyGroup);
-
-			if(noteGroup && noteGroup.pageItems.length)
-			{
-				noteGroup.left = (artCopyGroup.left + artCopyGroup.width/2) - noteGroup.width/2;
-				noteGroup.duplicate(artCopyGroup);
-			}
-
-			var frontNum = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer);
-			frontNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			frontNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
-
-			this.graphicXPosition += artCopyGroup.width + 50;
 
 			
 
-			if(noteGroup && noteGroup.pageItems.length)
-			{
-				frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			}
 
-			ungroup(frontNum);
-
-			artCopyGroup = artLayer.groupItems.add();
 			
-
-			artLayer.pageItems["number_" + bigLabel].duplicate(artCopyGroup);
-			// bigNum = artLayer.pageItems["number_" + largeLabel].duplicate(artCopyGroup);
-
-			var backNum = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
-			backNum.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			backNum.top = this.adultMockupArtboard.artboardRect[1] + artCopyGroup.height + 50;
-			
-			this.graphicXPosition += artCopyGroup.width + 50;
-			
-			ungroup(backNum);
-			
-			
-
-			// if(noteGroup)
-			// {
-			// 	frontNum.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);	
-			// }
 
 		}
 		else if(curGraphic.type === "logo")
 		{
+			var newScale = 100;
 			app.selection = null;
+			artCopyGroup = artLayer.groupItems.add();
 			artCopyGroup.name = artLayer.name;
+			var curWidth;
+			var deltaXPosition = 0;
+
+			//get the minimum and maximum dimensions of a logo
+			//db has the sizes in inches at 10% scale. multiply by 72 to get the correct scale in points
+			var maxAdultScaledDimension = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].bigLogo : sizingDb["M"].bigLogo * 72;
+			var maxYouthScaledDimension = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].bigLogo : sizingDb["Y"].bigLogo * 72;
+			var minAdultScaledDimension = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].smallLogo : sizingDb["M"].smallLogo * 72;
+			var minYouthScaledDimension = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].smallLogo : sizingDb["Y"].smallLogo * 72;
 
 			for(var x = artLayer.pageItems.length-1;x>=1;x--)
 			{
@@ -685,100 +869,129 @@ function Garment(config,data,designNumber)
 				app.redraw();
 			}
 
-			//try to update graphic text...
-			if(curGraphic.teamNames && curGraphic.teamNames.length)
+			if(artCopyGroup && artCopyGroup.pageItems.length)
 			{
-				updateGraphicText(curGraphic.teamNames,artCopyGroup);
 
-
-				// var curFrame,curText,graphicTextFrames = [];
-				// for(var n=0;n < curGraphic.teamNames.length;n++)
-				// {
-
-				// 	curText = curGraphic.teamNames[n].toUpperCase();
-
-				// 	// curFrame = findSpecificPageItem(artCopyGroup,"graphic_text_" + (n+1),"any");
-				// 	if(curFrame)
-				// 	{
-				// 		curFrame.contents = curText;
-				// 		log.l("Updated contents of graphic_text_" + (n+1) + " to " + curText);
-				// 	}
-				// 	else
-				// 	{
-				// 		log.e(curGraphic.name + " is missing graphic_text_" + (n+1) + " textFrame.");
-				// 	}
-				// 	curFrame = undefined;
-				// 	curText = undefined;
-				// 	// try
-				// 	// {
-				// 	// 	artCopyGroup.pageItems["graphic_text_" + (n + 1)].contents = curGraphic.teamNames[n].toUpperCase();
-				// 	// 	log.l("Changed graphic_text_" + (n+1) + " to " + curGraphic.teamNames[n].toUpperCase());
-				// 	// }
-				// 	// catch(e)
-				// 	// {
-				// 	// 	log.e(curGraphic.name + " needs to be updated to accept logo text::logo_text_fix");
-				// 	// }
-				// }
-			}
-			
-			var newScale = 100;
-			
-			
-			if(scaleLogo)
-			{
-				var aw = artCopyGroup.width;
-				var ah = artCopyGroup.height;
-
-				//logo is bigger than 1.3"
-				//scale it to 1.3
-				if(aw > this.bigLogoSize *72 || ah > this.bigLogoSize *72)
+				//try to update graphic text...
+				if(curGraphic.teamNames && curGraphic.teamNames.length)
 				{
-					if(aw > ah)
+					updateGraphicText(curGraphic.teamNames,artCopyGroup);
+				}
+			}
+
+			if(!artCopyGroup.pageItems.length)
+			{
+				log.e("No logo artwork for " + artLayer.name);
+				return;
+			}
+
+
+			if(this.adultArtworkLayer)
+			{
+				var adultLogoGroup = artCopyGroup.duplicate();
+
+				if(scaleLogo)
+				{
+					if(adultLogoGroup.width > adultLogoGroup.height)
 					{
-						newScale = ((this.bigLogoSize  * 72) / aw);	
+						if(adultLogoGroup.width > maxAdultScaledDimension/2)
+							newScale = (maxAdultScaledDimension / adultLogoGroup.width) * 100;
+						else
+							newScale = (minAdultScaledDimension / adultLogoGroup.width) * 100;
 					}
 					else
 					{
-						newScale = ((this.bigLogoSize  * 72) / ah);
+						if(adultLogoGroup.height > maxAdultScaledDimension/2)
+							newScale = (maxAdultScaledDimension / adultLogoGroup.height) * 100;
+						else
+							newScale = (minAdultScaledDimension / adultLogoGroup.height) * 100;
 					}
-					newScale *= 100;
+					
 				}
-				//else if the graphic is approximately 4" wide (at .1 scale)
-				//28 points = ~.4 inches
-				else
+
+				if(noteGroup)
 				{
-					if(this.garmentWearer === "W" || this.garmentWearer === "Y")
-					{
-						//scale to this.smallLogoSize inches at max dimension
-						newScale = (this.smallLogoSize * 72) / (aw > ah ? aw : ah);
-						newScale *= 100;
-					}
+					noteCopy = noteGroup.duplicate(adultLogoGroup);
+					alignObjectsToCenter(adultLogoGroup,[noteCopy]);
 				}
+
+
+				adultLogoGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+				
+				curWidth = findSpecificPageItem(adultLogoGroup,artLayer.name,"any").width;
+				deltaXPosition += curWidth + GRAPHIC_SPACING;
+				
+				pos = [this.graphicXPosition,adultLogoGroup.height + GRAPHIC_SPACING];
+				
+				adultLogo = copyArtToMaster(adultLogoGroup,this.mockupDocument,this.adultArtworkLayer,pos);
+
+				if(noteGroup)
+				{
+					adultLogo.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+				}
+
+				this.graphicXPosition += curWidth + GRAPHIC_SPACING;
+
+				ungroup(adultLogo);
 				
 			}
 
-			if(noteGroup)
+			if(this.youthArtworkLayer)
 			{
-				noteGroup.moveToBeginning(artCopyGroup);
+				// this.mockupDocument.activate();
+				// this.mockupDocument.artboards.setActiveArtboardIndex(this.adultArtworkLayer ? 1 : 0);
+				// doc.activate();
+				var youthLogoGroup = artCopyGroup.duplicate();
+
+				if(scaleLogo)
+				{
+					if(youthLogoGroup.width > youthLogoGroup.height)
+					{
+						if(youthLogoGroup.width > maxYouthScaledDimension/2)
+							newScale = (maxYouthScaledDimension / youthLogoGroup.width) * 100;
+						else
+							newScale = (minYouthScaledDimension / youthLogoGroup.width) * 100;
+					}
+					else
+					{
+						if(youthLogoGroup.height > maxYouthScaledDimension/2)
+							newScale = (maxYouthScaledDimension / youthLogoGroup.height) * 100;
+						else
+							newScale = (minYouthScaledDimension / youthLogoGroup.height) * 100;
+					}
+					
+				}
+
+				if(noteGroup)
+				{
+					noteCopy = noteGroup.duplicate(youthLogoGroup);
+					alignObjectsToCenter(youthLogoGroup,[noteCopy]);
+				}
+
+				youthLogoGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+
+				if(!curWidth)
+				{
+					curWidth = findSpecificPageItem(youthLogoGroup,artLayer.name,"any").width;
+				}
+
+				pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition, youthLogoGroup.height + 50];
+				youthLogo = copyArtToMaster(youthLogoGroup,this.mockupDocument,this.youthArtworkLayer,pos);
+
+				
+				if(noteGroup)
+				{
+					youthLogo.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+				}
+
+				if(!this.adultArtworkLayer)
+				{
+					this.graphicXPosition += curWidth + GRAPHIC_SPACING;
+				}
+
+				ungroup(youthLogo);
+					
 			}
-
-			log.l("Resizing logo. newScale = " + newScale)
-			artCopyGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
-			
-
-
-			//copy the artwork group 
-			var adultNewGroup = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer);
-			adultNewGroup.left = this.adultMockupArtboard.artboardRect[0] + this.graphicXPosition;
-			adultNewGroup.top = this.adultMockupArtboard.artboardRect[1] + adultNewGroup.height + 50;
-
-			this.graphicXPosition += adultNewGroup.width + 50;
-			
-			if(noteGroup)
-			{
-				adultNewGroup.pageItems[noteGroup.name].moveToBeginning(masterNoteGroup);
-			}
-
 
 			
 
