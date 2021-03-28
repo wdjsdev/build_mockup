@@ -561,7 +561,6 @@ function Garment(config,data,designNumber)
 
 		if(noteLayer)
 		{
-			masterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
 			if(this.adultMockupLayer)
 			{
 				adultMasterNoteGroup = findSpecificPageItem(this.adultMockupLayer,"graphic notes","any");
@@ -770,9 +769,6 @@ function Garment(config,data,designNumber)
 
 			if(this.youthArtworkLayer)
 			{
-				this.mockupDocument.activate()
-				this.mockupDocument.artboards.setActiveArtboardIndex(this.adultMockupLayer ? 1:0);
-				doc.activate();
 				
 				var youthFrontNumberFrame = findSpecificPageItem(artLayer,"number_" + youthFrontNumLabel,"imatch");
 
@@ -938,9 +934,6 @@ function Garment(config,data,designNumber)
 
 			if(this.youthArtworkLayer)
 			{
-				// this.mockupDocument.activate();
-				// this.mockupDocument.artboards.setActiveArtboardIndex(this.adultArtworkLayer ? 1 : 0);
-				// doc.activate();
 				var youthLogoGroup = artCopyGroup.duplicate();
 
 				if(scaleLogo)

@@ -115,7 +115,7 @@ function BuildMockup()
 
 	scriptTimer.endTask("getComponents");
 
-	
+	app.coordinateSystem = CoordinateSystem.ARTBOARDCOORDINATESYSTEM;
 
 	//Global Variables
 	var orderNumber;
@@ -236,8 +236,8 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = "3229655";
-		designNumbers.push("1bHhJPs7Ktrc");
+		orderNumber = "3198105";
+		// designNumbers.push("1bHhJPs7Ktrc");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		
