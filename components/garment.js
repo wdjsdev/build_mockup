@@ -120,8 +120,17 @@ function Garment(config,data,designNumber)
 			}
 		}
 
-		this.mockupDocument = currentMockup = app.activeDocument;
-		this.processMockup(this.mockupDocument)
+		if(!this.adultGarmentFile && !this.youthGarmentFile)
+		{
+			log.e("No youth or adult garment file found?")
+			return;
+		}
+		else
+		{
+			this.mockupDocument = currentMockup = app.activeDocument;
+			this.processMockup(this.mockupDocument)	
+		}
+		
 	}
 
 	this.openCT = function(file)
@@ -700,10 +709,10 @@ function Garment(config,data,designNumber)
 			
 
 			
-			var adultFrontNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].smallNum : sizingDb["M"].smallNum;
-			var youthFrontNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].smallNum : sizingDb["Y"].smallNum;
-			var adultBackNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["W"].bigNum : sizingDb["M"].bigNum;
-			var youthBackNumLabel = this.garmentWearer.match(/[wg]$/) ? sizingDb["G"].bigNum : sizingDb["Y"].bigNum;
+			var adultFrontNumLabel = this.garmentWearer.match(/[wg]$/i) ? sizingDb["W"].smallNum : sizingDb["M"].smallNum;
+			var youthFrontNumLabel = this.garmentWearer.match(/[wg]$/i) ? sizingDb["G"].smallNum : sizingDb["Y"].smallNum;
+			var adultBackNumLabel = this.garmentWearer.match(/[wg]$/i) ? sizingDb["W"].bigNum : sizingDb["M"].bigNum;
+			var youthBackNumLabel = this.garmentWearer.match(/[wg]$/i) ? sizingDb["G"].bigNum : sizingDb["Y"].bigNum;
 			//go get the front number and copy it to the master.
 
 			
