@@ -644,7 +644,7 @@ function Garment(config,data,designNumber)
 			if(this.adultArtworkLayer)
 			{
 
-				var adultNameFrame = findSpecificPageItem(artLayer,"name_" + adultNameLabel,"any");
+				var adultNameFrame = findSpecificPageItem(artLayer,"name_" + adultNameLabel,"imatch");
 
 
 				if(adultNameFrame)
@@ -681,7 +681,7 @@ function Garment(config,data,designNumber)
 			if(this.youthArtworkLayer)
 			{
 
-				var youthNameFrame = findSpecificPageItem(artLayer,"name_" + youthNameLabel,"any");
+				var youthNameFrame = findSpecificPageItem(artLayer,"name_" + youthNameLabel,"imatch");
 
 				if(youthNameFrame)
 				{
