@@ -363,52 +363,60 @@ function BuildMockupBatch()
 
 		log.h("We are " + (totalNeedsMockOrders - garmentsNeeded.length) + " orders ahead of the mockup artists.");
 
-		if (ordersNeeded.length)
+		// if (ordersNeeded.length)
+		// {
+		// 	var numBatchOrders;
+		// 	// if (ordersNeeded.length > 10)
+		// 	// {
+		// 	// 	var w = new Window("dialog");
+		// 	// 	var numOrdersMsg = UI.static(w, "There are " + ordersNeeded.length + " orders.");
+		// 	// 	var promptMsg = UI.static(w, "How many orders do you want to batch?");
+		// 	// 	var input = UI.edit(w, (ordersNeeded.length >= 20 ? 20 : ordersNeeded.length) + "", 4);
+		// 	// 	var submit = UI.button(w, "Let's Go!!", submitDlg)
+
+
+		// 	// 	input.addEventListener("keydown", function(k)
+		// 	// 	{
+		// 	// 		if (k.keyName == "Enter")
+		// 	// 		{
+		// 	// 			submitDlg()
+		// 	// 		}
+		// 	// 	});
+
+		// 	// 	function submitDlg()
+		// 	// 	{
+		// 	// 		if (input.text === "")
+		// 	// 		{
+		// 	// 			alert("enter a number");
+		// 	// 			return;
+		// 	// 		}
+
+		// 	// 		numBatchOrders = parseInt(input.text);
+		// 	// 		ordersNeeded = ordersNeeded.slice(0, numBatchOrders);
+		// 	// 		teamNames = teamNames.slice(0, numBatchOrders);
+		// 	// 		w.close();
+		// 	// 	}
+
+
+
+		// 	// 	w.show();
+		// 	// }
+		// 	log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
+		// 	processOrders(ordersNeeded, teamNames);
+		// 	copyOrdersToAssetFolder();
+		// 	ordersNeeded = [];
+		// 	teamNames = [];
+		// }
+
+		if(ordersNeeded.length > 20)
 		{
-			var numBatchOrders;
-			if (ordersNeeded.length > 10)
-			{
-				var w = new Window("dialog");
-				var numOrdersMsg = UI.static(w, "There are " + ordersNeeded.length + " orders.");
-				var promptMsg = UI.static(w, "How many orders do you want to batch?");
-				var input = UI.edit(w, (ordersNeeded.length >= 20 ? 20 : ordersNeeded.length) + "", 4);
-				var submit = UI.button(w, "Let's Go!!", submitDlg)
-
-
-				input.addEventListener("keydown", function(k)
-				{
-					if (k.keyName == "Enter")
-					{
-						submitDlg()
-					}
-				});
-
-				function submitDlg()
-				{
-					if (input.text === "")
-					{
-						alert("enter a number");
-						return;
-					}
-
-					numBatchOrders = parseInt(input.text);
-					ordersNeeded = ordersNeeded.slice(0, numBatchOrders);
-					teamNames = teamNames.slice(0, numBatchOrders);
-					w.close();
-				}
-
-
-
-				w.show();
-			}
-			log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
-			processOrders(ordersNeeded, teamNames);
-			copyOrdersToAssetFolder();
-			ordersNeeded = [];
-			teamNames = [];
+			ordersNeeded.slice(0,20);
 		}
-
-
+		log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
+		processOrders(ordersNeeded, teamNames);
+		copyOrdersToAssetFolder();
+		ordersNeeded = [];
+		teamNames = [];
 
 		batchTimer.endTask("batchOrders");
 
