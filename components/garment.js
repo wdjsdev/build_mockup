@@ -653,7 +653,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(adultNameFrame,[noteCopy]);
+						hAlignCenter(adultNameFrame,[noteCopy]);
 					}
 					adultNameFrame.duplicate(artCopyGroup);
 					pos  = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
@@ -689,7 +689,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup && noteGroup.pageItems.length)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(youthNameFrame,[noteCopy]);
+						hAlignCenter(youthNameFrame,[noteCopy]);
 					}
 					youthNameFrame.duplicate(artCopyGroup);
 					pos  = [this.graphicXPosition + this.youthXOffset, artCopyGroup.height + GRAPHIC_SPACING];
@@ -757,7 +757,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(adultFrontNumberFrame,[noteCopy]);
+						hAlignCenter(adultFrontNumberFrame,[noteCopy]);
 					}
 					adultFrontNumberFrame.duplicate(artCopyGroup);
 					pos = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
@@ -783,7 +783,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(adultBackNumberFrame,[noteCopy]);
+						hAlignCenter(adultBackNumberFrame,[noteCopy]);
 					}
 					adultBackNumberFrame.duplicate(artCopyGroup);
 					pos = [this.graphicXPosition,artCopyGroup.height + GRAPHIC_SPACING];
@@ -813,7 +813,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(youthFrontNumberFrame,[noteCopy]);
+						hAlignCenter(youthFrontNumberFrame,[noteCopy]);
 					}
 					youthFrontNumberFrame.duplicate(artCopyGroup);
 					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
@@ -847,7 +847,7 @@ function Garment(config,data,designNumber)
 					if(noteGroup)
 					{
 						noteCopy = noteGroup.duplicate(artCopyGroup);
-						alignObjectsToCenter(youthBackNumberFrame,[noteCopy]);
+						hAlignCenter(youthBackNumberFrame,[noteCopy]);
 					}
 					youthBackNumberFrame.duplicate(artCopyGroup);
 					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
@@ -943,7 +943,8 @@ function Garment(config,data,designNumber)
 				if(noteGroup)
 				{
 					noteCopy = noteGroup.duplicate(adultLogoGroup);
-					alignObjectsToCenter(adultLogoGroup,[noteCopy]);
+					// alignObjectsToCenter(adultLogoGroup,[noteCopy]);
+					hAlignCenter(adultLogoGroup,[noteCopy])
 				}
 
 
@@ -997,7 +998,7 @@ function Garment(config,data,designNumber)
 				if(noteGroup)
 				{
 					noteCopy = noteGroup.duplicate(youthLogoGroup);
-					alignObjectsToCenter(youthLogoGroup,[noteCopy]);
+					hAlignCenter(youthLogoGroup,[noteCopy]);
 				}
 
 				youthLogoGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
