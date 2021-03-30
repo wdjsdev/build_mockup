@@ -658,7 +658,7 @@ function Garment(config,data,designNumber)
 					adultNameFrame.duplicate(artCopyGroup);
 					pos  = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
 					
-					curWidth = adultNameFrame.width;
+					curWidth = artCopyGroup.width;
 
 					adultName = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer,pos);
 
@@ -763,8 +763,8 @@ function Garment(config,data,designNumber)
 					pos = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
 					adultFrontNumber = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer,pos);
 
-					this.graphicXPosition += adultFrontNumberFrame.width + GRAPHIC_SPACING;
-					deltaXPosition += adultFrontNumberFrame.width + GRAPHIC_SPACING;
+					this.graphicXPosition += artCopyGroup.width + GRAPHIC_SPACING;
+					deltaXPosition += artCopyGroup.width + GRAPHIC_SPACING;
 					if(noteGroup && noteGroup.pageItems.length)
 					{
 						adultFrontNumber.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
@@ -789,8 +789,8 @@ function Garment(config,data,designNumber)
 					pos = [this.graphicXPosition,artCopyGroup.height + GRAPHIC_SPACING];
 					adultBackNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer,pos);
 
-					this.graphicXPosition += adultBackNumber.width + GRAPHIC_SPACING;
-					deltaXPosition += adultBackNumber.width + GRAPHIC_SPACING;
+					this.graphicXPosition += artCopyGroup.width + GRAPHIC_SPACING;
+					deltaXPosition += artCopyGroup.width + GRAPHIC_SPACING;
 
 					if(noteGroup && noteGroup.pageItems.length)
 					{
@@ -828,7 +828,7 @@ function Garment(config,data,designNumber)
 						this.graphicXPosition += youthFrontNumberFrame.width + GRAPHIC_SPACING;	
 					}
 
-					deltaXPosition -= youthFrontNumberFrame.width + GRAPHIC_SPACING;
+					deltaXPosition -= artCopyGroup.width + GRAPHIC_SPACING;
 					
 					if(noteGroup && noteGroup.pageItems.length)
 					{
@@ -859,7 +859,7 @@ function Garment(config,data,designNumber)
 					//since that would have been done in the adult condition above
 					if(!this.adultArtworkLayer)
 					{
-						this.graphicXPosition += youthFrontNumber.width + GRAPHIC_SPACING;	
+						this.graphicXPosition += artCopyGroup.width + GRAPHIC_SPACING;	
 					}
 
 					if(noteGroup)
@@ -1010,7 +1010,7 @@ function Garment(config,data,designNumber)
 
 				if(!this.adultArtworkLayer)
 				{
-					this.graphicXPosition += youthLogo.width + GRAPHIC_SPACING;
+					this.graphicXPosition += youthLogoGroup.width + GRAPHIC_SPACING;
 				}
 				
 				if(noteGroup)
