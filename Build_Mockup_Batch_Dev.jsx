@@ -7,6 +7,8 @@ function BuildMockupBatch()
 	var scriptName = "build_mockup_batch";
 
 	app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
+
 
 
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");

@@ -25,6 +25,7 @@ function Garment(config,data,designNumber)
 	this.youthMockupArtboard;
 
 	this.graphicXPosition = 0;
+	this.graphicYPosition = 0;
 	this.youthXOffset = 0;
 
 
@@ -154,6 +155,7 @@ function Garment(config,data,designNumber)
 		else
 		{
 			this.mockupDocument = currentMockup = app.activeDocument;
+			this.graphicYPosition = this.mockupDocument.artboards[0].artboardRect[1];
 			this.processMockup(this.mockupDocument)	
 		}
 		
@@ -656,7 +658,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(adultNameFrame,[noteCopy]);
 					}
 					adultNameFrame.duplicate(artCopyGroup);
-					pos  = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
+					pos  = [this.graphicXPosition, this.graphicYPosition + artCopyGroup.height + GRAPHIC_SPACING];
 					
 					curWidth = artCopyGroup.width;
 
@@ -692,7 +694,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(youthNameFrame,[noteCopy]);
 					}
 					youthNameFrame.duplicate(artCopyGroup);
-					pos  = [this.graphicXPosition + this.youthXOffset, artCopyGroup.height + GRAPHIC_SPACING];
+					pos  = [this.graphicXPosition + this.youthXOffset,this.graphicYPosition +  artCopyGroup.height + GRAPHIC_SPACING];
 
 					if(!curWidth)
 					{
@@ -760,7 +762,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(adultFrontNumberFrame,[noteCopy]);
 					}
 					adultFrontNumberFrame.duplicate(artCopyGroup);
-					pos = [this.graphicXPosition, artCopyGroup.height + GRAPHIC_SPACING];
+					pos = [this.graphicXPosition,this.graphicYPosition +  artCopyGroup.height + GRAPHIC_SPACING];
 					adultFrontNumber = copyArtToMaster(artCopyGroup, this.mockupDocument, this.adultArtworkLayer,pos);
 
 					this.graphicXPosition += artCopyGroup.width + GRAPHIC_SPACING;
@@ -786,7 +788,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(adultBackNumberFrame,[noteCopy]);
 					}
 					adultBackNumberFrame.duplicate(artCopyGroup);
-					pos = [this.graphicXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					pos = [this.graphicXPosition,this.graphicYPosition + artCopyGroup.height + GRAPHIC_SPACING];
 					adultBackNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.adultArtworkLayer,pos);
 
 					this.graphicXPosition += artCopyGroup.width + GRAPHIC_SPACING;
@@ -816,7 +818,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(youthFrontNumberFrame,[noteCopy]);
 					}
 					youthFrontNumberFrame.duplicate(artCopyGroup);
-					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,this.graphicYPosition + artCopyGroup.height + GRAPHIC_SPACING];
 					youthFrontNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.youthArtworkLayer,pos);
 
 
@@ -850,7 +852,7 @@ function Garment(config,data,designNumber)
 						hAlignCenter(youthBackNumberFrame,[noteCopy]);
 					}
 					youthBackNumberFrame.duplicate(artCopyGroup);
-					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,artCopyGroup.height + GRAPHIC_SPACING];
+					pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition,this.graphicYPosition + artCopyGroup.height + GRAPHIC_SPACING];
 					youthBackNumber = copyArtToMaster(artCopyGroup,this.mockupDocument,this.youthArtworkLayer,pos);
 
 					
@@ -952,7 +954,7 @@ function Garment(config,data,designNumber)
 				
 				curWidth = adultLogoGroup.width;
 				
-				pos = [this.graphicXPosition,adultLogoGroup.height + GRAPHIC_SPACING];
+				pos = [this.graphicXPosition,this.graphicYPosition + adultLogoGroup.height + GRAPHIC_SPACING];
 				
 				adultLogo = copyArtToMaster(adultLogoGroup,this.mockupDocument,this.adultArtworkLayer,pos);
 
@@ -1005,7 +1007,7 @@ function Garment(config,data,designNumber)
 
 				
 
-				pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition, youthLogoGroup.height + 50];
+				pos = [this.graphicXPosition + this.youthXOffset - deltaXPosition, this.graphicYPosition + youthLogoGroup.height + 50];
 				youthLogo = copyArtToMaster(youthLogoGroup,this.mockupDocument,this.youthArtworkLayer,pos);
 
 				if(!this.adultArtworkLayer)

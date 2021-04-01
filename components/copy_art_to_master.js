@@ -5,6 +5,7 @@ function copyArtToMaster(art,destDoc,destLay,pos)
 	// destDoc.artboards.setActiveArtboardIndex(destAbIndex);
 	result.left = pos[0];
 	result.top = pos[1];
+	// result.top = pos[1] + destDoc.artboards[0].artboardRect[1];
 
 	return result;
 }
