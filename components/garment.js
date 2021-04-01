@@ -1017,7 +1017,7 @@ function Garment(config,data,designNumber)
 				
 				if(noteGroup)
 				{
-					youthLogo.pageItems[noteGroup.name].moveToBeginning(adultMasterNoteGroup);
+					youthLogo.pageItems[noteGroup.name].moveToBeginning(youthMasterNoteGroup);
 				}				
 
 				ungroup(youthLogo);
