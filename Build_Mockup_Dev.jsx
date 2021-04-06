@@ -6,7 +6,6 @@ function BuildMockup()
 	const BATCH_MODE = false;
 
 	
-	
 	function getUtilities()
 	{
 		var result = [];
@@ -116,7 +115,7 @@ function BuildMockup()
 
 	scriptTimer.endTask("getComponents");
 
-	
+	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
 
 	//Global Variables
 	var orderNumber;
@@ -126,6 +125,7 @@ function BuildMockup()
 	var curGarmentIndex = 1;
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
+	var rushMode = false;
 
 	var womensCodePat = /w$/i;
 	var youthCodePat = /y$/i;
@@ -141,6 +141,7 @@ function BuildMockup()
 	var currentMockup;
 	var filesToClose = [];
 	var graphicsOpened = 0;
+	var curDesignNumber;
 
 	//regex to remove superfluous appendages from graphic codes
 	//for example, the builder occasionally uses a code like: FDS-325LS
@@ -235,7 +236,8 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "9999999";
+		orderNumber = "3239892";
+		// designNumbers.push("yT6H9b1IOeVc");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		
@@ -244,7 +246,7 @@ function BuildMockup()
 		// designNumbers.push("2OrTtaFUtfOG");
 
 
-		designNumbers.push("4sKP8pgtfTH7");
+		
 
 		//
 	}
@@ -292,6 +294,7 @@ function BuildMockup()
 	{
 		loopDesignNumbers();
 	}
+
 
 	if(valid)
 	{

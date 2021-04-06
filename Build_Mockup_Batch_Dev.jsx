@@ -6,9 +6,11 @@ function BuildMockupBatch()
 	var valid = true;
 	var scriptName = "build_mockup_batch";
 
+	app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
 
 
-	
+
 	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
 
 
@@ -17,7 +19,7 @@ function BuildMockupBatch()
 	//and suppress any messaging from the script
 	//to prevent any holdups from stopping the batch
 	//it's better to have 20% of orders that are incomplete
-	//if it means that 80% were built properly without
+	//if it rmeans that 80% were built properly without
 	//any interaction.
 	const BATCH_MODE = true;
 
@@ -79,7 +81,7 @@ function BuildMockupBatch()
 	var curGarmentIndex = 1;
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
-
+	var orderNumberAndTeamNames = []; //array of strings like this: "1234567_Team Name"
 
 
 	var saveLoc;
@@ -92,6 +94,7 @@ function BuildMockupBatch()
 	var currentMockup;
 	var filesToClose = [];
 	var graphicsOpened = 0;
+	var curDesignNumber;
 
 
 
@@ -177,11 +180,13 @@ function BuildMockupBatch()
 	}
 
 
+	var rushMode = false; //currently processing rush orders?
+	var rushPrefix = "_RUSH_"
+
 
 	//
 	//Gather and include the components
 	//
-
 
 
 
@@ -199,10 +204,12 @@ function BuildMockupBatch()
 		var needMockFolder = Folder(needMockPath);
 		var rushFolder = Folder(rushFolderPath);
 
+
 		//orders found in the rush folder and needs mockup folder
 		var ordersNeeded = [];
 		var teamNames = [];
 		var orderPdfPat = /([\d]{7})*\.pdf/i;
+		var orderNumPat = /([\d]{7})/;
 
 
 		var garmentsProcessed = 0;
@@ -211,6 +218,7 @@ function BuildMockupBatch()
 
 
 
+		var scriptResults;
 
 		//this represents any orders that already exist
 		//in the dest folder
@@ -218,22 +226,46 @@ function BuildMockupBatch()
 
 		var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
 		var exFolder = Folder(exFolderPath);
-		var localExFolderPath = "~/Desktop/boombah/mockup_builder/";
+		var localExFolderPath = desktopPath + "boombah/mockup_builder/";
 		var localExFolder = Folder(localExFolderPath);
 		var exFiles = exFolder.getFiles();
 		var localExFiles = localExFolder.getFiles();
 
+		//rush order pattern
+		var rushPat = /_rush_/i;
+		var leadUnderscorePat = /^_/;
 
+		var onPat = /[\d]{7}/
 
 		//trim out any existing orders
+		var curOn;
 		for (var x = 0; x < exFiles.length; x++)
 		{
-			existingOrders.push(exFiles[x].name.substring(0, 7));
+			curOn = exFiles[x].name.match(onPat);
+			if (curOn)
+			{
+				existingOrders.push(curOn[0]);
+			}
+			else
+			{
+				log.l(exFiles[x].name + " didn't have a proper order number???::curOn = " + curOn);
+			}
+			// existingOrders.push(exFiles[x].name.replace(rushPat,"").replace(leadUnderscorePat,"").substring(0, 7));
+
 		}
 
-		for(var x=0;x<localExFiles.length;x++)
+		for (var x = 0; x < localExFiles.length; x++)
 		{
-			existingOrders.push(localExFiles[x].name.substring(0,7));
+			curOn = localExFiles[x].name.match(onPat);
+			if (curOn)
+			{
+				existingOrders.push(curOn[0]);
+			}
+			else
+			{
+				log.l(localExFiles[x].name + " didn't have a proper order number???::curOn = " + curOn);
+			}
+			// existingOrders.push(localExFiles[x].name.substring(0,7));
 		}
 
 		//strip out any duplicates from the existingOrders array
@@ -243,21 +275,26 @@ function BuildMockupBatch()
 
 		function getFilesFromFolder(folder)
 		{
-			var rushFiles = folder.getFiles();
+			var salesOrders = folder.getFiles("*.pdf");
+			totalNeedsMockOrders += salesOrders.length;
 			var curON;
-			for (var x = 0; x < rushFiles.length; x++)
+			for (var x = 0; x < salesOrders.length; x++)
 			{
-				curFile = rushFiles[x];
+				curFile = salesOrders[x];
 				// $.writeln("Processing " + curFile.name);
 				if (orderPdfPat.test(curFile.name))
 				{
-					curOrderNum = curFile.name.substring(0, 7);
+					curOrderNum = curFile.name.match(orderNumPat);
+					if (curOrderNum && curOrderNum.length && curOrderNum.length > 1)
+					{
+						curOrderNum = curOrderNum[1];
+					}
 
 					if (curOrderNum.indexOf("_") > -1)
 					{
 						curOrderNum = curFile.name.substring(1, 8);
 					}
-					if(existingOrders.indexOf(curOrderNum)>-1)
+					if (existingOrders.indexOf(curOrderNum) > -1)
 					{
 						log.l(curOrderNum + " already exists in the folder. skipping it.");
 						continue;
@@ -275,50 +312,119 @@ function BuildMockupBatch()
 
 
 			}
+
+
 		}
-		
-		
+
+
+		function processOrders(ordersNeeded, teamNames)
+		{
+			for (var x = 0; x < ordersNeeded.length; x++)
+			{
+				orderNumber = ordersNeeded[x];
+				teamName = teamNames[x];
+				batchTimer.beginTask(orderNumber + "_" + teamName);
+				log.l("\n*****\n");
+				log.l("Processing: " + orderNumber + "_" + teamName);
+				log.l("This is batch order number #" + x);
+				log.l("\n*****\n");
+
+				scriptResults = exec(orderNumber, teamName);
+
+				garmentsProcessed += scriptResults.garmentCount;
+				graphicsProcessed += scriptResults.graphicCount;
+				ordersProcessed++;
+
+				log.h("Finished batching order # " + x);
+
+				batchTimer.endTask(orderNumber + "_" + teamName);
+			}
+		}
+
+		var totalNeedsMockOrders = 0;
+
+		//process the rush orders, if any
 		getFilesFromFolder(rushFolder);
+
+		var onLen = ordersNeeded.length;
+
+		if (ordersNeeded.length)
+		{
+			log.h("Batching " + ordersNeeded.length + " rush orders.::teamNames = " + teamNames.join(", "));
+			rushMode = true;
+			processOrders(ordersNeeded, teamNames);
+			copyOrdersToAssetFolder();
+			ordersNeeded = [];
+			teamNames = [];
+			rushMode = false;
+		}
+
+
+		//process the regular needs mockup folder 
 		getFilesFromFolder(needMockFolder);
 
-		log.l("ordersNeeded = " + ordersNeeded);
-		log.l("teamNames = " + teamNames);
+		log.h("We are " + (totalNeedsMockOrders - garmentsNeeded.length) + " orders ahead of the mockup artists.");
+
+		// if (ordersNeeded.length)
+		// {
+		// 	var numBatchOrders;
+		// 	// if (ordersNeeded.length > 10)
+		// 	// {
+		// 	// 	var w = new Window("dialog");
+		// 	// 	var numOrdersMsg = UI.static(w, "There are " + ordersNeeded.length + " orders.");
+		// 	// 	var promptMsg = UI.static(w, "How many orders do you want to batch?");
+		// 	// 	var input = UI.edit(w, (ordersNeeded.length >= 20 ? 20 : ordersNeeded.length) + "", 4);
+		// 	// 	var submit = UI.button(w, "Let's Go!!", submitDlg)
+
+
+		// 	// 	input.addEventListener("keydown", function(k)
+		// 	// 	{
+		// 	// 		if (k.keyName == "Enter")
+		// 	// 		{
+		// 	// 			submitDlg()
+		// 	// 		}
+		// 	// 	});
+
+		// 	// 	function submitDlg()
+		// 	// 	{
+		// 	// 		if (input.text === "")
+		// 	// 		{
+		// 	// 			alert("enter a number");
+		// 	// 			return;
+		// 	// 		}
+
+		// 	// 		numBatchOrders = parseInt(input.text);
+		// 	// 		ordersNeeded = ordersNeeded.slice(0, numBatchOrders);
+		// 	// 		teamNames = teamNames.slice(0, numBatchOrders);
+		// 	// 		w.close();
+		// 	// 	}
 
 
 
-		
-		var scriptResults;
+		// 	// 	w.show();
+		// 	// }
+		// 	log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
+		// 	processOrders(ordersNeeded, teamNames);
+		// 	copyOrdersToAssetFolder();
+		// 	ordersNeeded = [];
+		// 	teamNames = [];
+		// }
 
-		for(var x=0;x<10;x++)
+		if(ordersNeeded.length > 20)
 		{
-			if(x === ordersNeeded.length)
-			{
-				break;
-			}
-			orderNumber = ordersNeeded[x];
-			teamName = teamNames[x];
-			batchTimer.beginTask(orderNumber + "_" + teamName);
-			$.writeln("\n*****\n");
-			$.writeln("Procoessing: " + orderNumber + "_" + teamName);
-			$.writeln("This is garment #" + x + " of the batch.");
-			$.writeln("\n*****\n");
-
-			scriptResults = exec(orderNumber, teamName);	
-
-			garmentsProcessed += scriptResults.garmentCount;
-			graphicsProcessed += scriptResults.graphicCount;
-			ordersProcessed++;
-
-			log.h("Finished batching order # " + x);
-
-			batchTimer.endTask(orderNumber + "_" + teamName);
+			ordersNeeded.slice(0,20);
 		}
+		log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
+		processOrders(ordersNeeded, teamNames);
+		copyOrdersToAssetFolder();
+		ordersNeeded = [];
+		teamNames = [];
 
 		batchTimer.endTask("batchOrders");
 
 		if (errorList.length)
 		{
-			sendErrors(errorList);
+			log.e("Script errors: ::" + errorList.join("\n"));
 		}
 
 		errorList = [];
@@ -327,16 +433,15 @@ function BuildMockupBatch()
 
 		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
 
-		log.h("There are " + (ordersNeeded.length - ordersProcessed) + " orders that still need to be built.");
 
 	}
 
 
 
-	function exec()
+	function exec(orderNumber, teamName)
 	{
 
-
+		orderNumberAndTeamNames.push(orderNumber + "_" + teamName);
 		orderData = undefined;
 		garmentsNeeded = [];
 		curGarmentIndex = 1;
@@ -400,13 +505,45 @@ function BuildMockupBatch()
 		}
 
 
-		
 
-		
-		
+		//log the stats for this order
+
+		// var statsPath = desktopPath + "automation/build_mockup/stats.js";
+		var statsPath = dataPath + "build_mockup_data/batch_stats.js";
+		eval("#include \"" + statsPath + "\"");
+
+		stats.totalOrders++;
+		stats.totalGarments += garmentsNeeded.length;
+		stats.totalGraphics += graphicsOpened;
+		stats.averageGraphicsPerGarment = stats.totalGraphics / stats.totalGarments;
+		stats.averageOrdersPerDay = stats.totalOrders/stats.totalDays;
+
+		var curDate = getDate();
+		if (!stats.dates[curDate])
+		{
+			stats.totalDays++;
+			stats.dates[curDate] = {
+				"ordersProcessed": [], //orderNumber_teamName
+				"totalOrders": 0,
+				"totalGarments": 0,
+				"totalGraphics": 0,
+				"averageGraphicsPerGarment": 0
+			}
+		}
+
+		stats.dates[curDate].totalOrders++;
+		stats.dates[curDate].totalGarments += garmentsNeeded.length;
+		stats.dates[curDate].totalGraphics += graphicsOpened;
+		stats.dates[curDate].averageGraphicsPerGarment = stats.dates[curDate].totalGraphics / stats.dates[curDate].totalGarments;
+		stats.dates[curDate].ordersProcessed.push(orderNumber + "_" + teamName);
+
+		writeDatabase(statsPath, "var stats = " + JSON.stringify(stats));
 
 
-		return {garmentCount:garmentsNeeded.length,graphicCount:graphicsOpened};
+		return {
+			garmentCount: garmentsNeeded.length,
+			graphicCount: graphicsOpened
+		};
 
 	}
 
@@ -423,7 +560,15 @@ function BuildMockupBatch()
 	scriptTimer.endTask("printLog");
 
 	copyOrdersToAssetFolder();
-}
+
+	alert("all done.");
+
+	for(var x=app.documents.length-1;x>=0;x--)
+	{
+		app.documents[x].close(SaveOptions.DONOTSAVECHANGES);
+	}
+}	
+
 
 
 BuildMockupBatch();

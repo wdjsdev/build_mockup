@@ -97,9 +97,9 @@ function getDesignNumbers()
 			//ask the user which design number(s) they want to build.
 			result = chooseDesignNumbers(result);
 		}
-		
+		log.h("Order Number: " + orderNumber + " has " + result.length + " design numbers.::designNumbers = ::" + result.join("\n"));	
 	}
-	log.h("Order Number: " + orderNumber + " has " + result.length + " design numbers.::designNumbers = ::" + result.join("\n"));
+	
 	scriptTimer.endTask("getDesignNumbers");
 	return result;
 }
