@@ -49,11 +49,17 @@ function Garment(config,data,designNumber)
 		{
 			this.openCT(this.adultGarmentFile);
 			this.mockupDocument = app.activeDocument;
-			// debugger;
+			
 			var adultLayer = findSpecificLayer(this.mockupDocument,this.adultGarmentCode,"any");
 			if(adultLayer)
 			{
 				this.adultMockupLayer = this.mainMockupLayer = findSpecificLayer(adultLayer,"Mockup");
+				if(!this.adultMockupLayer)
+				{
+					this.adultMockupLayer = this.mockupDocument.layers.add();
+					this.adultMockupLayer.name = "Mockup";
+					this.mainMockupLayer = this.adultMockupLayer;
+				}
 				this.adultArtworkLayer = findSpecificLayer(adultLayer,"Artwork Layer");
 				this.adultMockupArtboard = this.mainMockupArtboard = this.mockupDocument.artboards[0];
 			}
@@ -63,14 +69,14 @@ function Garment(config,data,designNumber)
 
 			if(!this.adultMockupLayer)
 			{
-				this.adultMockupLayer = findSpecificLayer(this.mockupDocument,"Mockup");
+				this.adultMockupLayer = findSpecificLayer(this.mockupDocument,"Mockup","any");
 				
 				if(!this.adultMockupLayer)
 				{
 					this.adultMockupLayer = this.mockupDocument.layers.add();
 					this.adultMockupLayer.name = "Mockup";	
 				}
-				
+				this.mainMockupLayer = this.adultMockupLayer;
 			}
 
 			if(!this.adultArtworkLayer)
@@ -107,6 +113,11 @@ function Garment(config,data,designNumber)
 			if(youthLayer)
 			{
 				this.youthMockupLayer = findSpecificLayer(youthLayer,"Mockup");
+				if(!this.youthMockupLayer)
+				{
+					this.youthMockupLayer = this.mockupDocument.layers.add();
+					this.youthMockupLayer.name = "Mockup";
+				}
 				this.youthArtworkLayer = findSpecificLayer(youthLayer,"Artwork Layer");
 				this.youthMockupArtboard = this.mockupDocument.artboards[this.adultGarmentFile ? 1 : 0];
 			}

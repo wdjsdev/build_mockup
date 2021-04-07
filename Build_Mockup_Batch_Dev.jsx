@@ -11,7 +11,54 @@ function BuildMockupBatch()
 
 
 
-	eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
+	// eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
+
+	function getUtilities()
+	{
+		var result = [];
+		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
+		var ext = ".jsxbin"
+
+		//check for dev utilities preference file
+		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
+
+		if(devUtilitiesPreferenceFile.exists)
+		{
+			devUtilitiesPreferenceFile.open("r");
+			var prefContents = devUtilitiesPreferenceFile.read();
+			devUtilitiesPreferenceFile.close();
+
+			if(prefContents === "true")
+			{
+				utilPath = "~/Desktop/automation/utilities/";
+				ext = ".js";
+			}
+		}
+
+		if($.os.match("Windows"))
+		{
+			utilPath = utilPath.replace("/Volumes/","//AD4/");
+		}
+
+		result.push(utilPath + "Utilities_Container" + ext);
+		result.push(utilPath + "Batch_Framework" + ext);
+		return result;
+
+	}
+
+	var utilities = getUtilities();
+	if(utilities)
+	{
+		for(var u=0,len=utilities.length;u<len;u++)
+		{
+			eval("#include \"" + utilities[u] + "\"");	
+		}
+	}
+	else
+	{
+		alert("Failed to find the utilities..");
+		return false;	
+	}
 
 
 	//set batch mode to true
@@ -84,9 +131,14 @@ function BuildMockupBatch()
 	var orderNumberAndTeamNames = []; //array of strings like this: "1234567_Team Name"
 
 
-	var saveLoc;
-	var localJobFolder;
-	var localJobFolderPath;
+	
+	var localJobFolderPath = desktopPath + "batched_mockups/";
+	var localJobFolder = Folder(localJobFolderPath);
+	var saveLoc = localJobFolderPath;
+	if(!localJobFolder.exists)
+	{
+		localJobFolder.create();
+	}
 	var localGraphicsFolderPath;
 	var localGraphicsFolder;
 	var curOrderFolder;
@@ -96,6 +148,10 @@ function BuildMockupBatch()
 	var graphicsOpened = 0;
 	var curDesignNumber;
 
+
+
+	// copyOrdersToAssetFolder();
+	// return;
 
 
 	//
@@ -226,7 +282,8 @@ function BuildMockupBatch()
 
 		var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
 		var exFolder = Folder(exFolderPath);
-		var localExFolderPath = desktopPath + "boombah/mockup_builder/";
+		// var localExFolderPath = desktopPath + "boombah/mockup_builder/";
+		var localExFolderPath = desktopPath + "Batched Mockups/"
 		var localExFolder = Folder(localExFolderPath);
 		var exFiles = exFolder.getFiles();
 		var localExFiles = localExFolder.getFiles();
@@ -296,7 +353,7 @@ function BuildMockupBatch()
 					}
 					if (existingOrders.indexOf(curOrderNum) > -1)
 					{
-						log.l(curOrderNum + " already exists in the folder. skipping it.");
+						// log.l(curOrderNum + " already exists in the folder. skipping it.");
 						continue;
 					}
 					ordersNeeded.push(curOrderNum);
@@ -365,54 +422,10 @@ function BuildMockupBatch()
 
 		log.h("We are " + (totalNeedsMockOrders - garmentsNeeded.length) + " orders ahead of the mockup artists.");
 
-		// if (ordersNeeded.length)
-		// {
-		// 	var numBatchOrders;
-		// 	// if (ordersNeeded.length > 10)
-		// 	// {
-		// 	// 	var w = new Window("dialog");
-		// 	// 	var numOrdersMsg = UI.static(w, "There are " + ordersNeeded.length + " orders.");
-		// 	// 	var promptMsg = UI.static(w, "How many orders do you want to batch?");
-		// 	// 	var input = UI.edit(w, (ordersNeeded.length >= 20 ? 20 : ordersNeeded.length) + "", 4);
-		// 	// 	var submit = UI.button(w, "Let's Go!!", submitDlg)
-
-
-		// 	// 	input.addEventListener("keydown", function(k)
-		// 	// 	{
-		// 	// 		if (k.keyName == "Enter")
-		// 	// 		{
-		// 	// 			submitDlg()
-		// 	// 		}
-		// 	// 	});
-
-		// 	// 	function submitDlg()
-		// 	// 	{
-		// 	// 		if (input.text === "")
-		// 	// 		{
-		// 	// 			alert("enter a number");
-		// 	// 			return;
-		// 	// 		}
-
-		// 	// 		numBatchOrders = parseInt(input.text);
-		// 	// 		ordersNeeded = ordersNeeded.slice(0, numBatchOrders);
-		// 	// 		teamNames = teamNames.slice(0, numBatchOrders);
-		// 	// 		w.close();
-		// 	// 	}
-
-
-
-		// 	// 	w.show();
-		// 	// }
-		// 	log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
-		// 	processOrders(ordersNeeded, teamNames);
-		// 	copyOrdersToAssetFolder();
-		// 	ordersNeeded = [];
-		// 	teamNames = [];
-		// }
 
 		if(ordersNeeded.length > 20)
 		{
-			ordersNeeded.slice(0,20);
+			ordersNeeded = ordersNeeded.slice(0,1);
 		}
 		log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
 		processOrders(ordersNeeded, teamNames);
@@ -450,9 +463,9 @@ function BuildMockupBatch()
 
 
 
-		saveLoc = undefined;
-		localJobFolder = undefined;
-		localJobFolderPath = undefined;
+		// saveLoc = undefined;
+		// localJobFolder = undefined;
+		// localJobFolderPath = undefined;
 		localGraphicsFolderPath = undefined;
 		localGraphicsFolder = undefined;
 		curOrderFolder = undefined;
@@ -475,10 +488,7 @@ function BuildMockupBatch()
 		}
 
 
-		if (valid)
-		{
-			initSaveLoc();
-		}
+		
 
 		if (valid)
 		{
@@ -531,13 +541,16 @@ function BuildMockupBatch()
 			}
 		}
 
-		stats.dates[curDate].totalOrders++;
-		stats.dates[curDate].totalGarments += garmentsNeeded.length;
-		stats.dates[curDate].totalGraphics += graphicsOpened;
-		stats.dates[curDate].averageGraphicsPerGarment = stats.dates[curDate].totalGraphics / stats.dates[curDate].totalGarments;
-		stats.dates[curDate].ordersProcessed.push(orderNumber + "_" + teamName);
+		if(stats.dates[curDate].ordersProcessed.indexOf(orderNumber + "_" + teamName) < 0)
+		{
+			stats.dates[curDate].totalOrders++;
+			stats.dates[curDate].totalGarments += garmentsNeeded.length;
+			stats.dates[curDate].totalGraphics += graphicsOpened;
+			stats.dates[curDate].averageGraphicsPerGarment = stats.dates[curDate].totalGraphics / stats.dates[curDate].totalGarments;
+			stats.dates[curDate].ordersProcessed.push(orderNumber + "_" + teamName);
 
-		writeDatabase(statsPath, "var stats = " + JSON.stringify(stats));
+			writeDatabase(statsPath, "var stats = " + JSON.stringify(stats));
+		}
 
 
 		return {
