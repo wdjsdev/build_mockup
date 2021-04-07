@@ -425,7 +425,7 @@ function BuildMockupBatch()
 
 		if(ordersNeeded.length > 20)
 		{
-			ordersNeeded = ordersNeeded.slice(0,1);
+			ordersNeeded = ordersNeeded.slice(0,20);
 		}
 		log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
 		processOrders(ordersNeeded, teamNames);
