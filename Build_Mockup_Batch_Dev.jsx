@@ -561,8 +561,30 @@ function BuildMockupBatch()
 	}
 
 
+	function confirmBatch()
+	{
+		var result;
+		var w = new Window("dialog");
+			var msg = UI.static(w,"Are you sure you want to run a batch?");
+			var btnGroup = UI.group(w);
+				var cancel = UI.button(btnGroup,"Cancel",function()
+				{
+					log.l("User cancelled confirmation dialog.");
+					result = false;
+					w.close();
+				})
+				var submit = UI.button(btnGroup,"But of course!",function()
+				{
+					log.l("User confirmed. Proceed with batch.");
+					result = true;
+					w.close();
+				})
+		w.show();
+		return result;
+	}
 
-	getBatchOrders();
+	if(confirmBatch())
+		getBatchOrders();
 
 
 
