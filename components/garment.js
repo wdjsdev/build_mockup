@@ -296,6 +296,8 @@ function Garment(config,data,designNumber)
 			this.adultGarmentCode += "W";
 		}
 
+		this.adultGarmentCode = this.adultGarmentCode.replace(/se$/i,"");
+
 
 		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
 		//just build this garment without merging anything else into it.
