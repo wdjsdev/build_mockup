@@ -516,41 +516,41 @@ function BuildMockupBatch()
 
 
 
-		//log the stats for this order
+		// //log the stats for this order
 
-		// var statsPath = desktopPath + "automation/build_mockup/stats.js";
-		var statsPath = dataPath + "build_mockup_data/batch_stats.js";
-		eval("#include \"" + statsPath + "\"");
+		// // var statsPath = desktopPath + "automation/build_mockup/stats.js";
+		// var statsPath = dataPath + "build_mockup_data/batch_stats.js";
+		// eval("#include \"" + statsPath + "\"");
 
-		stats.totalOrders++;
-		stats.totalGarments += garmentsNeeded.length;
-		stats.totalGraphics += graphicsOpened;
-		stats.averageGraphicsPerGarment = stats.totalGraphics / stats.totalGarments;
-		stats.averageOrdersPerDay = stats.totalOrders/stats.totalDays;
+		// stats.totalOrders++;
+		// stats.totalGarments += garmentsNeeded.length;
+		// stats.totalGraphics += graphicsOpened;
+		// stats.averageGraphicsPerGarment = stats.totalGraphics / stats.totalGarments;
+		// stats.averageOrdersPerDay = stats.totalOrders/stats.totalDays;
 
-		var curDate = getDate();
-		if (!stats.dates[curDate])
-		{
-			stats.totalDays++;
-			stats.dates[curDate] = {
-				"ordersProcessed": [], //orderNumber_teamName
-				"totalOrders": 0,
-				"totalGarments": 0,
-				"totalGraphics": 0,
-				"averageGraphicsPerGarment": 0
-			}
-		}
+		// var curDate = getDate();
+		// if (!stats.dates[curDate])
+		// {
+		// 	stats.totalDays++;
+		// 	stats.dates[curDate] = {
+		// 		"ordersProcessed": [], //orderNumber_teamName
+		// 		"totalOrders": 0,
+		// 		"totalGarments": 0,
+		// 		"totalGraphics": 0,
+		// 		"averageGraphicsPerGarment": 0
+		// 	}
+		// }
 
-		if(stats.dates[curDate].ordersProcessed.indexOf(orderNumber + "_" + teamName) < 0)
-		{
-			stats.dates[curDate].totalOrders++;
-			stats.dates[curDate].totalGarments += garmentsNeeded.length;
-			stats.dates[curDate].totalGraphics += graphicsOpened;
-			stats.dates[curDate].averageGraphicsPerGarment = stats.dates[curDate].totalGraphics / stats.dates[curDate].totalGarments;
-			stats.dates[curDate].ordersProcessed.push(orderNumber + "_" + teamName);
+		// if(stats.dates[curDate].ordersProcessed.indexOf(orderNumber + "_" + teamName) < 0)
+		// {
+		// 	stats.dates[curDate].totalOrders++;
+		// 	stats.dates[curDate].totalGarments += garmentsNeeded.length;
+		// 	stats.dates[curDate].totalGraphics += graphicsOpened;
+		// 	stats.dates[curDate].averageGraphicsPerGarment = stats.dates[curDate].totalGraphics / stats.dates[curDate].totalGarments;
+		// 	stats.dates[curDate].ordersProcessed.push(orderNumber + "_" + teamName);
 
-			writeDatabase(statsPath, "var stats = " + JSON.stringify(stats));
-		}
+		// 	writeDatabase(statsPath, "var stats = " + JSON.stringify(stats));
+		// }
 
 
 		return {
