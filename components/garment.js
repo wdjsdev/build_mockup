@@ -413,6 +413,9 @@ function Garment(config,data,designNumber)
 			currentMockup.activate();
 
 
+			updateInfoColorCallouts(curPlaceholderName,colors[ph].swatchName);
+
+
 			paramBlock = paramLayer.pathItems.rectangle(0,0,5,5);
 			paramBlock.filled = true;
 			paramBlock.fillColor = makeNewSpotColor(ph).color;
