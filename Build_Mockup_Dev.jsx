@@ -230,14 +230,14 @@ function BuildMockup()
 	//Gather the order data
 	//
 
-	if(user === "will.dowling")
+	if(user === "will.dowling" && $.fileName.indexOf("_Dev")>-1)
 	{
 		//for development,use these instead of entering the same info
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3285173";
-		// designNumbers.push("yT6H9b1IOeVc");
+		orderNumber = "3360413";
+		// designNumbers.push("z3Ps9gTa4Z9A");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		

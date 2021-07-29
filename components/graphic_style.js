@@ -3,7 +3,6 @@ function GraphicStyle(data)
 	this.sourceFile;
 	this.doc;
 	this.swatches;
-	this.validGraphicStyle = false;
 	this.plainFill = false;
 
 	//targetBlock is the pre-built rectangle
@@ -53,20 +52,15 @@ function GraphicStyle(data)
 			this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
 			this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
 
-			//select the target block and create a new graphic style
-			this.doc.selection = null;
-			this.targetBlock.selected = true;
-			createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
-			app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
-			removeAction("graphic_style_from_selection");
+			// //select the target block and create a new graphic style
+			// this.doc.selection = null;
+			// this.targetBlock.selected = true;
+			// createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
+			// app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
+			// removeAction("graphic_style_from_selection");
 
 			//rename the graphic style
-			app.activeDocument.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
-
-
-			this.validGraphicStyle = true;
-			this.targetBlock.remove();
-			this.targetBlock = null;
+			// app.activeDocument.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
 
 
 		}
@@ -223,30 +217,39 @@ function GraphicStyle(data)
 				{
 					this.targetBlock.resize(this.patternScale * 100, this.patternScale * 100, true, true, true, true);
 				}
-				createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
-				app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
-				removeAction("graphic_style_from_selection");
-				this.doc.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
+				// createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
+				// app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
+				// removeAction("graphic_style_from_selection");
+				// this.doc.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
 				filesToClose.push(this.doc);
 				currentMockup.layers[0].locked = false;
 				currentMockup.layers[0].visible = true;
-				var dupTarget = this.targetBlock.duplicate(currentMockup);
-				dupTarget.remove();
-				this.validGraphicStyle = true;
+				// var dupTarget = this.targetBlock.duplicate(currentMockup);
+				// dupTarget.remove();
 			}
 			else
 			{
-				this.validGraphicStyle = false;
+				errorList.push("Failed to find the graphic style source file.");
+				log.e("Failed to find the graphic style source file.::data = " + JSON.stringify(data));
+				return;
 			}
 
+		}
+		
 
-		}
-		else
+		if(this.targetBlock)
 		{
-			errorList.push("Failed to find the graphic style source file.");
-			log.e("Failed to find the graphic style source file.::data = " + JSON.stringify(data));
-			return;
+			//select the target block and create a new graphic style
+			this.doc.selection = null;
+			this.targetBlock.selected = true;
+			createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
+			app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
+			removeAction("graphic_style_from_selection");
+			this.doc.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
+			var dupTarget = this.targetBlock.duplicate(currentMockup);
+			dupTarget.remove();
 		}
+
 		tmpLay.remove();
 
 
