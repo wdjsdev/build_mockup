@@ -112,7 +112,7 @@ function Garment(config,data,designNumber)
 			var youthLayer = findSpecificLayer(this.mockupDocument.layers,this.youthGarmentCode,"any");
 			if(youthLayer)
 			{
-				this.youthMockupLayer = findSpecificLayer(youthLayer,"Mockup");
+				this.youthMockupLayer = findSpecificLayer(youthLayer,"Mockup","any");
 				if(!this.youthMockupLayer)
 				{
 					this.youthMockupLayer = this.mockupDocument.layers.add();
@@ -291,17 +291,18 @@ function Garment(config,data,designNumber)
 
 		this.adultGarmentCode = data.mid;
 
-		if(this.adultGarmentCode == "FD-500" || this.adultGarmentCode == "FD-400")
-		{
-			this.adultGarmentCode += "W";
-		}
+		// if(this.adultGarmentCode == "FD-500" || this.adultGarmentCode == "FD-400")
+		// {
+		// 	this.adultGarmentCode += "W";
+		// }
+		this.adultGarmentCode = garmentCodeConverter[this.adultGarmentCode] || this.adultGarmentCode;
 
 		this.adultGarmentCode = this.adultGarmentCode.replace(/se$/i,"");
 
 
 		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
 		//just build this garment without merging anything else into it.
-		var singleWearerGarments = ["FD-5060","FD-5060G","FD-5060Y","FD-5060W","FD-5070","FD-5070G","FD-5070Y","FD-5070W","FD-5077","FD-5077G","FD-5077Y","FD-5077W","PS-5075","PS-5075G","PS-5075Y","PS-5075W","PS-5082","PS-5082G","PS-5082Y","PS-5082W","PS-5094","PS-5094G","PS-5094Y","PS-5094W","PS-5095","PS-5095G","PS-5095Y","PS-5095W","PS-5098","PS-5098G","PS-5098Y","PS-5098W","PS-5105","PS-5105G","PS-5105Y","PS-5105W","PS-5106","PS-510G6","PS-510Y6","PS-510W6"];
+		var singleWearerGarments = ["FD-5060","FD-5060G","FD-5060Y","FD-5060W","FD-5070","FD-5070G","FD-5070Y","FD-5070W","FD-5077","FD-5077G","FD-5077Y","FD-5077W","PS-5075","PS-5075G","PS-5075Y","PS-5075W","PS-5082","PS-5082G","PS-5082Y","PS-5082W","PS-5094","PS-5094G","PS-5094Y","PS-5094W","PS-5095","PS-5095G","PS-5095Y","PS-5095W","PS-5098","PS-5098G","PS-5098Y","PS-5098W","PS-5105","PS-5105G","PS-5105Y","PS-5105W","PS-5106","PS-5106G","PS-5106Y","PS-5106W"];
 		var isSingleWearerGarment = singleWearerGarments.indexOf(this.adultGarmentCode) > -1 ? true : false;
 
 		if(womensCodePat.test(this.adultGarmentCode))
@@ -309,6 +310,10 @@ function Garment(config,data,designNumber)
 			this.garmentWearer = "W";
 
 			this.youthGarmentCode = isSingleWearerGarment ? undefined : this.adultGarmentCode.replace(womensCodePat,"G");
+			if(this.youthGarmentCode)
+			{
+				this.youthGarmentCode = garmentCodeConverter[this.youthGarmentCode] || this.youthGarmentCode;
+			}
 
 			this.bigLogoSize = 1.15;
 			this.smallLogoSize = .3;
