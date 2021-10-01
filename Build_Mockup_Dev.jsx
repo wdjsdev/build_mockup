@@ -115,7 +115,7 @@ function BuildMockup()
 
 	scriptTimer.endTask("getComponents");
 
-	
+	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
 
 	//Global Variables
 	var orderNumber;
@@ -125,6 +125,7 @@ function BuildMockup()
 	var curGarmentIndex = 1;
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
+	var rushMode = false;
 
 	var womensCodePat = /w$/i;
 	var youthCodePat = /y$/i;
@@ -140,6 +141,7 @@ function BuildMockup()
 	var currentMockup;
 	var filesToClose = [];
 	var graphicsOpened = 0;
+	var curDesignNumber;
 
 	//regex to remove superfluous appendages from graphic codes
 	//for example, the builder occasionally uses a code like: FDS-325LS
@@ -228,17 +230,24 @@ function BuildMockup()
 	//Gather the order data
 	//
 
-	if(user === "will.dowling")
+	if(user === "will.dowling" && $.fileName.indexOf("_Dev")>-1)
 	{
 		//for development,use these instead of entering the same info
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = 3103844;
-		orderNumber = getTestSalesOrders();
+		orderNumber = "3416915";
+		// designNumbers.push("z3Ps9gTa4Z9A");
+		teamName = "TEST_graphics";
+		// orderNumber = getTestSalesOrders();
 		
 
-		// designNumbers.push("N6WHW4dpGfMS");
+		//hood graphics
+		// designNumbers.push("2OrTtaFUtfOG");
+
+
+		
+
 		//
 	}
 
@@ -285,6 +294,7 @@ function BuildMockup()
 	{
 		loopDesignNumbers();
 	}
+
 
 	if(valid)
 	{

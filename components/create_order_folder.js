@@ -43,6 +43,12 @@ function createOrderFolder()
 	{
 		folderString = orderNumber + "_" + teamName + " " + userInitials + "~N";	
 	}
+
+	//if rush mode, prepend rush tag
+	if(rushMode)
+	{
+		folderString = rushPrefix + folderString;
+	}
 	
 	curOrderFolderPath = saveLoc + folderString;
 	log.l("curOrderFolderPath = " + curOrderFolderPath);
