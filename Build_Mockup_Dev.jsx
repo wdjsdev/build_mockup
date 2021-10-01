@@ -236,7 +236,7 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3416915";
+		orderNumber = "3422180";
 		// designNumbers.push("z3Ps9gTa4Z9A");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();

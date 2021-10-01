@@ -381,6 +381,16 @@ function Garment(config,data,designNumber)
 		// var placeholderPrefix = topOrBottomSwatches();
 		var placeholderPrefix = "C";
 
+		//clear out any existing placeholder graphic styles
+		var placeholderGraphicStylePat = /c[\d]{1,2}/i;
+		for(var gs=doc.graphicStyles.length-1;gs>=0;gs--)
+		{
+			if(doc.graphicStyles[gs].name.match(placeholderGraphicStylePat))
+			{
+				doc.graphicStyles[gs].remove();
+			}
+		}
+
 
 		//check for paramcolors on the mockup layer.
 		//if they don't exist yet, create them.
