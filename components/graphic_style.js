@@ -134,6 +134,13 @@ function GraphicStyle(data)
 
 				var gradientLayer;
 
+				//check to see if the pattern id is "none"
+				//if so, set it to undefined
+				if(data.pattern && data.pattern.id.match(/none/i))
+				{
+					data.pattern = undefined;
+				}
+
 				//both pattern AND gradient
 				if (data.pattern && data.gradient)
 				{
