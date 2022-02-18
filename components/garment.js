@@ -93,11 +93,11 @@ function Garment(config,data,designNumber)
 		if(this.youthGarmentFile)
 		{
 			this.openCT(this.youthGarmentFile);
+			var youthDoc = app.activeDocument;
 
 			//if there's and audult and youth, merge the youth file into the adult file
 			if(this.adultGarmentFile)
 			{
-				var youthDoc = this.openFile(this.youthGarmentFile);
 				mergeTemplate(this.mockupDocument);
 				filesToClose.push(youthDoc);
 				this.mockupDocument.activate();
