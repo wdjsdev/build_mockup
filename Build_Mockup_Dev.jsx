@@ -21,7 +21,7 @@ function BuildMockup()
 			var prefContents = devUtilitiesPreferenceFile.read();
 			devUtilitiesPreferenceFile.close();
 
-			if(prefContents === "true")
+			if(prefContents.match(/true/i))
 			{
 				utilPath = "~/Desktop/automation/utilities/";
 				ext = ".js";
@@ -236,8 +236,8 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3534834";
-		// designNumbers.push("z3Ps9gTa4Z9A");
+		// orderNumber = "3524866";
+		designNumbers.push("OM7quRXuTGy6");
 		teamName = "TEST_graphics";
 		// orderNumber = getTestSalesOrders();
 		
