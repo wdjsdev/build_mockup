@@ -746,11 +746,20 @@ function Garment(config,data,designNumber)
 					{
 						artLayer.pageItems[a].duplicate(adultArt);
 					}
+
+					if(curGraphic.teamNames && curGraphic.teamNames.length)
+					{
+						updateGraphicText(curGraphic.teamNames,adultArt);
+					}
 					
 					if(scaleLogo)
 					{
 						newScale = (guideSizePt/adultArt.width)*100;
-						adultArt.resize(newScale,newScale,true,true,true,true,newScale);
+						adultArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						if(noteGroup)
+						{
+							noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						}
 					}
 				}
 
@@ -843,7 +852,11 @@ function Garment(config,data,designNumber)
 					if(scaleLogo)
 					{
 						newScale = (guideSizePt / youthArt.width) * 100;
-						youthArt.resize(newScale,newScale,true,true,true,true,newScale);
+						youthArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						if(noteGroup)
+						{
+							noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						}
 					}
 				}
 
