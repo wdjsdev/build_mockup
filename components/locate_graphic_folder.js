@@ -94,7 +94,12 @@ function locateGraphicFolder(graphicCode,lib)
 		{
 			graphicLocations[lowGraphicCode] = graphicFolder.fullName.replace(/^.*graphics\//i,"");
 			writeDatabase(GCL,"var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
+
+			if(!graphicLibraryLocations[lowerLib])
+			{
+				graphicLibraryLocations[lowerLib] = graphicFolder.fullName.replace(/^.*graphics\//i,"");
+				writeDatabase(GLL,"var graphicLibraryLocations = " + JSON.stringify(graphicLibraryLocations))
+			}
 		}
 
 	}
