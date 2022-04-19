@@ -701,7 +701,7 @@ function Garment(config,data,designNumber)
 		var curLoc,curAdultGuide,curYouthGuide,curLabel,curLocSize;
 		var guideSizePt, guideSizeIn;
 		var numberFrame,numberCopy;
-		var adultArt,youthArt;
+		var adultArt,youthArt,noteGroupParent;
 		for(var l=0;l<curGraphic.locations.length;l++)
 		{
 			curLoc = curGraphic.locations[l];
@@ -754,11 +754,17 @@ function Garment(config,data,designNumber)
 					
 					if(scaleLogo)
 					{
-						newScale = (guideSizePt/adultArt.width)*100;
-						adultArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 						if(noteGroup)
 						{
-							noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+							noteGroup.originalParent = noteGroup.parent;
+							noteGroup.moveToBeginning(adultArt);
+						}
+						newScale = (guideSizePt/adultArt.width)*100;
+						adultArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						
+						if(noteGroup)
+						{
+							noteGroup.moveToBeginning(noteGroup.originalParent);
 						}
 					}
 				}
@@ -851,11 +857,17 @@ function Garment(config,data,designNumber)
 					
 					if(scaleLogo)
 					{
-						newScale = (guideSizePt / youthArt.width) * 100;
-						youthArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
 						if(noteGroup)
 						{
-							noteGroup.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+							noteGroup.originalParent = noteGroup.parent;
+							noteGroup.moveToBeginning(youthArt);
+						}
+						newScale = (guideSizePt / youthArt.width) * 100;
+						youthArt.resize(newScale,newScale,true,true,true,true,newScale,Transformation.CENTER);
+						
+						if(noteGroup)
+						{
+							noteGroup.moveToBeginning(noteGroup.originalParent);
 						}
 					}
 				}
