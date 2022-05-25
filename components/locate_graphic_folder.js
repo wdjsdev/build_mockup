@@ -18,8 +18,7 @@
 
 function locateGraphicFolder(graphicCode,lib)
 {
-	var lowerLib = lib.toLowerCase();
-	var lowGraphicCode = graphicCode.toLowerCase();
+	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
 
 
@@ -29,53 +28,32 @@ function locateGraphicFolder(graphicCode,lib)
 	var curDepth = 0;
 
 	//include the database
-	// try
-	// {
-
-	// 	//"graphic code" database
-	// 	eval("#include \"" + GCL + "\"");
-	// 	log.l("Found the graphic code location database.");
-	// }
-	// catch(e)
-	// {
-	// 	var dbFile = File(GFL);
-	// 	dbFile.open("w");
-	// 	dbFile.write("var graphicLocations = {};");
-	// 	dbFile.close();
-	// 	eval("#include \"" + GFL + "\"");
-	// 	log.l("No graphic folder location database existed. Created a new one.");
-	// }
-
-	//library of graphic locations by graphic code
-	eval("#include \"" + dataPath + "build_mockup_data/graphic_locations_database.js\"");
-
-	//library of graphic locations by "graphic library"
-	eval("#include \"" + GLL + "\"");
-
-
-	if(graphicLocations[lowGraphicCode])
+	try
 	{
-		log.l("Found graphic code: " + graphicCode + " in database at::" + graphicLocations[lowGraphicCode]);
-		graphicFolder = Folder(graphicsPath + graphicLocations[lowGraphicCode]);
+		eval("#include \"" + GFL + "\"");
+		log.l("Found the graphic folder location database.");	
 	}
-	
-	else if(graphicLibraryLocations[lowerLib.toLowerCase()])
+	catch(e)
 	{
-		//"graphic library" database
-		
-		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
-		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lowerLib]);
-		if(graphicFolder.exists)
-		{
-			graphicLocations[lowGraphicCode] = curFolder.fullName.replace(/^.*graphics\//i,"") + "/";
-			writeDatabase(GCL, "var graphicLocations = " + JSON.stringify(graphicLocations));
-		}
+		var dbFile = File(GFL);
+		dbFile.open("w");
+		dbFile.write("var graphicLocations = {};");
+		dbFile.close();
+		eval("#include \"" + GFL + "\"");
+		log.l("No graphic folder location database existed. Created a new one.");
 	}
-	
 
-	if(!graphicFolder || !graphicFolder.exists)
+
+	var lowerLib = lib.toLowerCase();
+	log.l("Checking database for " + lowerLib);
+	if(graphicLocations[lowerLib.toLowerCase()])
 	{
-		log.l(graphicCode + " folder NOT found.");
+		log.l(lowerLib + " found: " + graphicLocations[lowerLib]);
+		graphicFolder = Folder(graphicLocations[lowerLib]);
+	}
+	else
+	{
+		log.l(graphicCode + " NOT found.");
 
 		
 		//disabling recursive search because it's too expensive time wise
@@ -84,16 +62,16 @@ function locateGraphicFolder(graphicCode,lib)
 
 		if(!graphicFolder)
 		{
-			graphicFolder = graphicsFolder.selectDlg(orderNumber + "_" + curDesignNumber + ": Which folder has the artwork for " + graphicCode + "?");
+			graphicFolder = graphicsFolder.selectDlg("Which folder has the artwork for " + graphicCode + "?");
 		}
 
 		//if there's a graphic folder, save the folder path to the database
 		//else, return undefined.
-		
+
 		if(graphicFolder)
 		{
-			graphicLocations[lowGraphicCode] = graphicFolder.fullName.replace(/^.*graphics\//i,"");
-			writeDatabase(GCL,"var graphicLocations = " + JSON.stringify(graphicLocations));
+			graphicLocations[lowerLib] = graphicFolder.fullName;
+			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
 			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 

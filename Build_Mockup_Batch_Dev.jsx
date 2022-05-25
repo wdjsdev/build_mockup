@@ -60,6 +60,8 @@ function BuildMockupBatch()
 		return false;	
 	}
 
+	
+
 
 	//set batch mode to true
 	//this will disable any file/folder select dialogs
@@ -242,14 +244,11 @@ function BuildMockupBatch()
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
-
-	//this one is for getting the data by "graphic library"
-	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
+	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "automation/build_mockup/resources/graphic_folder_locations_database.js";
 
-	//this is for getting the data by "graphic code".
-	//if we can't find it here.. then default to the library option above
-	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
+	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
+
 
 	//
 	//folder paths
