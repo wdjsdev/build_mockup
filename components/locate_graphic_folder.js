@@ -37,7 +37,7 @@ function locateGraphicFolder(graphicCode,lib)
 	{
 		var dbFile = File(GFL);
 		dbFile.open("w");
-		dbFile.write("var graphicLocations = {};");
+		dbFile.write("var graphicLibraryLocations = {};");
 		dbFile.close();
 		eval("#include \"" + GFL + "\"");
 		log.l("No graphic folder location database existed. Created a new one.");
@@ -46,10 +46,10 @@ function locateGraphicFolder(graphicCode,lib)
 
 	var lowerLib = lib.toLowerCase();
 	log.l("Checking database for " + lowerLib);
-	if(graphicLocations[lowerLib.toLowerCase()])
+	if(graphicLibraryLocations[lowerLib.toLowerCase()])
 	{
-		log.l(lowerLib + " found: " + graphicLocations[lowerLib]);
-		graphicFolder = Folder(graphicLocations[lowerLib]);
+		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
+		graphicFolder = Folder(graphicLibraryLocations[lowerLib]);
 	}
 	else
 	{
@@ -70,9 +70,9 @@ function locateGraphicFolder(graphicCode,lib)
 
 		if(graphicFolder)
 		{
-			graphicLocations[lowerLib] = graphicFolder.fullName;
-			writeDatabase(GFL,"var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
+			graphicLibraryLocations[lowerLib] = graphicFolder.fullName;
+			writeDatabase(GFL,"var graphicLibraryLocations = " + JSON.stringify(graphicLibraryLocations));
+			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLibraryLocations database.");
 		}
 
 	}
