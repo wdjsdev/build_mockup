@@ -29,34 +29,28 @@ function locateGraphicFolder(graphicCode,lib)
 	var curDepth = 0;
 
 	//include the database
-	// try
-	// {
-
-	// 	//"graphic code" database
-	// 	eval("#include \"" + GCL + "\"");
-	// 	log.l("Found the graphic code location database.");
-	// }
-	// catch(e)
-	// {
-	// 	var dbFile = File(GFL);
-	// 	dbFile.open("w");
-	// 	dbFile.write("var graphicLocations = {};");
-	// 	dbFile.close();
-	// 	eval("#include \"" + GFL + "\"");
-	// 	log.l("No graphic folder location database existed. Created a new one.");
-	// }
-
-	//library of graphic locations by graphic code
-	eval("#include \"" + dataPath + "build_mockup_data/graphic_locations_database.js\"");
-
-	//library of graphic locations by "graphic library"
-	eval("#include \"" + GLL + "\"");
-
-
-	if(graphicLocations[lowGraphicCode])
+	try
 	{
-		log.l("Found graphic code: " + graphicCode + " in database at::" + graphicLocations[lowGraphicCode]);
-		graphicFolder = Folder(graphicsPath + graphicLocations[lowGraphicCode]);
+		eval("#include \"" + GFL + "\"");
+		log.l("Found the graphic folder location database.");	
+	}
+	catch(e)
+	{
+		var dbFile = File(GFL);
+		dbFile.open("w");
+		dbFile.write("var graphicLibraryLocations = {};");
+		dbFile.close();
+		eval("#include \"" + GFL + "\"");
+		log.l("No graphic folder location database existed. Created a new one.");
+	}
+
+
+	var lowerLib = lib.toLowerCase();
+	log.l("Checking database for " + lowerLib);
+	if(graphicLibraryLocations[lowerLib.toLowerCase()])
+	{
+		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
+		graphicFolder = Folder(graphicLibraryLocations[lowerLib]);
 	}
 	
 	else if(graphicLibraryLocations[lowerLib.toLowerCase()])
@@ -92,9 +86,9 @@ function locateGraphicFolder(graphicCode,lib)
 		
 		if(graphicFolder)
 		{
-			graphicLocations[lowGraphicCode] = graphicFolder.fullName.replace(/^.*graphics\//i,"");
-			writeDatabase(GCL,"var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
+			graphicLibraryLocations[lowerLib] = graphicFolder.fullName;
+			writeDatabase(GFL,"var graphicLibraryLocations = " + JSON.stringify(graphicLibraryLocations));
+			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLibraryLocations database.");
 		}
 
 	}

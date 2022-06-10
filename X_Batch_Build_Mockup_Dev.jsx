@@ -28,7 +28,7 @@ function BuildMockupBatch()
 			var prefContents = devUtilitiesPreferenceFile.read();
 			devUtilitiesPreferenceFile.close();
 
-			if(prefContents.match("true"))
+			if(prefContents.match(/true/i))
 			{
 				utilPath = "~/Desktop/automation/utilities/";
 				ext = ".js";
