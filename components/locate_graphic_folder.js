@@ -16,63 +16,83 @@
 
 */
 
-function locateGraphicFolder(graphicCode,lib)
-{
+function locateGraphicFolder(graphicCode, lib) {
+	lib = lib.toLowerCase();
 	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
 
 
 	scriptTimer.beginTask("locateGraphicFolder_" + graphicCode);
-	var graphicFolder,parentFolder,gfFiles,exit = false;
+	var graphicFolder, parentFolder, gfFiles, exit = false;
 	var maxDepth = 1;
 	var curDepth = 0;
 
 	//include the database
-	try
-	{
-		eval("#include \"" + GFL + "\"");
-		log.l("Found the graphic folder location database.");	
+	if (File(GCL).exists) {
+		eval("#include \"" + GCL + "\"");
+		log.l("Found the graphic folder location database.");
 	}
-	catch(e)
-	{
-		var dbFile = File(GFL);
+	else {
+		var dbFile = File(GCL);
 		dbFile.open("w");
-		dbFile.write("var graphicLibraryLocations = {};");
+		dbFile.write("var graphicLocations = {};");
 		dbFile.close();
-		eval("#include \"" + GFL + "\"");
+		eval("#include \"" + GCL + "\"");
 		log.l("No graphic folder location database existed. Created a new one.");
 	}
 
-
-	var lowerLib = lib.toLowerCase();
-	log.l("Checking database for " + lowerLib);
-	if(graphicLibraryLocations[lowerLib.toLowerCase()])
-	{
-		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
-		graphicFolder = Folder(graphicLibraryLocations[lowerLib]);
+	if (File(GLL).exists) {
+		eval("#include \"" + GLL + "\"");
 	}
-	else
-	{
-		log.l(graphicCode + " NOT found.");
+	else {
+		var dbFile = File(GLL);
+		dbFile.open("w");
+		dbFile.write("var graphicLibraryLocations = {};");
+		dbFile.close();
+		eval("#include \"" + GLL + "\"");
+	}
 
-		
+
+
+	log.l("Checking graphic locations database for " + graphicCode);
+	if (graphicLocations[graphicCode]) {
+		log.l(graphicCode + " found: " + graphicsPath + graphicLocations[graphicCode]);
+		graphicFolder = Folder(graphicsPath + graphicLocations[graphicCode]);
+	}
+	else if (graphicLibraryLocations[lib]) {
+		//"graphic library" database
+
+		log.l(lib + " found: " + graphicLibraryLocations[lib]);
+		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lib]);
+		if (graphicFolder.exists) {
+			graphicLibraryLocations[graphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
+			writeDatabase(GLL, "var graphicLibraryLocations = " + JSON.stringify(graphicLocations));
+		}
+	}
+
+
+	if (!graphicFolder || !graphicFolder.exists) {
+
+		//there's STILL no graphic folder.. couldn't find it in either database..
+		//just ask ths user to locate it manually
+		//"why don't you just tell me the name of the movie you want to see?!" -kramer
+
+
 		//disabling recursive search because it's too expensive time wise
 		//just ask the user where the file is and be done with it.
 		// digForGraphic(graphicsFolder);
 
-		if(!graphicFolder)
-		{
-			graphicFolder = graphicsFolder.selectDlg("Which folder has the artwork for " + graphicCode + "?");
+		if (!graphicFolder) {
+			graphicFolder = graphicsFolder.selectDlg(orderNumber + "_" + curDesignNumber + ": Which folder has the artwork for " + graphicCode + "?");
 		}
 
 		//if there's a graphic folder, save the folder path to the database
 		//else, return undefined.
 
-		if(graphicFolder)
-		{
-			graphicLibraryLocations[lowerLib] = graphicFolder.fullName;
-			writeDatabase(GFL,"var graphicLibraryLocations = " + JSON.stringify(graphicLibraryLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLibraryLocations database.");
+		if (graphicFolder) {
+			graphicLocations[graphicCode] = decodeURI(graphicFolder.fullName).replace(/^.*graphics\//i, "") + "/";
+			writeDatabase(GCL, "var graphicLocations = " + JSON.stringify(graphicLocations));
+			log.l("Added {" + lib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 
 	}
@@ -80,31 +100,24 @@ function locateGraphicFolder(graphicCode,lib)
 	scriptTimer.endTask("locateGraphicFolder_" + graphicCode);
 	return graphicFolder;
 
-	function digForGraphic(loc)
-	{	
+	function digForGraphic(loc) {
 		log.l("Digging for " + graphicCode + " in " + loc.fullName);
 		var files = loc.getFiles("*" + graphicCode + "*");
-		if(files.length)
-		{
+		if (files.length) {
 			graphicFolder = loc;
 		}
-		else
-		{
+		else {
 			files = loc.getFiles();
 		}
 		var curFile
-		for(var f=0,len=files.length;f<len && !graphicFolder && curDepth < maxDepth;f++)
-		{
+		for (var f = 0, len = files.length; f < len && !graphicFolder && curDepth < maxDepth; f++) {
 			curFile = files[f];
-			if(curFile instanceof Folder)
-			{
+			if (curFile instanceof Folder) {
 				curDepth++;
 				digForGraphic(files[f]);
 			}
-			else
-			{
-				if(curFile.name.toLowerCase().indexOf(graphicCode.toLowerCase)>-1)
-				{
+			else {
+				if (curFile.name.toLowerCase().indexOf(graphicCode.toLowerCase) > -1) {
 					graphicFolder = curFile;
 					log.l("Found graphic folder here: ");
 					log.l(graphicFolder.fullName);
