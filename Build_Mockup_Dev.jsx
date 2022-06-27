@@ -1,13 +1,11 @@
 #target Illustrator
-function BuildMockup()
-{
+function BuildMockup() {
 	var valid = true;
 	var scriptName = "build_mockup";
 	const BATCH_MODE = false;
 
-	
-	function getUtilities()
-	{
+
+	function getUtilities() {
 		var result = [];
 		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
 		var ext = ".jsxbin"
@@ -15,22 +13,19 @@ function BuildMockup()
 		//check for dev utilities preference file
 		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
 
-		if(devUtilitiesPreferenceFile.exists)
-		{
+		if (devUtilitiesPreferenceFile.exists) {
 			devUtilitiesPreferenceFile.open("r");
 			var prefContents = devUtilitiesPreferenceFile.read();
 			devUtilitiesPreferenceFile.close();
 
-			if(prefContents.match(/true/i))
-			{
+			if (prefContents.match(/true/i)) {
 				utilPath = "~/Desktop/automation/utilities/";
 				ext = ".js";
 			}
 		}
 
-		if($.os.match("Windows"))
-		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+		if ($.os.match("Windows")) {
+			utilPath = utilPath.replace("/Volumes/", "//AD4/");
 		}
 
 		result.push(utilPath + "Utilities_Container" + ext);
@@ -40,17 +35,14 @@ function BuildMockup()
 	}
 
 	var utilities = getUtilities();
-	if(utilities)
-	{
-		for(var u=0,len=utilities.length;u<len;u++)
-		{
-			eval("#include \"" + utilities[u] + "\"");	
+	if (utilities) {
+		for (var u = 0, len = utilities.length; u < len; u++) {
+			eval("#include \"" + utilities[u] + "\"");
 		}
 	}
-	else
-	{
+	else {
 		alert("Failed to find the utilities..");
-		return false;	
+		return false;
 	}
 
 
@@ -65,11 +57,10 @@ function BuildMockup()
 
 	LIVE_LOGGING = false;
 
-	if(user === "will.dowling")
-	{
+	if (user === "will.dowling") {
 		DEV_LOGGING = true;
 	}
-	
+
 	////////////////////////
 	////////ATTENTION://////
 	//
@@ -89,24 +80,20 @@ function BuildMockup()
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup";
 
-	var compFiles = includeComponents(devComponents,prodComponents,true);
-	if(compFiles && compFiles.length)
-	{
+	var compFiles = includeComponents(devComponents, prodComponents, true);
+	if (compFiles && compFiles.length) {
 		var curComponent;
-		for(var cf=0,len=compFiles.length;cf<len;cf++)
-		{
+		for (var cf = 0, len = compFiles.length; cf < len; cf++) {
 			curComponent = compFiles[cf].fullName;
 			eval("#include \"" + curComponent + "\"");
 			log.l("included: " + compFiles[cf].name);
 		}
 	}
-	else if(!compFiles)
-	{
+	else if (!compFiles) {
 		valid = false;
 		return valid;
 	}
-	else
-	{
+	else {
 		errorList.push("Failed to find any components.");
 		log.e("No components were found.");
 		valid = false;
@@ -182,15 +169,14 @@ function BuildMockup()
 	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
 
 
+	//this is for getting the data by "graphic code".
+	//if we can't find it here.. then default to the library option below
+	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
+
+	//this one is for getting the data by "graphic library"
+	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
 
 
-	//known graphic folder locations database
-	//database to keep track of exact folder locations for a given graphic
-	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
-	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
-	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "automation/build_mockup/resources/graphic_folder_locations_database.js";
-
-	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
 
 
 	//
@@ -200,8 +186,8 @@ function BuildMockup()
 	logDest.push(getLogDest())
 	// initLog();
 
-	
-	
+
+
 
 	////////////////////////
 	////////ATTENTION://////
@@ -209,7 +195,7 @@ function BuildMockup()
 	//		test function call
 	//
 	////////////////////////
-	
+
 
 	// testFunction();
 
@@ -220,8 +206,7 @@ function BuildMockup()
 	var prefPath = documentsPath + "build_mockup_prefs/"
 	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
 	var saveLocPrefFolder = Folder(prefPath);
-	if(!saveLocPrefFolder.exists)
-	{
+	if (!saveLocPrefFolder.exists) {
 		saveLocPrefFolder.create();
 		log.l("Created a saveLocPrefFolder");
 	}
@@ -230,33 +215,21 @@ function BuildMockup()
 	//Gather the order data
 	//
 
-	if(user === "will.dowling" && $.fileName.indexOf("_Dev")>-1)
-	{
+	if (user === "will.dowling" && $.fileName.indexOf("_Dev") > -1) {
 		//for development,use these instead of entering the same info
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = "3534834";
-		designNumbers.push("go35fXAoRG2q");
+		orderNumber = "1234567";
+
+		designNumbers.push("aliv0dq9TNfu");
 		teamName = "TEST_graphics";
-		// orderNumber = getTestSalesOrders();
-		
-
-		//hood graphics
-		// designNumbers.push("2OrTtaFUtfOG");
-
-
-		
-
-		//
 	}
 
-	if(valid && !orderNumber && designNumbers.length === 0)
-	{
+	if (valid && !orderNumber && designNumbers.length === 0) {
 		getOrderNumber();
 	}
-	else if (designNumbers.length > 0)
-	{
+	else if (designNumbers.length > 0) {
 		designNumberOnly = true;
 	}
 
@@ -265,24 +238,20 @@ function BuildMockup()
 	//if designNumbers.length > 0 then the user opted not to
 	//build an entire order, but rather a single design number
 	//as such, we don't need to get the order data
-	if(valid && !designNumberOnly)
-	{
+	if (valid && !designNumberOnly) {
 		getOrderData();
 	}
 
-	if(valid && !designNumberOnly)
-	{
+	if (valid && !designNumberOnly) {
 		designNumbers = getDesignNumbers();
 	}
 
 
-	if(valid)
-	{
+	if (valid) {
 		initSaveLoc();
 	}
 
-	if(valid)
-	{
+	if (valid) {
 		createOrderFolder();
 	}
 
@@ -290,33 +259,28 @@ function BuildMockup()
 	//
 	//loop each design number to gather the garments and graphics needed
 	//
-	if(valid)
-	{
+	if (valid) {
 		loopDesignNumbers();
 	}
 
 
-	if(valid)
-	{
+	if (valid) {
 		loopGarmentsNeeded();
-		if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
-		{
+		if (garmentsNeeded.length && garmentsNeeded[0].mockupDocument) {
 			garmentsNeeded[0].mockupDocument.activate();
 			garmentsNeeded[0].mockupDocument.save();
 		}
 	}
 
-	
 
-	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
-	{
+
+	for (var ftc = filesToClose.length - 1; ftc >= 0; ftc--) {
 		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
 	}
-	
+
 	// endLog();
-	
-	if(errorList.length)
-	{
+
+	if (errorList.length) {
 		sendErrors(errorList);
 	}
 
@@ -326,7 +290,7 @@ function BuildMockup()
 	scriptTimer.beginTask("printLog");
 	printLog();
 	scriptTimer.endTask("printLog");
-	
+
 }
 
 
