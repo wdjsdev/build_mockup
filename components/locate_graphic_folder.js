@@ -17,8 +17,8 @@
 */
 
 function locateGraphicFolder(graphicCode, lib) {
-	var lowerLib = lib.toLowerCase();
-	var lowGraphicCode = graphicCode.toLowerCase();
+	lib = lib.toLowerCase();
+	graphicCode = graphicCode.toLowerCase();
 	log.h("Beginning execution of locateGraphicFolder(" + graphicCode + ")");
 
 
@@ -55,18 +55,18 @@ function locateGraphicFolder(graphicCode, lib) {
 		
 
 
-	log.l("Checking graphic locations database for " + lowGraphicCode);
-	if (graphicLocations[lowGraphicCode]) {
-		log.l(lowGraphicCode + " found: " + graphicsPath + graphicLocations[lowGraphicCode]);
-		graphicFolder = Folder(graphicsPath + graphicLocations[lowGraphicCode]);
+	log.l("Checking graphic locations database for " + graphicCode);
+	if (graphicLocations[graphicCode]) {
+		log.l(graphicCode + " found: " + graphicsPath + graphicLocations[graphicCode]);
+		graphicFolder = Folder(graphicsPath + graphicLocations[graphicCode]);
 	}
-	else if (graphicLibraryLocations[lowerLib]) {
+	else if (graphicLibraryLocations[lib]) {
 		//"graphic library" database
 
-		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
-		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lowerLib]);
+		log.l(lib + " found: " + graphicLibraryLocations[lib]);
+		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lib]);
 		if (graphicFolder.exists) {
-			graphicLibraryLocations[lowGraphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
+			graphicLibraryLocations[graphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
 			writeDatabase(GLL, "var graphicLibraryLocations = " + JSON.stringify(graphicLocations));
 		}
 	}
@@ -91,9 +91,9 @@ function locateGraphicFolder(graphicCode, lib) {
 		//else, return undefined.
 
 		if (graphicFolder) {
-			graphicLocations[lowGraphicCode] = decodeURI(graphicFolder.fullName).replace(/^.*graphics\//i, "") + "/";
+			graphicLocations[graphicCode] = decodeURI(graphicFolder.fullName).replace(/^.*graphics\//i, "") + "/";
 			writeDatabase(GCL, "var graphicLocations = " + JSON.stringify(graphicLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
+			log.l("Added {" + lib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 
 	}
