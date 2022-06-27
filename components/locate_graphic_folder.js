@@ -28,50 +28,49 @@ function locateGraphicFolder(graphicCode, lib) {
 	var curDepth = 0;
 
 	//include the database
-	try {
+	if(File(GCL).exists) {
 		eval("#include \"" + GCL + "\"");
 		log.l("Found the graphic folder location database.");
 	}
-	catch (e) {
+	else {
 		var dbFile = File(GCL);
 		dbFile.open("w");
-		dbFile.write("var graphicLibraryLocations = {};");
+		dbFile.write("var graphicLocations = {};");
 		dbFile.close();
 		eval("#include \"" + GCL + "\"");
 		log.l("No graphic folder location database existed. Created a new one.");
 	}
-
-
-	var lowerLib = lib.toLowerCase();
-	log.l("Checking database for " + lowerLib);
-	if (graphicLibraryLocations[lowerLib]) {
-		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
-		graphicFolder = Folder(graphicLibraryLocations[lowerLib]);
+	
+	if(File(GLL).exists) {
+		eval("#include \"" + GLL + "\"");
 	}
+	else
+	{
+		var dbFile = File(GLL);
+		dbFile.open("w");
+		dbFile.write("var graphicLibraryLocations = {};");
+		dbFile.close();
+		eval("#include \"" + GLL + "\"");
+	}
+		
 
+
+	log.l("Checking graphic locations database for " + lowGraphicCode);
+	if (graphicLocations[lowGraphicCode]) {
+		log.l(lowGraphicCode + " found: " + graphicsPath + graphicLocations[lowGraphicCode]);
+		graphicFolder = Folder(graphicsPath + graphicLocations[lowGraphicCode]);
+	}
 	else if (graphicLibraryLocations[lowerLib]) {
 		//"graphic library" database
 
 		log.l(lowerLib + " found: " + graphicLibraryLocations[lowerLib]);
 		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lowerLib]);
 		if (graphicFolder.exists) {
-			graphicLocations[lowGraphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
-			writeDatabase(GCL, "var graphicLocations = " + JSON.stringify(graphicLocations));
+			graphicLibraryLocations[lowGraphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
+			writeDatabase(GLL, "var graphicLibraryLocations = " + JSON.stringify(graphicLocations));
 		}
 	}
-
-
-	if (!graphicFolder || !graphicFolder.exists) {
-		log.l(graphicCode + " folder NOT found in graphic code library. trying graphic folder database.");
-		try {
-			eval("#include \"" + GLL + "\"");
-			log.l("Found the graphic folder location database.");
-
-		}
-		catch (e) {
-			log.l("No graphic folder location database existed. Created a new one.");
-		}
-	}
+	
 
 	if(!graphicFolder || !graphicFolder.exists) {
 
@@ -92,9 +91,9 @@ function locateGraphicFolder(graphicCode, lib) {
 		//else, return undefined.
 
 		if (graphicFolder) {
-			graphicLibraryLocations[lowerLib] = graphicFolder.fullName;
-			writeDatabase(GCL, "var graphicLibraryLocations = " + JSON.stringify(graphicLibraryLocations));
-			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLibraryLocations database.");
+			graphicLocations[lowGraphicCode] = decodeURI(graphicFolder.fullName).replace(/^.*graphics\//i, "") + "/";
+			writeDatabase(GCL, "var graphicLocations = " + JSON.stringify(graphicLocations));
+			log.l("Added {" + lowerLib + "," + graphicFolder.fullName + " to graphicLocations database.");
 		}
 
 	}

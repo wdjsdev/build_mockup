@@ -182,19 +182,14 @@ function BuildMockup()
 	// var PSN = patternIdStyleNumberRlationshipsDatabasePath = desktopPath + "temp/build_mockup_data/pattern_id_style_nymber_database.js";
 
 
-
-
-	//known graphic folder locations database
-	//database to keep track of exact folder locations for a given graphic
-	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
+	//this is for getting the data by "graphic code".
+	//if we can't find it here.. then default to the library option below
+	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
 
 	//this one is for getting the data by "graphic library"
 	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
-	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "automation/build_mockup/resources/graphic_folder_locations_database.js";
 
-	//this is for getting the data by "graphic code".
-	//if we can't find it here.. then default to the library option above
-	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
+	
 
 
 	//
@@ -240,19 +235,10 @@ function BuildMockup()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = "3524866";
-		designNumbers.push("wIdKu8cv6xuG");
+		orderNumber = "1234567";
+
+		designNumbers.push("aliv0dq9TNfu");
 		teamName = "TEST_graphics";
-		// orderNumber = getTestSalesOrders();
-		
-
-		//hood graphics
-		// designNumbers.push("2OrTtaFUtfOG");
-
-
-		
-
-		//
 	}
 
 	if(valid && !orderNumber && designNumbers.length === 0)
