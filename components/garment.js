@@ -727,9 +727,17 @@ function Garment(config,data,designNumber)
 
 				if(curGraphic.type === "name")
 				{
-					curLabel = guideSizeIn ? "name_" + guideSizeIn : "name_" + defaultNameSize;
+					curLabel =	"name_" + defaultNameSize;
 					adultArt = findSpecificPageItem(artLayer,curLabel,"imatch");
-
+					if(this.adultPlacementGuides)
+					{
+						curAdultGuide = findSpecificPageItem(this.adultPlacementGuides,curLoc,"imatch");
+						newScale = (curAdultGuide.width / adultArt.width) * 100;
+						if(newScale < 100)
+						{
+							adultArt.resize(newScale,newScale,true,true,true,true,newScale);
+						}
+					}
 				}
 				else if(curGraphic.type === "number")
 				{
