@@ -66,7 +66,7 @@ function locateGraphicFolder(graphicCode, lib) {
 		log.l(lib + " found: " + graphicLibraryLocations[lib]);
 		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lib]);
 		if (graphicFolder.exists) {
-			graphicLibraryLocations[graphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
+			graphicLibraryLocations[graphicCode] = graphicFolder.fullName.replace(/^.*graphics\//i, "") + "/";
 			writeDatabase(GLL, "var graphicLibraryLocations = " + JSON.stringify(graphicLocations));
 		}
 	}
