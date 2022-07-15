@@ -9,7 +9,10 @@ function updateInfoColorCallouts(ph,val)
 	for(var x=0;x<lays.length;x++)
 	{
 		info = findSpecificLayer(lays[x],"Info","any");
-		if(!info)continue;
+		if(!info)
+		{
+			continue;
+		}
 
 		for(var y=0;y<info.textFrames.length;y++)
 		{
