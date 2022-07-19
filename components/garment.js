@@ -761,7 +761,11 @@ function Garment(config,data,designNumber)
 
 			adultArt = this.adultArtworkLayer ? adultArt : undefined;
 			youthArt = this.youthArtworkLayer ? adultArt.duplicate() : undefined;
-			youthArt.name = "youth_" + youthArt.name;
+			if(youthArt)
+			{
+				youthArt.name = "youth_" + youthArt.name;	
+			}
+			
 		}
 
 		log.l("adultArt = " + adultArt);
