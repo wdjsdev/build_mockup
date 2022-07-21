@@ -5,7 +5,8 @@ function getFile(folder,style,name)
 	log.l("folder = " + folder);
 	log.l("style = " + style + "::::");
 	var searchStr = "*-" + style + "*";
-	var pat = new RegExp("^[^\.].*[-_]" + style + ".*" + "\.ai[t]?$");
+	// var pat = new RegExp("^[^\.].*[-_]([^-_]*" + style + ".*" + "\.ai[t]?$","i");
+	var pat = new RegExp("^.*[-_]" + style + "\.ai[t]?$","i");
 
 
 	//try to just get the file explicitly

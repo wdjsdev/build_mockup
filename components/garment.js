@@ -191,7 +191,9 @@ function Garment(config,data,designNumber)
 	{
 		this.saveFile = this.getSaveFile();
 
+		app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 		currentMockup.saveAs(this.saveFile);
+		app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		curGarmentIndex++;
 		
 		if(this.mainMockupLayer)
@@ -217,7 +219,7 @@ function Garment(config,data,designNumber)
 			localGraphicsFolder.create();
 		}
 
-		var curGraphic,graphicSaveFile,graphicSaveFileName;
+		var curGraphic,graphicSaveFile,graphicSaveFileName,curGraphicDoc;
 		var curAppendage;
 		var graphicAppendagePat = /_[\d].ai$/;
 		var numPat = /fdsn/i;
@@ -246,6 +248,7 @@ function Garment(config,data,designNumber)
 			{
 				log.l("full file name = " + curGraphic.file.fullName);
 				this.openFile(curGraphic.file);
+				curGraphicDoc = app.activeDocument;
 				this.recolorGraphic(curGraphic.colors,curGraphic.type);
 
 				// try
@@ -273,10 +276,12 @@ function Garment(config,data,designNumber)
 					{
 						graphicSaveFileName = graphicSaveFileName.replace(".ai","_2.ai")
 					}
-					graphicSaveFile = File(graphicSaveFileName);
+					graphicSaveFile = File(decodeURI(graphicSaveFileName));
 				}
 
-				app.activeDocument.saveAs(graphicSaveFile);
+				app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+				curGraphicDoc.saveAs(graphicSaveFile);
+				app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 				log.l("Successfully opened, recolored, and saved: " + g + ", as " + graphicSaveFile.fullName);
 
 			}
@@ -717,7 +722,7 @@ function Garment(config,data,designNumber)
 		var curLoc,curAdultGuide,curYouthGuide,curLabel,curLocSize;
 		var guideSizePt, guideSizeIn;
 		var numberFrame,numberCopy;
-		var adultArt,youthArt,noteGroupParent;
+		var adultArt,youthArt,logoArt,noteGroupParent;
 
 		var defaultLogoSize;
 		var defaultNameSize;
@@ -749,22 +754,29 @@ function Garment(config,data,designNumber)
 			youthArt = this.youthArtworkLayer ? findSpecificPageItem(artLayer, curLabel, "imatch") : undefined;
 		}
 		else if (curGraphic.type === "logo") {
-			adultArt = findSpecificPageItem(artLayer, artLayer.name, "imatch");
-			if (!adultArt) {
-				adultArt = group(afc(artLayer, "pageItems"), artLayer);
-				adultArt.name = artLayer.name;
+			logoArt = findSpecificPageItem(artLayer, artLayer.name, "imatch");
+			if (!logoArt) {
+				logoArt = group(afc(artLayer, "pageItems"), artLayer);
+				logoArt.name = artLayer.name;
 			}
 
 			if (curGraphic.teamNames && curGraphic.teamNames.length) {
-				updateGraphicText(curGraphic.teamNames, adultArt);
+				updateGraphicText(curGraphic.teamNames, logoArt);
 			}
 
-			adultArt = this.adultArtworkLayer ? adultArt : undefined;
-			youthArt = this.youthArtworkLayer ? adultArt.duplicate() : undefined;
-			if(youthArt)
+			if(logoArt)
 			{
-				youthArt.name = "youth_" + youthArt.name;	
+				adultArt = this.adultArtworkLayer ? logoArt : undefined;
+				youthArt = this.youthArtworkLayer ? logoArt.duplicate() : undefined;
+				if (youthArt) {
+					youthArt.name = youthArt.name + "Y";
+				}
 			}
+			else
+			{
+				errorList.push("Could not find logo art for " + curGraphic.name);
+			}
+			
 			
 		}
 
@@ -1045,6 +1057,9 @@ function Garment(config,data,designNumber)
 		var curGraphic,colorCode,skipThisGraphic;
 		var skipGraphics = ["provided","custom","onfile","fullcustom"];
 
+		//include the fds graphics file name library
+		eval("#include \"" + dataPath + "build_mockup_data/fds_graphics_file_names.js" + "\"");
+
 		for(var g in this.graphics)
 		{
 
@@ -1108,6 +1123,10 @@ function Garment(config,data,designNumber)
 			if(curGraphic.folder)
 			{
 				// curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
+				if(curGraphic.name.match(/^fds[-_]/i))
+				{
+					curGraphic.name = fdsFileNames[curGraphic.styleNumber];
+				}
 				curGraphic.file = getFile(curGraphic.folder,curGraphic.styleNumber,curGraphic.name);
 				log.l("curGraphic.file = " + curGraphic.file);
 			}

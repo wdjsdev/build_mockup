@@ -20,9 +20,12 @@ function loopGarmentsNeeded()
 	{
 		log.l("Processing garmentsNeeded[" + g + "]");
 		garmentsNeeded[g].processGarment();
+		
 		if(garmentsNeeded[g].saveFile)
 		{
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 			currentMockup.saveAs(garmentsNeeded[g].saveFile);
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		}
 	}
 }
