@@ -1125,7 +1125,7 @@ function Garment(config,data,designNumber)
 				// curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
 				if(curGraphic.name.match(/^fds[-_]/i))
 				{
-					curGraphic.name = fdsFileNames[curGraphic.styleNumber];
+					curGraphic.name = fdsFileNames[curGraphic.styleNumber] || curGraphic.name;
 				}
 				curGraphic.file = getFile(curGraphic.folder,curGraphic.styleNumber,curGraphic.name);
 				log.l("curGraphic.file = " + curGraphic.file);
