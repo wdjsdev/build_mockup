@@ -899,6 +899,8 @@ function Garment(config,data,designNumber)
 
 			if (guidesLayer) {
 				//placement guides exist.. get the guides
+				guidesLayer.locked = false;
+				guidesLayer.visible = true;
 				log.l("guides layer exists: " + guidesLayer.name);
 				guides = afc(guidesLayer, "pageItems");
 				var trimmedGuides = [];
@@ -915,6 +917,8 @@ function Garment(config,data,designNumber)
 					//trimmed the guides array so that we only have
 					//the guides that match the current location
 					trimmedGuides.forEach(function (guide) {
+						guide.locked = false;
+						guide.hidden = false;
 						var dupGraphic;
 						var scaleToFitGuides = true;
 						var curGuide = guide.duplicate();
