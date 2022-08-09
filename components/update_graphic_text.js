@@ -6,6 +6,33 @@
 // and update textframe contents accordingly.
 function updateGraphicText(arr, group)
 {	
+	//
+	//attention:
+	//implement this, would ya?
+	//need to add a check for the graphic code so that we only use
+	//this logic on appropriate graphics with tails or other such glyphs
+	//
+	//this logic preserves alternate glyphs like tails
+	//for front logo fonts that use a different font/glyph for the tail
+
+	// var frame = layers[0].pageItems[0];
+	// var range = frame.textRanges[frame.textRanges.length - 1];
+	// var rangeContents = range.contents;
+	// $.writeln("rangeContents = " + rangeContents);
+
+	// var attr = range.characterAttributes;
+	// var myStyle = createCharacterStyle("test", attr);
+	// frame.contents = "Wesley" + rangeContents;
+	// myStyle.applyTo(frame.textRanges[frame.textRanges.length - 1], true);
+
+
+	//this logic preserves alternate glyphs like tails
+	//for front logo fonts that use a different font/glyph for the tail
+	//
+	//attention:
+	//
+
+
 	
 	dig(group);
 

@@ -86,29 +86,23 @@ function BuildMockup()
 	scriptTimer.beginTask("getComponents");
 
 	//get the components
-	var devComponents = desktopPath + "automation/build_mockup/components";
-	var prodComponents = componentsPath + "build_mockup";
+	var devComponentsPath = desktopPath + "automation/build_mockup/components";
+	var prodComponentsPath = componentsPath + "build_mockup";
 
-	var compFiles = includeComponents(devComponents,prodComponents,true);
-	if(compFiles && compFiles.length)
+	var compPath = $.fileName.match(/dev/i) ? devComponentsPath : prodComponentsPath;
+
+	var compFiles = getComponents(compPath);
+
+
+	compFiles.forEach(function(cf)
 	{
-		var curComponent;
-		for(var cf=0,len=compFiles.length;cf<len;cf++)
-		{
-			curComponent = compFiles[cf].fullName;
-			eval("#include \"" + curComponent + "\"");
-			log.l("included: " + compFiles[cf].name);
-		}
-	}
-	else if(!compFiles)
+		eval("#include \"" + cf.fullName + "\"");
+		log.l("included: " + cf.name);
+	})
+
+	if(!compFiles.length)
 	{
-		valid = false;
-		return valid;
-	}
-	else
-	{
-		errorList.push("Failed to find any components.");
-		log.e("No components were found.");
+		log.e("No components were found at: " + compPath);
 		valid = false;
 		return valid;
 	}

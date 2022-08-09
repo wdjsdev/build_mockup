@@ -1157,16 +1157,10 @@ function Garment(config,data,designNumber)
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}([hgbmsr]{1,3})?$)/i;
-		var result = name.match(pat);
-		if(result && result.length)
-		{
-			return name.match(pat)[1];
-		}
-		else
-		{
-			return undefined;
-		}
+		var pat = /[_-]([\d]{1,}([hgbmsrf]{1,4})?$)/i;
+		var result = name.match(pat) || [];
+
+		return result[1] || undefined;
 	}
 
 	this.openFile = function(file)
