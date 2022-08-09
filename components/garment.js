@@ -893,6 +893,7 @@ function Garment(config,data,designNumber)
 
 			if (noteGroup) {
 				//extract the note group to the master note group
+				noteGroupDup.remove();
 				noteGroupDup = findSpecificPageItem(masterArt, "note", "any");
 				noteGroupDup.moveToBeginning(masterNoteGroup);
 			}
