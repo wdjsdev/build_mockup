@@ -16,14 +16,14 @@ var sizingDb = {
 	"Y":{
 		"smallNum":"3",
 		"bigNum":"8",
-		"name":"1.5",
+		"name":"2",
 		"bigLogo":"10.5",
 		"smallLogo":"3"
 	},
 	"G":{
 		"smallNum":"3",
 		"bigNum":"8",
-		"name":"1.5",
+		"name":"2",
 		"bigLogo":"10.5",
 		"smallLogo":"3"
 	}

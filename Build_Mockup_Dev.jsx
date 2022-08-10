@@ -92,22 +92,28 @@ function BuildMockup()
 	var compPath = $.fileName.match(/dev/i) ? devComponentsPath : prodComponentsPath;
 
 	var compFiles = getComponents(compPath);
-
-
-	compFiles.forEach(function(cf)
-	{
-		eval("#include \"" + cf.fullName + "\"");
-		log.l("included: " + cf.name);
-	})
-
-	if(!compFiles.length)
-	{
+	if (!compFiles.length) {
 		log.e("No components were found at: " + compPath);
+		errorList.push("Failed to find the components...");
+		sendErrors(errorList);
 		valid = false;
 		return valid;
 	}
+	
+	//build the list of components to include
+	var evalStr = "";
+	compFiles.forEach(function(cf)
+	{
+		evalStr += "#include \"" + cf.fullName + "\";\n";
+	})
 
+	log.h("including the following components:\nevalStr =\n" + evalStr);
+	
+	//eval the string of all include statements to actually include the components
+	eval(evalStr);
 	scriptTimer.endTask("getComponents");
+
+
 
 	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
 
