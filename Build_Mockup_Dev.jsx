@@ -1,56 +1,56 @@
 #target Illustrator
-function BuildMockup()
+function BuildMockup ()
 {
 	var valid = true;
 	var scriptName = "build_mockup";
 	const BATCH_MODE = false;
 
-	
-	function getUtilities()
+
+	function getUtilities ()
 	{
 		var result = [];
 		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
 		var ext = ".jsxbin"
 
 		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
 
-		if(devUtilitiesPreferenceFile.exists)
+		if ( devUtilitiesPreferenceFile.exists )
 		{
-			devUtilitiesPreferenceFile.open("r");
+			devUtilitiesPreferenceFile.open( "r" );
 			var prefContents = devUtilitiesPreferenceFile.read();
 			devUtilitiesPreferenceFile.close();
 
-			if(prefContents.match(/true/i))
+			if ( prefContents.match( /true/i ) )
 			{
 				utilPath = "~/Desktop/automation/utilities/";
 				ext = ".js";
 			}
 		}
 
-		if($.os.match("Windows"))
+		if ( $.os.match( "Windows" ) )
 		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+			utilPath = utilPath.replace( "/Volumes/", "//AD4/" );
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
+		result.push( utilPath + "Utilities_Container" + ext );
+		result.push( utilPath + "Batch_Framework" + ext );
 		return result;
 
 	}
 
 	var utilities = getUtilities();
-	if(utilities)
+	if ( utilities )
 	{
-		for(var u=0,len=utilities.length;u<len;u++)
+		for ( var u = 0, len = utilities.length; u < len; u++ )
 		{
-			eval("#include \"" + utilities[u] + "\"");	
+			eval( "#include \"" + utilities[ u ] + "\"" );
 		}
 	}
 	else
 	{
-		alert("Failed to find the utilities..");
-		return false;	
+		alert( "Failed to find the utilities.." );
+		return false;
 	}
 
 
@@ -65,11 +65,11 @@ function BuildMockup()
 
 	LIVE_LOGGING = false;
 
-	if(user === "will.dowling")
+	if ( user === "will.dowling" )
 	{
 		DEV_LOGGING = true;
 	}
-	
+
 	////////////////////////
 	////////ATTENTION://////
 	//
@@ -80,38 +80,40 @@ function BuildMockup()
 
 
 
-	scriptTimer.beginTask("BuildMockup");
+	scriptTimer.beginTask( "BuildMockup" );
 
 
-	scriptTimer.beginTask("getComponents");
+	scriptTimer.beginTask( "getComponents" );
 
 	//get the components
 	var devComponentsPath = desktopPath + "automation/build_mockup/components";
 	var prodComponentsPath = componentsPath + "build_mockup";
 
-	var compPath = $.fileName.match(/dev/i) ? devComponentsPath : prodComponentsPath;
+	var compPath = $.fileName.match( /dev/i ) ? devComponentsPath : prodComponentsPath;
 
-	var compFiles = getComponents(compPath);
-	if (!compFiles.length) {
-		log.e("No components were found at: " + compPath);
-		errorList.push("Failed to find the components...");
-		sendErrors(errorList);
+	var compFiles = getComponents( compPath );
+	log.l( "Using compPath: " + compPath );
+	if ( !compFiles.length )
+	{
+		log.e( "No components were found at: " + compPath );
+		errorList.push( "Failed to find the components..." );
+		sendErrors( errorList );
 		valid = false;
 		return valid;
 	}
-	
+
 	//build the list of components to include
 	var evalStr = "";
-	compFiles.forEach(function(cf)
+	compFiles.forEach( function ( cf )
 	{
 		evalStr += "#include \"" + cf.fullName + "\";\n";
-	})
+	} )
 
-	log.h("including the following components:\nevalStr =\n" + evalStr);
-	
+	log.h( "including the following components:\nevalStr =\n" + evalStr );
+
 	//eval the string of all include statements to actually include the components
-	eval(evalStr);
-	scriptTimer.endTask("getComponents");
+	eval( evalStr );
+	scriptTimer.endTask( "getComponents" );
 
 
 
@@ -189,18 +191,18 @@ function BuildMockup()
 	//this one is for getting the data by "graphic library"
 	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
 
-	
+
 
 
 	//
 	//Gather and include the components
 	//
 
-	logDest.push(getLogDest())
+	logDest.push( getLogDest() )
 	// initLog();
 
-	
-	
+
+
 
 	////////////////////////
 	////////ATTENTION://////
@@ -208,7 +210,7 @@ function BuildMockup()
 	//		test function call
 	//
 	////////////////////////
-	
+
 
 	// testFunction();
 
@@ -217,37 +219,38 @@ function BuildMockup()
 
 	//initialize the save location preference file
 	var prefPath = documentsPath + "build_mockup_prefs/"
-	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
-	var saveLocPrefFolder = Folder(prefPath);
-	if(!saveLocPrefFolder.exists)
+	var saveLocPrefFile = File( prefPath + "save_loc_pref.txt" );
+	var saveLocPrefFolder = Folder( prefPath );
+	if ( !saveLocPrefFolder.exists )
 	{
 		saveLocPrefFolder.create();
-		log.l("Created a saveLocPrefFolder");
+		log.l( "Created a saveLocPrefFolder" );
 	}
 
 	//
 	//Gather the order data
 	//
 
-	if(user === "will.dowling" && $.fileName.indexOf("_Dev")>-1)
+	if ( user === "will.dowling" && $.fileName.indexOf( "_Dev" ) > -1 )
 	{
 		//for development,use these instead of entering the same info
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "3721191";
+		// orderNumber = "3737274";
 
-		// designNumbers.push("Gutds5cHJMdI");
+		designNumbers.push( "4KWCMEOWWXq4" );
 		// designNumbers.push("b9GQWFp9dn6T");
-		
+
 		teamName = "TEST_graphics";
+		orderNumber = orderNumber || "1234567";
 	}
 
-	if(valid && !orderNumber && designNumbers.length === 0)
+	if ( valid && !orderNumber && designNumbers.length === 0 )
 	{
 		getOrderNumber();
 	}
-	else if (designNumbers.length > 0)
+	else if ( designNumbers.length > 0 )
 	{
 		designNumberOnly = true;
 	}
@@ -257,23 +260,23 @@ function BuildMockup()
 	//if designNumbers.length > 0 then the user opted not to
 	//build an entire order, but rather a single design number
 	//as such, we don't need to get the order data
-	if(valid && !designNumberOnly)
+	if ( valid && !designNumberOnly )
 	{
 		getOrderData();
 	}
 
-	if(valid && !designNumberOnly)
+	if ( valid && !designNumberOnly )
 	{
 		designNumbers = getDesignNumbers();
 	}
 
 
-	if(valid)
+	if ( valid )
 	{
 		initSaveLoc();
 	}
 
-	if(valid)
+	if ( valid )
 	{
 		createOrderFolder();
 	}
@@ -282,43 +285,43 @@ function BuildMockup()
 	//
 	//loop each design number to gather the garments and graphics needed
 	//
-	if(valid)
+	if ( valid )
 	{
 		loopDesignNumbers();
 	}
 
 
-	if(valid)
+	if ( valid )
 	{
 		loopGarmentsNeeded();
-		if(garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+		if ( garmentsNeeded.length && garmentsNeeded[ 0 ].mockupDocument )
 		{
-			garmentsNeeded[0].mockupDocument.activate();
-			garmentsNeeded[0].mockupDocument.save();
+			garmentsNeeded[ 0 ].mockupDocument.activate();
+			garmentsNeeded[ 0 ].mockupDocument.save();
 		}
 	}
 
-	
 
-	for(var ftc = filesToClose.length - 1; ftc>=0; ftc--)
+
+	for ( var ftc = filesToClose.length - 1; ftc >= 0; ftc-- )
 	{
-		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
+		filesToClose[ ftc ].close( SaveOptions.DONOTSAVECHANGES );
 	}
-	
+
 	// endLog();
-	
-	if(errorList.length)
+
+	if ( errorList.length )
 	{
-		sendErrors(errorList);
+		sendErrors( errorList );
 	}
 
-	log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+	log.l( "Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics." );
 
-	scriptTimer.endTask("BuildMockup");
-	scriptTimer.beginTask("printLog");
+	scriptTimer.endTask( "BuildMockup" );
+	scriptTimer.beginTask( "printLog" );
 	printLog();
-	scriptTimer.endTask("printLog");
-	
+	scriptTimer.endTask( "printLog" );
+
 }
 
 
