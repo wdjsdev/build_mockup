@@ -26,7 +26,7 @@ function alignArtToGuides(art,guide,scale)
 	//align the art
 	log.l("Aligning the art horizontally to the guide...");
 	hAlignCenter(dupGuide,[art]);
-	if(guide.name.match(/(tbnm|tfcc|tfur|tful|tflr|tflc|tfrl)/i))
+	if(guide.name.match(/(tbnm|tfcc|tfur|tful|tflr|tflc|tfrl|tblt)/i))
 	{
 		log.l("aligning top.")
 		vAlignTop(dupGuide, [art]);
