@@ -1,5 +1,5 @@
 
-function inputNewLogoText ( frame, newContents )
+function inputNewLogoText ( frame, newContents, curGraphic )
 {
 	function style ()
 	{
@@ -22,6 +22,41 @@ function inputNewLogoText ( frame, newContents )
 			this.tracking = range.tracking;
 		}
 	};
+
+	//
+	//attention:
+	//implement this, would ya?
+	//need to add a check for the graphic code so that we only use
+	//this logic on appropriate graphics with tails or other such glyphs
+	//
+	//this logic preserves alternate glyphs like tails
+	//for front logo fonts that use a different font/glyph for the tail
+
+
+	var graphicHasTail = false;
+	var tailstyle;
+
+	if ( curGraphic.name.replace( /.*[-_]/, "" ).match( /2840|2833|2638|2526|2515|2514|2389|2388|2035|1038/ ) )
+	{
+		graphicHasTail = true;
+
+		var lastCharacterTextRange = frame.textRanges[ frame.textRanges.length - 1 ];
+		lastCharacterTextRange.select( false );
+		app.copy();
+		// var rangeContents = lastCharacterTextRange.contents;
+		// 
+		var attr = lastCharacterTextRange.characterAttributes;
+		tailStyle = createCharacterStyle( frame.name.match( /.*_[\d]/ )[ 0 ] + "graphicTail", attr );
+	}
+
+
+
+
+	//this logic preserves alternate glyphs like tails
+	//for front logo fonts that use a different font/glyph for the tail
+	//
+	//attention:
+	//
 
 	function getCase ( range )
 	{
@@ -143,6 +178,15 @@ function inputNewLogoText ( frame, newContents )
 			{
 				applyStyle( range, middleChar );
 			}
+		}
+
+		if ( graphicHasTail )
+		{
+			// myStyle.applyTo( frame.textRanges[ frame.textRanges.length - 1 ], true );
+			var ip = frame.insertionPoints[ frame.insertionPoints.length - 1 ];
+			ip.characters.add( " " );
+			frame.textRanges[ frame.textRanges.length - 1 ].select( false );
+			app.executeMenuCommand( "pasteInPlace" );
 		}
 		try
 		{

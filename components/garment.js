@@ -769,7 +769,7 @@ function Garment ( config, data, designNumber )
 			{
 				var logoDuplicate = logoArt.duplicate();
 				logoDuplicate.left += logoArt.width + 20;
-				updateGraphicText( curGraphic.teamNames, logoArt );
+				updateGraphicText( curGraphic.teamNames, logoArt, curGraphic );
 			}
 
 			if ( logoArt )
