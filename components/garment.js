@@ -50,6 +50,7 @@ function Garment ( config, data, designNumber )
 
 	this.processGarment = function ()
 	{
+		var necessaryLayers = [ [ "MockupLayer", "Mockup" ], [ "ArtworkLayer", "Artwork Layer" ], [ "InfoLayer", "Information" ] ];
 		if ( this.adultGarmentFile )
 		{
 			this.openCT( this.adultGarmentFile );
@@ -58,43 +59,23 @@ function Garment ( config, data, designNumber )
 			var adultLayer = findSpecificLayer( this.mockupDocument, this.adultGarmentCode, "any" );
 			if ( adultLayer )
 			{
-				this.adultMockupLayer = this.mainMockupLayer = findSpecificLayer( adultLayer, "Mockup" );
-				if ( !this.adultMockupLayer )
+				adultLayer.locked = false;
+				adultLayer.visible = true;
+				//locate or initialize the necessary layers
+				necessaryLayers.forEach( function ( nl )
 				{
-					this.adultMockupLayer = this.mockupDocument.layers.add();
-					this.adultMockupLayer.name = "Mockup";
-					this.mainMockupLayer = this.adultMockupLayer;
-				}
-				this.adultArtworkLayer = findSpecificLayer( adultLayer, "Artwork Layer" );
-				this.adultInfoLayer = findSpecificLayer( adultLayer, "Information" );
+					var lay = findSpecificLayer( adultLayer, nl[ 1 ], "any" ) || adultLayer.layers.add();
+					lay.name = nl[ 1 ];
+					lay.locked = false;
+					lay.visible = true;
+					curGarment[ "adult" + nl[ 0 ] ] = lay;
+				} )
+				this.adultPlacementGuides = findSpecificLayer( this.adultInfoLayer, "Placement Guides" );
 				this.adultMockupArtboard = this.mainMockupArtboard = this.mockupDocument.artboards[ 0 ];
-			}
-
-
-
-
-			if ( !this.adultMockupLayer )
-			{
-				this.adultMockupLayer = findSpecificLayer( this.mockupDocument, "Mockup", "any" );
-
-				if ( !this.adultMockupLayer )
-				{
-					this.adultMockupLayer = this.mockupDocument.layers.add();
-					this.adultMockupLayer.name = "Mockup";
-				}
 				this.mainMockupLayer = this.adultMockupLayer;
+
 			}
 
-			if ( !this.adultArtworkLayer )
-			{
-				this.adultArtworkLayer = findSpecificLayer( this.mockupDocument, "Artwork Layer" );
-
-				if ( !this.adultArtworkLayer )
-				{
-					this.adultArtworkLayer = this.mockupDocument.layers.add();
-					this.adultArtworkLayer.name = "Artwork";
-				}
-			}
 		}
 		if ( this.youthGarmentFile )
 		{
@@ -105,6 +86,7 @@ function Garment ( config, data, designNumber )
 			if ( this.adultGarmentFile )
 			{
 				mergeTemplate( this.mockupDocument );
+				this.adultInfoLayer.locked = false;
 				filesToClose.push( youthDoc );
 				this.mockupDocument.activate();
 				app.executeMenuCommand( "fitall" );
@@ -119,14 +101,19 @@ function Garment ( config, data, designNumber )
 			var youthLayer = findSpecificLayer( this.mockupDocument.layers, this.youthGarmentCode, "any" );
 			if ( youthLayer )
 			{
-				this.youthMockupLayer = findSpecificLayer( youthLayer, "Mockup", "any" );
-				if ( !this.youthMockupLayer )
+				youthLayer.locked = false;
+				youthLayer.visible = true;
+
+				//locate or initialize the necessary layers
+				necessaryLayers.forEach( function ( nl )
 				{
-					this.youthMockupLayer = this.mockupDocument.layers.add();
-					this.youthMockupLayer.name = "Mockup";
-				}
-				this.youthArtworkLayer = findSpecificLayer( youthLayer, "Artwork Layer" );
-				this.youthInfoLayer = findSpecificLayer( youthLayer, "Information" );
+					var lay = findSpecificLayer( youthLayer, nl[ 1 ], "any" ) || youthLayer.layers.add();
+					lay.name = nl[ 1 ];
+					lay.locked = false;
+					lay.visible = true;
+					curGarment[ "youth" + nl[ 0 ] ] = lay;
+				} )
+				this.youthPlacementGuides = findSpecificLayer( this.youthInfoLayer, "Placement Guides" );
 				this.youthMockupArtboard = this.mockupDocument.artboards[ this.adultGarmentFile ? 1 : 0 ];
 			}
 
@@ -141,29 +128,8 @@ function Garment ( config, data, designNumber )
 				this.mainMockupArtboard = this.youthMockupArtboard;
 			}
 
-
-
-			if ( !this.youthMockupLayer )
-			{
-				this.youthMockupLayer = findSpecificLayer( this.mockupDocument.layers, "Mockup", "any" );
-
-				if ( !this.youthMockupLayer )
-				{
-					this.youthMockupLayer = app.activeDocument.layers.add();
-					this.youthMockupLayer.name = "Youth Mockup";
-				}
-
-			}
-
-			if ( !this.youthArtworkLayer )
-			{
-				this.youthArtworkLayer = findSpecificLayer( this.mockupDocument.layers, "Artwork Layer", "any" );
-				if ( !this.youthArtworkLayer )
-				{
-					this.youthArtworkLayer = app.activeDocument.layers.add();
-					this.youthArtworkLayer.name = "Youth Artwork";
-				}
-			}
+			this.mainMockupLayer.locked = false;
+			this.mainMockupLayer.visible = true;
 		}
 
 		if ( !this.adultGarmentFile && !this.youthGarmentFile )
@@ -174,6 +140,8 @@ function Garment ( config, data, designNumber )
 		else
 		{
 			this.mockupDocument = currentMockup = app.activeDocument;
+			this.mainMockupLayer.locked = false;
+			this.mainMockupLayer.visible = true;
 			this.graphicYPosition = this.mockupDocument.artboards[ 0 ].artboardRect[ 1 ];
 			this.processMockup( this.mockupDocument )
 		}
@@ -210,6 +178,21 @@ function Garment ( config, data, designNumber )
 			this.mockupDocument.save();
 		}
 
+		//check to see whether this graphic is relevant....
+		//if placement guides exist, 
+		//check to see if the locs listed in curGraphic.locations are in the placement guides
+		//else if no placementGuides
+		//if it's a bottom graphic (i.e. graphic location starts with a "b"), and the garment is a top, skip it
+		//and vice versa..
+		var relevantGraphics = getRelevantGraphics( this ); //array of graphics that are relevant to the current garment 
+
+		if ( !relevantGraphics.length )
+		{
+			//none of the graphics are relevant to this garment, so skip it
+			return;
+		}
+
+
 		//make a graphics folder to save the recolored graphics
 		localGraphicsFolderPath = curOrderFolderPath + "/" + this.designNumber + "_assets";
 		localGraphicsFolder = Folder( localGraphicsFolderPath );
@@ -219,46 +202,27 @@ function Garment ( config, data, designNumber )
 			localGraphicsFolder.create();
 		}
 
-		var curGraphic, graphicSaveFile, graphicSaveFileName, curGraphicDoc;
-		var curAppendage;
-		var graphicAppendagePat = /_[\d].ai$/;
-		var numPat = /fdsn/i;
-		var namePat = /fdsp/i;
-		log.h( "Looping graphics for the mockup: " + this.saveFile.name );
-		for ( var g in this.graphics )
-		{
-			log.l( "Processing graphic: " + g );
-			curGraphic = this.graphics[ g ];
-			curGraphic.name = g;
 
-			if ( numPat.test( g ) )
-			{
-				curGraphic.type = "number";
-			}
-			else if ( namePat.test( g ) )
-			{
-				curGraphic.type = "name";
-			}
-			else
-			{
-				curGraphic.type = "logo";
-			}
+		log.h( "Looping graphics for the mockup: " + this.saveFile.name );
+		relevantGraphics.forEach( function ( curGraphic )
+		{
+			var curGraphic, graphicSaveFile, graphicSaveFileName, curGraphicDoc;
+			var curAppendage;
+			var graphicAppendagePat = /_[\d].ai$/;
+			var numPat = /fdsn/i;
+			var namePat = /fdsp/i;
+
+			log.l( "Processing graphic: " + curGraphic.name );
+
 
 			if ( curGraphic.file )
 			{
 				log.l( "full file name = " + curGraphic.file.fullName );
-				this.openFile( curGraphic.file );
+				curGarment.openFile( curGraphic.file );
 				curGraphicDoc = app.activeDocument;
-				this.recolorGraphic( curGraphic.colors, curGraphic.type );
+				curGarment.recolorGraphic( curGraphic.colors, curGraphic.type );
 
-				// try
-				// {
-				this.processGraphic( curGraphic );
-				// }
-				// catch(e)
-				// {
-				// 	log.e("_FIX_GRAPHIC_FILE_::" + curGraphic.name + "::e = " + e + "::e.line = " + e.line);
-				// }
+				curGarment.processGraphic( curGraphic );
 
 				graphicsOpened++;
 
@@ -282,10 +246,12 @@ function Garment ( config, data, designNumber )
 				app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 				curGraphicDoc.saveAs( graphicSaveFile );
 				app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
-				log.l( "Successfully opened, recolored, and saved: " + g + ", as " + graphicSaveFile.fullName );
+				log.l( "Successfully opened, recolored, and saved: " + curGraphic.name + ", as " + decodeURI( graphicSaveFile.fullName ) );
 
 			}
-		}
+		} );
+
+
 
 	}
 
@@ -304,10 +270,6 @@ function Garment ( config, data, designNumber )
 
 		this.adultGarmentCode = data.mid;
 
-		// if(this.adultGarmentCode == "FD-500" || this.adultGarmentCode == "FD-400")
-		// {
-		// 	this.adultGarmentCode += "W";
-		// }
 		this.adultGarmentCode = garmentCodeConverter[ this.adultGarmentCode ] || this.adultGarmentCode;
 
 		this.adultGarmentCode = this.adultGarmentCode.replace( /se$/i, "" );
@@ -424,7 +386,7 @@ function Garment ( config, data, designNumber )
 		var paramBlock;
 
 
-		var curPlaceholderName, graphicStyleName;
+		var graphicStyleName;
 		for ( var ph in colors )
 		{
 			if ( /_[\d]*_/.test( ph ) || colors[ ph ].colorCode === "" )
@@ -433,21 +395,19 @@ function Garment ( config, data, designNumber )
 				continue;
 			}
 			colors[ ph ].swatchName = BUILDER_COLOR_CODES[ colors[ ph ].colorCode ];
-			curPlaceholderName = placeholderPrefix + ph.substring( 1, ph.length );
-			graphicStyleName = curPlaceholderName;
-			colors[ ph ].id = curPlaceholderName;
+			graphicStyleName = placeholderPrefix + ph.substring( 1, ph.length );
+			colors[ ph ].id = graphicStyleName;
 			curGStyle = new GraphicStyle( colors[ ph ] );
-			curGStyle.init();
+			curGStyle.exec();
 			currentMockup.activate();
 
 
-			updateInfoColorCallouts( curPlaceholderName, colors[ ph ].swatchName );
+			updateInfoColorCallouts( graphicStyleName, colors[ ph ].swatchName );
 
 
 			paramBlock = paramLayer.pathItems.rectangle( 0, 0, 5, 5 );
-			paramBlock.filled = true;
-			paramBlock.fillColor = makeNewSpotColor( ph ).color;
-			paramBlock.name = "paramcolor-" + curPlaceholderName;
+			paramBlock.stroked = false;
+			paramBlock.name = "paramcolor-" + graphicStyleName;
 			paramBlock.left = this.mockupDocument.artboards[ 0 ].artboardRect[ 0 ] - 5;
 			paramBlock.top = this.mockupDocument.artboards[ 0 ].artboardRect[ 1 ] - ( 5 * paramIndex );
 			paramIndex++;
@@ -458,16 +418,75 @@ function Garment ( config, data, designNumber )
 
 
 			//applyGraphicStyleArguments:
-			//curPlaceholderName = the name of the swatch to change
+			//graphicStyleName = the name of the swatch to change
 			//graphicStyleName = the name of the graphic style to apply
-			this.applyGraphicStyle( curPlaceholderName, graphicStyleName );
+			this.applyGraphicStyle( graphicStyleName );
 
 			//now, change any "B" colors.
-			this.applyGraphicStyle( curPlaceholderName.replace( "C", "B" ), graphicStyleName );
+			this.applyGraphicStyle( graphicStyleName.replace( "C", "B" ) );
 
-			log.l( "created graphic style: " + curPlaceholderName );
+			log.l( "created graphic style: " + graphicStyleName );
 		}
 		this.garmentColors = data.colors;
+	}
+
+	this.applyGraphicStyle = function ( graphicStyleName )
+	{
+		log.l( "Applying graphic style: " + graphicStyleName );
+		var doc = app.activeDocument;
+		doc.selection = null;
+		var placeholderSwatch = findSpecificSwatch( doc, graphicStyleName );
+		if ( !placeholderSwatch ) return;
+
+		doc.defaultFillColor = placeholderSwatch.color;
+		app.executeMenuCommand( "Find Fill Color menu item" );
+		var gs;
+
+		var newSpotSwatch = findSpecificSwatch( doc, graphicStyleName ) || makeNewSpotColor( this.garmentColors[ graphicStyleName ].swatchName );
+		var newSpotColor = newSpotSwatch.color;
+
+		changeThemColors();
+
+
+
+		function changeThemColors ()
+		{
+			try
+			{
+				gs = doc.graphicStyles[ graphicStyleName ];
+				for ( var cc = 0, len = doc.selection.length; cc < len; cc++ )
+				{
+					dig( doc.selection[ cc ] );
+				}
+			}
+			catch ( e )
+			{
+				doc.defaultFillColor = newSpotColor;
+			}
+		}
+
+
+		function dig ( curItem )
+		{
+			if ( curItem.typename === "PathItem" )
+			{
+				gs.applyTo( curItem );
+			}
+			else if ( curItem.typename === "CompoundPathItem" && curItem.pathItems.length )
+			{
+				gs.applyTo( curItem.pathItems[ 0 ] );
+			}
+			else if ( curItem.typename === "GroupItem" )
+			{
+				for ( var g = 0, len = curItem.pageItems.length; g < len; g++ )
+				{
+					dig( curItem.pageItems[ g ] );
+				}
+			}
+		}
+
+
+
 	}
 
 	this.recolorGraphic = function ( colors, graphicType )
@@ -568,6 +587,8 @@ function Garment ( config, data, designNumber )
 		var newScale = 100; //used for logo scaling. this represents a percentage
 		var deltaX;
 
+		curGraphic.type = curGraphic.name.match( /fdsp/i ) ? "name" : ( curGraphic.name.match( /fdsn/i ) ? "number" : "logo" );
+
 
 
 		//check to see whether this is a background graphic or ghosted graphic
@@ -587,7 +608,7 @@ function Garment ( config, data, designNumber )
 			return undefined;
 		}
 
-		artLayer = findSpecificLayer( prodLayer, curGraphic.name.replace( "_", "-" ) );
+		artLayer = findSpecificLayer( prodLayer, curGraphic.name.replace( "_", "-" ) ) || findSpecificLayer( prodLayer, curGraphic.name.replace( "-", "_" ) );
 		noteLayer = findSpecificLayer( prodLayer, "notes", "any" );
 
 		log.l( "prodLayer: " + prodLayer );
@@ -597,8 +618,8 @@ function Garment ( config, data, designNumber )
 		if ( !artLayer )
 		{
 			log.l( "No art layer found for graphic: " + curGraphic.name );
-			log.l( "Attempting to swap the hyphen for an underscore in the graphic name." );
-			artLayer = findSpecificLayer( prodLayer, curGraphic.name.replace( "-", "_" ) );
+			// log.l( "Attempting to swap the hyphen for an underscore in the graphic name." );
+			// artLayer = findSpecificLayer( prodLayer, curGraphic.name.replace( "-", "_" ) );
 			if ( !artLayer )
 			{
 				//check to see whether there are specific "wearer" layers
@@ -650,28 +671,6 @@ function Garment ( config, data, designNumber )
 		if ( noteLayer )
 		{
 			log.l( "set noteLayer to " + noteLayer.name );
-			if ( this.adultMockupLayer )
-			{
-				adultMasterNoteGroup = findSpecificPageItem( this.adultMockupLayer, "graphic notes", "any" );
-				if ( !adultMasterNoteGroup )
-				{
-					adultMasterNoteGroup = this.adultMockupLayer.groupItems.add();
-					adultMasterNoteGroup.name = "graphic notes";
-					log.l( "Making an adultMasterNoteGroup" );
-				}
-			}
-			if ( this.youthMockupLayer )
-			{
-				youthMasterNoteGroup = findSpecificPageItem( this.youthMockupLayer, "graphic notes", "any" );
-				if ( !youthMasterNoteGroup )
-				{
-					youthMasterNoteGroup = this.youthMockupLayer.groupItems.add();
-					youthMasterNoteGroup.name = "graphic notes";
-					log.l( "Making a youthMasterNoteGroup" );
-				}
-			}
-
-
 			noteGroup = ( function ()
 			{
 				noteLayer.locked = false;
@@ -690,31 +689,31 @@ function Garment ( config, data, designNumber )
 				log.l( "Found an existing noteGroup for " + artLayer.name );
 				return exNoteGroup;
 			} )();
-		}
 
+			if ( noteGroup && noteGroup.pageItems.length )
+			{
+				if ( this.adultMockupLayer )
+				{
+					adultMasterNoteGroup = findSpecificPageItem( this.adultMockupLayer, "graphic notes", "any" );
+					if ( !adultMasterNoteGroup )
+					{
+						adultMasterNoteGroup = this.adultMockupLayer.groupItems.add();
+						adultMasterNoteGroup.name = "graphic notes";
+						log.l( "Making an adultMasterNoteGroup" );
+					}
+				}
+				if ( this.youthMockupLayer )
+				{
+					youthMasterNoteGroup = findSpecificPageItem( this.youthMockupLayer, "graphic notes", "any" );
+					if ( !youthMasterNoteGroup )
+					{
+						youthMasterNoteGroup = this.youthMockupLayer.groupItems.add();
+						youthMasterNoteGroup.name = "graphic notes";
+						log.l( "Making a youthMasterNoteGroup" );
+					}
+				}
 
-
-
-
-
-
-
-
-
-		//check for "Placement Guides" layer on info layer:
-		if ( this.adultInfoLayer )
-		{
-			this.adultInfoLayer.locked = false;
-			this.adultInfoLayer.visible = true;
-			this.adultPlacementGuides = findSpecificLayer( this.adultInfoLayer, "Placement Guides" );
-			log.l( "adultPlacementGuides: " + this.adultPlacementGuides );
-		}
-		if ( this.youthInfoLayer )
-		{
-			this.youthInfoLayer.locked = false;
-			this.youthInfoLayer.visible = true;
-			this.youthPlacementGuides = findSpecificLayer( this.youthInfoLayer, "Placement Guides" );
-			log.l( "youthPlacementGuides: " + this.youthPlacementGuides );
+			}
 		}
 
 
@@ -887,7 +886,7 @@ function Garment ( config, data, designNumber )
 				log.l( "new artwork size is - w:" + masterArt.width / 7.2 + ", h:" + masterArt.height / 7.2 );
 			}
 
-			masterArt.position = [ mabRect[ 0 ] + deltaXPosition, mabRect[ 1 ] + masterArt.height + GRAPHIC_SPACING ];
+			masterArt.position = [ mabRect[ 0 ] + deltaXPosition, mabRect[ 3 ] - GRAPHIC_SPACING ];
 
 			if ( !deltaX )
 			{
@@ -953,11 +952,11 @@ function Garment ( config, data, designNumber )
 							gDim = Math.round( maxDim )
 						}
 						curGuide.remove();
-						var presizedArt = findSpecificPageItem( artLayer, "number_" + gDim );
 
 						if ( ( curGraphic.type.match( /name/i ) && curLoc.match( /tbpl/i ) ) || ( curGraphic.type.match( /number/i ) ) )
 						{
 							log.l( "disabling scale to fit guides" )
+							var presizedArt = findSpecificPageItem( artLayer, "number_" + gDim );
 							scaleToFitGuides = false;
 						}
 						if ( !presizedArt )
@@ -985,60 +984,7 @@ function Garment ( config, data, designNumber )
 	}
 
 
-	this.applyGraphicStyle = function ( placeholder, graphicStyleName )
-	{
-		log.l( "Applying graphic style: " + placeholder );
-		var doc = app.activeDocument;
-		doc.selection = null;
-		doc.defaultFillColor = makeNewSpotColor( placeholder ).color;
-		app.executeMenuCommand( "Find Fill Color menu item" );
-		var gs;
 
-		var newSpotColor = makeNewSpotColor( this.garmentColors[ graphicStyleName ].swatchName ).color;
-
-		changeThemColors();
-
-
-
-		function changeThemColors ()
-		{
-			try
-			{
-				gs = doc.graphicStyles[ graphicStyleName ];
-				for ( var cc = 0, len = doc.selection.length; cc < len; cc++ )
-				{
-					dig( doc.selection[ cc ] );
-				}
-			}
-			catch ( e )
-			{
-				doc.defaultFillColor = newSpotColor;
-			}
-		}
-
-
-		function dig ( curItem )
-		{
-			if ( curItem.typename === "PathItem" )
-			{
-				gs.applyTo( curItem );
-			}
-			else if ( curItem.typename === "CompoundPathItem" && curItem.pathItems.length )
-			{
-				gs.applyTo( curItem.pathItems[ 0 ] );
-			}
-			else if ( curItem.typename === "GroupItem" )
-			{
-				for ( var g = 0, len = curItem.pageItems.length; g < len; g++ )
-				{
-					dig( curItem.pageItems[ g ] );
-				}
-			}
-		}
-
-
-
-	}
 
 	this.getGarments = function ()
 	{
@@ -1094,16 +1040,29 @@ function Garment ( config, data, designNumber )
 
 			log.l( "processing graphic: " + curGraphic.name );
 
-			for ( var sg = 0, len = skipGraphics.length; sg < len; sg++ )
+			skipGraphics.forEach( function ( sg, curGarment )
 			{
-				if ( g.toLowerCase().indexOf( skipGraphics[ sg ] ) > -1 )
+				if ( skipThisGraphic ) return;
+				var pat = new RegExp( sg, "i" );
+				if ( curGraphic.name.match( pat ) )
 				{
-					log.l( "skipping " + g )
-					curGraphic.file = undefined;
 					skipThisGraphic = true;
-					break;
+					log.l( curGraphic.name + " was in the skip list." );
+					curGraphic.file = undefined;
 				}
-			}
+				else if ( curGarment.top && !curGraphic.locations.filter( function ( l ) { return l.match( /^t/i ) } ).length )
+				{
+					skipThisGraphic = true;
+					log.l( "curGarment is a top but " + curGraphic.name + " has no top locations." );
+					curGraphic.file = undefined;
+				}
+				else if ( curGarment.bottom && !curGraphic.locations.filter( function ( l ) { return l.match( /^b/i ) } ).length )
+				{
+					skipThisGraphic = true;
+					log.l( "curGarment is a bottom but " + curGraphic.name + " has no bottom locations." );
+					curGraphic.file = undefined;
+				}
+			} )
 
 			if ( skipThisGraphic )
 			{
@@ -1111,15 +1070,19 @@ function Garment ( config, data, designNumber )
 				continue;
 			}
 
+			curGraphic.type = curGraphic.name.match( /fdsp/i ) ? "name" : ( curGraphic.name.match( /fdsn/i ) ? "number" : "logo" );
+
 
 			log.l( "Fixing: " + curGraphic.name );
 
+
 			//if the graphic is a name or number && it hasn't been updated yet
 			//update the code
-			if ( !/fdsp-fdsn_/i.test( curGraphic.name ) )
-			{
-				curGraphic.name = curGraphic.name.replace( nameNumberPat, "fdsp-fdsn_" );
-			}
+			// if ( !/fdsp-fdsn_/i.test( curGraphic.name ) )
+			// {
+			// 	curGraphic.name = curGraphic.name.replace( nameNumberPat, "fdsp-fdsn_" );
+			// }
+
 
 			//strip out any vestigial appendages
 			curGraphic.name = curGraphic.name.replace( vestigialAppendagePat, "" );
@@ -1144,7 +1107,7 @@ function Garment ( config, data, designNumber )
 
 
 
-			curGraphic.folder = locateGraphicFolder( curGraphic.name, curGraphic.lib );
+			curGraphic.folder = locateGraphicFolder( curGraphic.name.replace( /fds[np][-_]/i, "FDSP-FDSN_" ), curGraphic.lib );
 			if ( curGraphic.folder )
 			{
 				// curGraphic.file = this.getFile(curGraphic.folder,this.getGraphicStyleNumber(curGraphic.name));
@@ -1152,7 +1115,8 @@ function Garment ( config, data, designNumber )
 				{
 					curGraphic.name = fdsFileNames[ curGraphic.styleNumber ] || curGraphic.name;
 				}
-				curGraphic.file = getFile( curGraphic.folder, curGraphic.styleNumber, curGraphic.name );
+
+				curGraphic.file = getFile( curGraphic.folder, curGraphic.styleNumber, curGraphic.name.replace( /fds[np][-_]/i, "FDSP-FDSN_" ) );
 				log.l( "curGraphic.file = " + curGraphic.file );
 			}
 			else

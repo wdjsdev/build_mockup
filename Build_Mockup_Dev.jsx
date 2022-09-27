@@ -125,6 +125,7 @@ function BuildMockup ()
 	var orderData;
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
+	var curGarment; //the garment object currently being processed
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
 	var rushMode = false;
@@ -239,8 +240,11 @@ function BuildMockup ()
 		//
 		// orderNumber = "3761909";
 
-		designNumbers.push( "RurJ1oJoSvmo" );
-		// designNumbers.push("b9GQWFp9dn6T");
+		designNumbers.push( "WLLeTvuiDWmv" ); // - complex. logo, name, multiple number locations, locker tag, sleeve logo and number
+		// designNumbers.push( "WXZsf9XTmmap" ); // - simple. logo, name, number, plain fills
+
+
+		// designNumbers.push( "GcMmKJo5llyF" ); //rick demo
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";

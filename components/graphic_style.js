@@ -1,310 +1,347 @@
-function GraphicStyle(data)
+function GraphicStyle ( data )
 {
-	this.sourceFile;
+
+	// "C1":
+	// 	{
+	// 		"id": "C1",
+	// 		"colorCode": "RB",
+	// 		"pattern":
+	// 		{
+	// 			"opacity": 1,
+	// 			"scale": 1,
+	// 			"horizontal": "0",
+	// 			"vertical": "0",
+	// 			"colorCode": "HP",
+	// 			"id": "bricks"
+	// 		}
+	// 	}
+
+	this.data = data;
 	this.doc;
 	this.swatches;
 	this.plainFill = false;
 
-	//targetBlock is the pre-built rectangle
-	//with the correct appearance applied
-	this.targetBlock;
+	//this is the "C1" color code representing the placeholder swatch name
+	//the swatch with this name will be replaced with the backgroundColor
+	this.placeholderColor = data.id;
+	this.placeholderSwatch;
 
-	this.backgroundColor;
+	this.backgroundColor = BUILDER_COLOR_CODES[ data.colorCode ];
+	this.backgroundSwatch;
 
-	this.gradientColor;
-	this.gradientID;
-	this.gradientOnTop;
-
-	this.patternFolder;
-	this.patternColor;
-	this.patternScale;
-	this.patternFile;
-
-	if (data.pattern)
+	if ( data.gradient )
 	{
-		this.patternStyleNumber = patternStyleConverter(data.pattern.id);
+		this.gradientColor = BUILDER_COLOR_CODES[ data.gradient.colorCode ];
+		this.gradientID = data.gradient.id;
+		this.gTop = data.gradient.top;
 	}
-	else if (data.gradient)
+
+	if ( data.pattern )
 	{
-		this.patternStyleNumber = "0000";
-	}
-	else
-	{
-		this.plainFill = true;
+		this.patternID = data.pattern.id;
+		this.patternColor = BUILDER_COLOR_CODES[ data.pattern.colorCode ] || null;
+		this.patternScale = data.pattern.scale * 100 || null;
+		this.patternFolder;
+		this.patternFile;
 	}
 
 
-	this.init = function()
+	this.exec = function ()
 	{
-
-		// this.getSourceFile();
-
-		this.doc = app.activeDocument;
-		var tmpLay = this.doc.layers.add();
-
-		if (this.plainFill)
+		if ( data.pattern || data.gradient )
 		{
-			//create and re-color the target block
-			app.redraw();
-			this.targetBlock = tmpLay.pathItems.rectangle(103, 710, 152, 152);
-			this.targetBlock.filled = true;
-			this.targetBlock.stroked = false;
-			this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
-			this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
+			this.patternStyleNumber = data.pattern ? patternStyleConverter( data.pattern.id ) : "0000";
 
-			// //select the target block and create a new graphic style
-			// this.doc.selection = null;
-			// this.targetBlock.selected = true;
-			// createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
-			// app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
-			// removeAction("graphic_style_from_selection");
-
-			//rename the graphic style
-			// app.activeDocument.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
-
-
-		}
-
-		else if (data.gradient || data.pattern)
-		{
-			this.patternFolder = Folder("/Volumes/Customization/Library/Graphics/Pattern Fills/")
-			this.sourceFile = getFile(this.patternFolder, this.patternStyleNumber, "DSPATTERN-" + this.patternStyleNumber);
-
-
-			if (this.sourceFile)
+			this.patternFolder = Folder( graphicsPath + "Pattern Fills/" );
+			this.sourceFile = getFile( this.patternFolder, this.patternStyleNumber, "DSPATTERN-" + this.patternStyleNumber );
+			if ( !this.sourceFile || !this.sourceFile.exists )
 			{
-				try
-				{
-					app.open(this.sourceFile);
-				}
-				catch (e)
-				{
-					log.e("failed to open " + this.sourceFile.fullName);
-					return
-				}
-
-				this.doc = app.activeDocument;
-
-				this.swatches = this.doc.swatches;
-				this.backgroundColor = BUILDER_COLOR_CODES[data.colorCode];
-
-				//variables to hold the above pattern or below pattern layers
-				var gbp, gap;
-
-				//appearance layer. represents parent layer of the pattern and/or gradient
-				var appLay;
-
-				var livePatternLayer = findSpecificLayer(this.doc.layers, "Live Pattern");
-				if (!livePatternLayer)
-				{
-					errorList.push("This pattern is not yet optimized for this script.");
-					log.e("Pattern file does not contain a Pattern layer");
-					filesToClose.push(this.doc);
-					return;
-				}
-				else
-				{
-					//normalize the sublayer names to preclude spelling issues such as "bellow"...
-					//loop the livePatternLayer's layers and fix the names
-					var curLay;
-					var belPat = /^.*_bel.*_.*/i;
-					var aboPat = /^.*_abo.*_.*/i;
-					var noGradPat = /^.*no_pat.*/i;
-					for (var n = 0, len = livePatternLayer.layers.length; n < len; n++)
-					{
-						curLay = livePatternLayer.layers[n];
-						curLay.name = curLay.name.replace(belPat, "Gradient_Below_Pattern");
-						curLay.name = curLay.name.replace(aboPat, "Gradient_Above_Pattern");
-
-						if (belPat.test(curLay.name))
-						{
-							gbp = curLay;
-						}
-						else if (aboPat.test(curLay.name))
-						{
-							gap = curLay;
-						}
-						else if (noGradPat.test(curLay.name))
-						{
-							gbp = curLay;
-						}
-					}
-				}
-
-
-				var gradientLayer;
-
-				//check to see if the pattern id is "none"
-				//if so, set it to undefined
-				if(data.pattern && data.pattern.id.match(/none/i))
-				{
-					data.pattern = undefined;
-				}
-
-				//both pattern AND gradient
-				if (data.pattern && data.gradient)
-				{
-					if (data.gradient.top)
-					{
-						this.targetBlock = gap.pageItems[data.gradient.id];
-					}
-					else
-					{
-						this.targetBlock = gbp.pageItems[data.gradient.id];
-					}
-				}
-
-				//only a gradient
-				else if (data.gradient)
-				{
-					this.targetBlock = livePatternLayer.layers["No_Pattern"].pageItems[data.gradient.id];
-				}
-
-				// only a pattern
-				else if (data.pattern)
-				{
-					try
-					{
-						this.targetBlock = livePatternLayer.pageItems["no_gradient"];
-					}
-					catch (e)
-					{
-						this.targetBlock = livePatternLayer.pathItems.rectangle(103, 710, 152, 152);
-						this.targetBlock.stroked = false;
-						this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
-						this.targetBlock.selected = true;
-						createAction("add_new_fill", ADD_NEW_FILL_ACTION_STRING);
-						app.doScript("add_new_fill", "add_new_fill");
-						removeAction("add_new_fill");
-						var patternSwatch;
-						var curSwatch;
-						var patternCodeRegex = /^dspattern[\s]*[-_]/i;
-						for (var p = app.activeDocument.swatches.length - 1; p >= 0 && !patternSwatch; p--)
-						{
-							curSwatch = app.activeDocument.swatches[p];
-							if (patternCodeRegex.test(curSwatch.name) && curSwatch.name.indexOf(this.patternStyleNumber) > -1)
-							{
-								patternSwatch = curSwatch;
-							}
-						}
-
-						if (patternSwatch)
-						{
-							this.targetBlock.fillColor = patternSwatch.color;
-							this.targetBlock.name = "no_gradient";
-						}
-						else
-						{
-							errorList.push("Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber);
-							log.e("Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber);
-						}
-
-					}
-				}
-
-				//just a solid fill color
-				else
-				{
-					this.targetBlock = livePatternLayer.pathItems.rectangle(103, 710, 152, 152);
-					this.targetBlock.filled = true;
-					this.targetBlock.stroked = false;
-					this.targetBlock.fillColor = makeNewSpotColor(this.backgroundColor).color;
-				}
-
-
-
-				this.targetBlock.name = data.id;
-				this.doc.selection = null;
-				this.targetBlock.selected = true;
-				// app.executeMenuCommand("Inverse menu item");
-				// app.cut();
-				this.recolor("C1");
-				// this.targetBlock.selected = true;
-				if (this.patternScale)
-				{
-					this.targetBlock.resize(this.patternScale * 100, this.patternScale * 100, true, true, true, true);
-				}
-				// createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
-				// app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
-				// removeAction("graphic_style_from_selection");
-				// this.doc.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
-				filesToClose.push(this.doc);
-				currentMockup.layers[0].locked = false;
-				currentMockup.layers[0].visible = true;
-				// var dupTarget = this.targetBlock.duplicate(currentMockup);
-				// dupTarget.remove();
-			}
-			else
-			{
-				errorList.push("Failed to find the graphic style source file.");
-				log.e("Failed to find the graphic style source file.::data = " + JSON.stringify(data));
+				errorList.push( "Failed to find a source file for pattern/gradient style number: " + this.patternStyleNumber );
 				return;
 			}
 
+			//source file exists, process it
+			this.processGsFile();
 		}
-		
-
-		if(this.targetBlock)
+		else
 		{
-			//select the target block and create a new graphic style
-			this.doc.selection = null;
-			this.targetBlock.selected = true;
-			createAction("graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING);
-			app.doScript("graphic_style_from_selection", "graphic_style_from_selection");
-			removeAction("graphic_style_from_selection");
-			this.doc.graphicStyles[this.doc.graphicStyles.length - 1].name = data.id;
-			var dupTarget = this.targetBlock.duplicate(currentMockup);
-			dupTarget.remove();
-		}
+			this.placeholderSwatch = makeNewSpotColor( this.placeholderColor );
+			curGarment.mockupDocument.selection = null;
+			this.backgroundSwatch = makeNewSpotColor( this.backgroundColor );
+			curGarment.mockupDocument.defaultFillColor = this.backgroundSwatch.color;
+			var tmpRect = curGarment.mainMockupLayer.pathItems.rectangle( 0, 0, 5, 5 );
+			//create the graphic style
+			createAction( "graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING );
+			app.doScript( "graphic_style_from_selection", "graphic_style_from_selection" );
+			removeAction( "graphic_style_from_selection" );
+			var graphicStyles = curGarment.mockupDocument.graphicStyles;
+			var gs = graphicStyles[ graphicStyles.length - 1 ];
+			gs.name = data.id;
+			tmpRect.remove();
 
-		tmpLay.remove();
-
-
-
-	}
-
-	this.recolor = function(inputColor)
-	{
-		mergeSwatches(inputColor, this.backgroundColor);
-
-		if (data.pattern)
-		{
-			this.processPattern();
-		}
-
-		if (data.gradient)
-		{
-			this.processGradient();
-		}
-	}
-
-	this.processPattern = function()
-	{
-
-		this.patternColor = BUILDER_COLOR_CODES[data.pattern.colorCode];
-		this.patternScale = data.pattern.scale;
-		mergeSwatches("P1", this.patternColor);
-
-	}
-
-	this.processGradient = function()
-	{
-		this.gradientColor = BUILDER_COLOR_CODES[data.gradient.colorCode];
-		mergeSwatches("G1", this.gradientColor);
-	}
-
-	this.recolorGradients = function()
-	{
-		var curGrad, curStop;
-		for (var rg = 0, len = this.doc.gradients.length; rg < len; rg++)
-		{
-			curGrad = this.doc.gradients[rg];
-			for (var y = 0, yLen = curGrad.gradientStops.length; y < yLen; y++)
+			curGarment.mockupDocument.selection = null;
+			curGarment.mockupDocument.defaultFillColor = this.placeholderSwatch.color;
+			app.executeMenuCommand( "Find Fill Color menu item" );
+			afc( curGarment.mockupDocument, "selection" ).forEach( function ( item )
 			{
-				curStop = curGrad.gradientStops[y];
-				curStop.color = this.swatches[this.gradientColor].color;
+				gs.applyTo( item );
+			} )
+
+		}
+
+	}
+
+	//gsFile is the pattern/gradient file from which we will build
+	//the appropriate graphic style
+	//open the file, swap the colors, identify the appropriate elements,
+	//make a graphic style, apply it to the target block, then temporarily
+	//duplicate the target block into the master file to import the graphic style
+	// then delete the target block.
+	this.processGsFile = function ()
+	{
+		app.open( this.sourceFile );
+		this.doc = app.activeDocument;
+		this.swatches = this.doc.swatches;
+		this.doc.selection = null;
+
+		var livePatternLayer = findSpecificLayer( this.doc.layers, "Live Pattern" );
+		if ( !livePatternLayer )
+		{
+			errorList.push( "This pattern is not yet optimized for this script." );
+			log.e( "Pattern file: " + this.sourceFile.toString() + ", does not contain a Pattern layer" );
+
+			//attention
+			//TODO
+			//this is a good place for logic that sends info to a specific log file about garments/graphics
+			//that need fixing.. Idk if it should be one file called "fixes needed"... Maybe a JSON file
+			//containing the garment/graphic codes and an array of strings describing which fixes are necessary?
+			//Then we could more easily track these kinds of issues and ensure that we are spending our time
+			//fixing the files that are used most frequently and not wasting time on files that are rarely used.
+			//attention
+
+			filesToClose.push( this.doc );
+			this.mockupDocument.activate();
+			return;
+		}
+
+		//normalize the sublayer names to preclude spelling issues such as "bellow"...
+		//loop the livePatternLayer's layers and fix the names
+		gbp = findSpecificLayer( livePatternLayer, "bel", "any" );
+		if ( gbp ) gbp.name = "Gradient_Below_Pattern";
+		gap = findSpecificLayer( livePatternLayer, "abo", "any" );
+		if ( gap ) gap.name = "Gradient_Above_Pattern";
+
+		var gsType = ( this.data.pattern && this.data.gradient ) ? "both" : ( this.data.pattern ? "pattern" : "gradient" );
+
+
+
+		//this will be whichever artwork is required.. 
+		//gradient only, or pattern above/below gradient.
+		var srcRect;
+
+
+
+
+		//merge the colors
+		mergeSwatches( "C1", this.backgroundColor );
+		if ( this.patternColor ) mergeSwatches( "P1", this.patternColor );
+		if ( this.gradientColor ) mergeSwatches( "G1", this.gradientColor );
+
+
+
+		if ( gsType === "pattern" )
+		{
+			srcRect = findSpecificPageItem( livePatternLayer, "no_gradient", "any" );
+			if ( !srcRect )
+			{
+				srcRect = livePatternLayer.pathItems.rectangle( 0, 0, 100, 100 );
+				srcRect.stroked = false;
+				srcRect.fillColor = this.backgroundSwatch.color;
+				srcRect.selected = true;
+				createAction( "add_new_fill", ADD_NEW_FILL_ACTION_STRING );
+				app.doScript( "add_new_fill", "add_new_fill" );
+				removeAction( "add_new_fill" );
+
+				var patSwatch = findSpecificSwatch( this.doc, "DSPATTERN-" + this.patternStyleNumber );
+				if ( !patSwatch )
+				{
+					patSwatch = findSpecificSwatch( this.doc, "DSPATTERN_" + this.patternStyleNumber );
+				}
+				if ( !patSwatch )
+				{
+					errorList.push( "Failed to find a pattern swatch for pattern style number: " + this.patternStyleNumber );
+					return;
+				}
+				srcRect.fillColor = patSwatch.color;
 			}
 		}
+		else 
+		{
+			var gradientLayer = this.gTop ? gap : gbp;
+			srcRect = findSpecificPageItem( gradientLayer, this.gradientID, "any" );
+		}
+
+		if ( this.patternScale )
+		{
+			srcRect.resize( this.patternScale, this.patternScale, true, true, true, true, this.patternScale );
+		}
+
+		this.doc.selection = null;
+		srcRect.selected = true;
+
+		//create the graphic style
+		createAction( "graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING );
+		app.doScript( "graphic_style_from_selection", "graphic_style_from_selection" );
+		removeAction( "graphic_style_from_selection" );
+		this.doc.graphicStyles[ this.doc.graphicStyles.length - 1 ].name = data.id;
+
+		var dupTarget = srcRect.duplicate( curGarment.mainMockupLayer );
+		dupTarget.remove();
+
+		filesToClose.push( this.doc );
+		currentMockup.activate();
+
+
+
+		// //both pattern AND gradient
+		// if ( data.pattern && data.gradient )
+		// {
+		// 	if ( data.gradient.top )
+		// 	{
+		// 		this.targetBlock = gap.pageItems[ data.gradient.id ];
+		// 	}
+		// 	else
+		// 	{
+		// 		this.targetBlock = gbp.pageItems[ data.gradient.id ];
+		// 	}
+		// }
+
+		// //only a gradient
+		// else if ( data.gradient )
+		// {
+		// 	this.targetBlock = livePatternLayer.layers[ "No_Pattern" ].pageItems[ data.gradient.id ];
+		// }
+
+		// // only a pattern
+		// else if ( data.pattern )
+		// {
+		// 	this.targetBlock = findSpecificPageItem( livePatternLayer, "no_gradient" );
+		// 	if ( !this.targetBlock )
+		// 	{
+		// 		this.targetBlock = livePatternLayer.pathItems.rectangle( 103, 710, 152, 152 );
+		// 		this.targetBlock.stroked = false;
+		// 		this.targetBlock.fillColor = this.backgroundSwatch.color;
+		// 		this.targetBlock.selected = true;
+		// 		createAction( "add_new_fill", ADD_NEW_FILL_ACTION_STRING );
+		// 		app.doScript( "add_new_fill", "add_new_fill" );
+		// 		removeAction( "add_new_fill" );
+		// 		var patternSwatch;
+		// 		var curSwatch;
+		// 		var patternCodeRegex = /^dspattern[\s]*[-_]/i;
+		// 		for ( var p = app.activeDocument.swatches.length - 1; p >= 0 && !patternSwatch; p-- )
+		// 		{
+		// 			curSwatch = app.activeDocument.swatches[ p ];
+		// 			if ( patternCodeRegex.test( curSwatch.name ) && curSwatch.name.indexOf( this.patternStyleNumber ) > -1 )
+		// 			{
+		// 				patternSwatch = curSwatch;
+		// 			}
+		// 		}
+
+		// 		if ( patternSwatch )
+		// 		{
+		// 			this.targetBlock.fillColor = patternSwatch.color;
+		// 			this.targetBlock.name = "no_gradient";
+		// 		}
+		// 		else
+		// 		{
+		// 			errorList.push( "Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber );
+		// 			log.e( "Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber );
+		// 		}
+		// 	}
+		// }
+
+		// //just a solid fill color
+		// else
+		// {
+		// 	this.targetBlock = livePatternLayer.pathItems.rectangle( 103, 710, 152, 152 );
+		// 	this.targetBlock.filled = true;
+		// 	this.targetBlock.stroked = false;
+		// 	this.targetBlock.fillColor = this.backgroundSwatch.color;
+		// }
+
+
+
+		// this.targetBlock.name = data.id;
+		// this.doc.selection = null;
+		// this.targetBlock.selected = true;
+		// this.recolor( "C1" );
+		// if ( this.patternScale )
+		// {
+		// 	this.targetBlock.resize( this.patternScale * 100, this.patternScale * 100, true, true, true, true );
+		// }
+		// filesToClose.push( this.doc );
+		// currentMockup.layers[ 0 ].locked = false;
+		// currentMockup.layers[ 0 ].visible = true;
+
+
+		// if ( this.targetBlock )
+		// {
+		// 	//select the target block and create a new graphic style
+		// 	this.doc.selection = null;
+		// 	this.targetBlock.selected = true;
+		// 	createAction( "graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING );
+		// 	app.doScript( "graphic_style_from_selection", "graphic_style_from_selection" );
+		// 	removeAction( "graphic_style_from_selection" );
+		// 	this.doc.graphicStyles[ this.doc.graphicStyles.length - 1 ].name = data.id;
+		// 	var dupTarget = this.targetBlock.duplicate( currentMockup );
+		// 	dupTarget.remove();
+		// }
+
+		// tmpLay.remove();
 	}
+
+	// this.recolor = function ( inputColor )
+	// {
+	// 	mergeSwatches( inputColor, this.backgroundColor );
+
+	// 	if ( data.pattern )
+	// 	{
+	// 		this.processPattern();
+	// 	}
+
+	// 	if ( data.gradient )
+	// 	{
+	// 		this.processGradient();
+	// 	}
+	// }
+
+	// this.processPattern = function ()
+	// {
+
+	// 	this.patternColor = BUILDER_COLOR_CODES[ data.pattern.colorCode ];
+	// 	this.patternScale = data.pattern.scale;
+	// 	mergeSwatches( "P1", this.patternColor );
+
+	// }
+
+	// this.processGradient = function ()
+	// {
+	// 	this.gradientColor = BUILDER_COLOR_CODES[ data.gradient.colorCode ];
+	// 	mergeSwatches( "G1", this.gradientColor );
+	// }
+
+	// this.recolorGradients = function ()
+	// {
+	// 	var curGrad, curStop;
+	// 	for ( var rg = 0, len = this.doc.gradients.length; rg < len; rg++ )
+	// 	{
+	// 		curGrad = this.doc.gradients[ rg ];
+	// 		for ( var y = 0, yLen = curGrad.gradientStops.length; y < yLen; y++ )
+	// 		{
+	// 			curStop = curGrad.gradientStops[ y ];
+	// 			curStop.color = this.swatches[ this.gradientColor ].color;
+	// 		}
+	// 	}
+	// }
 
 }
