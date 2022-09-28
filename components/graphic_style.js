@@ -23,24 +23,24 @@ function GraphicStyle ( data )
 
 	//this is the "C1" color code representing the placeholder swatch name
 	//the swatch with this name will be replaced with the backgroundColor
-	this.placeholderColor = data.id;
+	this.placeholderColor = this.data.id;
 	this.placeholderSwatch;
 
-	this.backgroundColor = BUILDER_COLOR_CODES[ data.colorCode ];
+	this.backgroundColor = BUILDER_COLOR_CODES[ this.data.colorCode ];
 	this.backgroundSwatch;
 
-	if ( data.gradient )
+	if ( this.data.gradient )
 	{
-		this.gradientColor = BUILDER_COLOR_CODES[ data.gradient.colorCode ];
-		this.gradientID = data.gradient.id;
-		this.gTop = data.gradient.top;
+		this.gradientColor = BUILDER_COLOR_CODES[ this.data.gradient.colorCode ];
+		this.gradientID = this.data.gradient.id;
+		this.gTop = this.data.gradient.top;
 	}
 
-	if ( data.pattern )
+	if ( this.data.pattern )
 	{
-		this.patternID = data.pattern.id;
-		this.patternColor = BUILDER_COLOR_CODES[ data.pattern.colorCode ] || null;
-		this.patternScale = data.pattern.scale * 100 || null;
+		this.patternID = this.data.pattern.id;
+		this.patternColor = BUILDER_COLOR_CODES[ this.data.pattern.colorCode ] || null;
+		this.patternScale = this.data.pattern.scale * 100 || null;
 		this.patternFolder;
 		this.patternFile;
 	}
@@ -48,9 +48,9 @@ function GraphicStyle ( data )
 
 	this.exec = function ()
 	{
-		if ( data.pattern || data.gradient )
+		if ( this.data.pattern || this.data.gradient )
 		{
-			this.patternStyleNumber = data.pattern ? patternStyleConverter( data.pattern.id ) : "0000";
+			this.patternStyleNumber = this.data.pattern ? patternStyleConverter( this.data.pattern.id ) : "0000";
 
 			this.patternFolder = Folder( graphicsPath + "Pattern Fills/" );
 			this.sourceFile = getFile( this.patternFolder, this.patternStyleNumber, "DSPATTERN-" + this.patternStyleNumber );
@@ -70,13 +70,14 @@ function GraphicStyle ( data )
 			this.backgroundSwatch = makeNewSpotColor( this.backgroundColor );
 			curGarment.mockupDocument.defaultFillColor = this.backgroundSwatch.color;
 			var tmpRect = curGarment.mainMockupLayer.pathItems.rectangle( 0, 0, 5, 5 );
+			tmpRect.selected = true;
 			//create the graphic style
 			createAction( "graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING );
 			app.doScript( "graphic_style_from_selection", "graphic_style_from_selection" );
 			removeAction( "graphic_style_from_selection" );
 			var graphicStyles = curGarment.mockupDocument.graphicStyles;
 			var gs = graphicStyles[ graphicStyles.length - 1 ];
-			gs.name = data.id;
+			gs.name = this.data.id;
 			tmpRect.remove();
 
 			curGarment.mockupDocument.selection = null;
@@ -103,6 +104,8 @@ function GraphicStyle ( data )
 		this.doc = app.activeDocument;
 		this.swatches = this.doc.swatches;
 		this.doc.selection = null;
+		this.doc.defaultFillColor = new NoColor();
+		this.doc.defaultStrokeColor = new NoColor();
 
 		var livePatternLayer = findSpecificLayer( this.doc.layers, "Live Pattern" );
 		if ( !livePatternLayer )

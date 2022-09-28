@@ -1,8 +1,9 @@
 
 function inputNewLogoText ( frame, newContents, curGraphic )
 {
-	function style ()
+	function style ( range )
 	{
+		this.name;
 		this.leading = undefined;
 		this.size = undefined;
 		this.case = undefined;
@@ -11,8 +12,9 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 		this.verticalScale = undefined;
 		this.tracking = undefined;
 
-		this.init = function ( range )
+		this.init = function ( range, name )
 		{
+			this.name = name;
 			this.leading = range.leading;
 			this.size = range.size;
 			this.case = getCase( range );
@@ -23,6 +25,7 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 		}
 	};
 
+	newContents = trimSpaces( newContents );
 
 	var frameIndex = frame.name.match( /\d+/ )[ 0 ];
 	if ( !newContents || newContents.match( /^\s*$/ ) )
@@ -52,6 +55,12 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 
 	function applyStyle ( range, style )
 	{
+		for ( var prop in style )
+		{
+			if ( prop === "case" ) continue;
+			range[ prop ] = style[ prop ];
+		}
+
 		if ( style.case === "cap" )
 		{
 			range.contents = range.contents.toUpperCase();
@@ -60,10 +69,7 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 		{
 			range.contents = range.contents.toLowerCase();
 		}
-		for ( var prop in style )
-		{
-			range[ prop ] = style[ prop ];
-		}
+
 
 	}
 
@@ -124,38 +130,57 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 		return style;
 	}
 
-	if ( curGraphic.name.replace( /.*[-_]/, "" ).match( /2840|2833|2638|2526|2515|2514|2389|2388|2035|1038/ ) )
-	{
-		//
-		//attention:
-		//implement this, would ya?
-		//need to add a check for the graphic code so that we only use
-		//this logic on appropriate graphics with tails or other such glyphs
-		//
-		//this logic preserves alternate glyphs like tails
-		//for front logo fonts that use a different font/glyph for the tail
-		var graphicHasTail = true;
-		var lastCharacterTextRange = frame.textRanges[ frame.textRanges.length - 1 ];
-		var tailRangeContents = lastCharacterTextRange.contents;
-		var tailRangeAttr = lastCharacterTextRange.characterAttributes;
-		var tailStyle = makeStyle( lastCharacterTextRange, "tail_style_" + frameIndex );
-		var tailFont = lastCharacterTextRange.characterAttributes.textFont;
-		frame.contents = frame.contents.replace( tailRangeContents, "" );
+	//attention: this is broken.. crashes illustrator... WHY?!??!!
+	// if ( curGraphic.name.replace( /.*[-_]/, "" ).match( /2840|2833|2638|2526|2515|2514|2389|2388|2035|1038/ ) )
+	// {
+	// 	//
+	// 	//attention:
+	// 	//implement this, would ya?
+	// 	//need to add a check for the graphic code so that we only use
+	// 	//this logic on appropriate graphics with tails or other such glyphs
+	// 	//
+	// 	//this logic preserves alternate glyphs like tails
+	// 	//for front logo fonts that use a different font/glyph for the tail
+	// 	var graphicHasTail = true;
+	// 	var lastCharacterTextRange = frame.textRanges[ frame.textRanges.length - 1 ];
+	// 	var tailRangeContents = lastCharacterTextRange.contents;
+	// 	var tailRangeAttr = lastCharacterTextRange.characterAttributes;
+	// 	var tailStyle = makeStyle( lastCharacterTextRange, "tail_style_" + frameIndex );
+	// 	var tailFont = lastCharacterTextRange.characterAttributes.textFont;
+	// 	frame.contents = frame.contents.replace( tailRangeContents, "" );
 
-	}
+	// }
 
 	//get the attributes of the first character in the frame
 	var firstChar = new style();
-	firstChar.init( frame.textRanges[ 0 ] );
+	var firstRange = frame.textRanges[ 0 ];
+	firstRange.end = ( firstRange.start = 0 ) + 1;
+	firstChar.init( firstRange, "firstRange" );
+	$.writeln( "firstRange.contents = " + firstRange.contents );
 
 	//get the attributes of the last character in the frame
 	var lastChar = new style();
-	lastChar.init( frame.textRanges[ frame.textRanges.length - 1 ] );
+	var endpoint = frame.textRange.contents.length - 1;
+	if ( curGraphic.name.match( /2840|2833|2638|2526|2515|2514|2389|2388|2035|1038/ ) )
+	{
+		endpoint--;
+	}
+	var lastRange = frame.textRanges[ endpoint ];
+	lastRange.end = ( lastRange.start = endpoint ) + 1;
+	lastChar.init( lastRange, "lastRange" );
+	$.writeln( "lastRange.contents = " + lastRange.contents );
 
 	//get the attributes of the character in the middle of the frame
 	var middleChar = new style();
-	var middleRange = frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) ].contents == " " ? frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) - 1 ] : frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) ];
-	middleChar.init( middleRange );
+	var midpoint = Math.floor( frame.textRange.contents.length / 2 );
+	if ( frame.textRanges[ midpoint ].contents.match( /^\s*$/ ) )
+	{
+		midpoint--;
+	}
+	var middleRange = frame.textRanges[ 0 ];
+	// var middleRange = frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) ].contents == " " ? frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) - 1 ] : frame.textRanges[ Math.floor( frame.textRanges.length / 2 ) ];
+	middleRange.end = ( middleRange.start = midpoint ) + 1;
+	middleChar.init( middleRange, "middleRange" );
 
 	// //get the attributes of the first character in the frame
 	// var firstCharStyle = makeStyle( frame.textRanges[ 0 ], "graphicFirstChar_" + frameIndex );
@@ -171,32 +196,37 @@ function inputNewLogoText ( frame, newContents, curGraphic )
 	// var middleCharStyle = makeStyle( midRange, "graphicMiddleChar_" + frameIndex );
 
 	log.l( "updating old contents: " + frame.contents + ", to: " + newContents );
-	frame.contents = trimSpaces( newContents );
+	frame.contents = newContents;
 
-	var ranges = afc( frame, "textRanges" );
+	var ranges = afc( frame, "textRanges" ).map( function ( range, i ) { range.start = i; range.end = range.start + 1; return range; } );
 	var rangeLength = ranges.length;
 	var lastIndex = rangeLength - 1;
 	var prevSpace = false;
+
+	$.writeln( "Applying styles to textframe: " + frame.contents );
 	ranges.forEach( function ( range, i )
 	{
+		range.start = i;
+		range.end = i + 1;
+		$.writeln( "range.contents = " + range.contents );
 		if ( range.contents.match( /\s/ ) )
 		{
 			prevSpace = true;
 			return;
 		}
-		var style = ( i == 0 || prevSpace ) ? firstChar : i == lastIndex ? lastChar : middleChar;
+		var style = ( i == 0 || prevSpace ) ? firstChar : ( i == lastIndex ? lastChar : middleChar );
 		prevSpace = false;
 
 		// style.applyTo( range );
 		applyStyle( range, style );
 		app.redraw();
 	} );
-	if ( graphicHasTail )
-	{
-		frame.contents += tailRangeContents;
-		frame.textRanges[ frame.textRanges.length - 1 ].characterAttributes.textFont = tailFont;
-		// tailStyle.applyTo( frame.textRanges[ frame.textRanges.length - 1 ] );
-	}
+	// if ( graphicHasTail )
+	// {
+	// 	frame.contents += tailRangeContents;
+	// 	frame.textRanges[ frame.textRanges.length - 1 ].characterAttributes.textFont = tailFont;
+	// 	// tailStyle.applyTo( frame.textRanges[ frame.textRanges.length - 1 ] );
+	// }
 
 	// if ( frame.contents !== " " && frame.contents !== "" )
 	// {
