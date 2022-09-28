@@ -351,6 +351,11 @@ function Garment ( config, data, designNumber )
 	{
 		log.l( "Recoloring garment." );
 		var doc = app.activeDocument;
+		doc.selection = null;
+		doc.defaultFillColor = new NoColor();
+		doc.defaultStrokeColor = new NoColor();
+
+
 		hidePPLay();
 		var curGStyle, patternFile;
 		// var placeholderPrefix = topOrBottomSwatches();

@@ -177,7 +177,13 @@ function GraphicStyle ( data )
 		}
 		else 
 		{
-			var gradientLayer = this.gTop ? gap : gbp;
+			gradientLayer = ( gap && gbp && this.gTop ? gap : gbp ) || findSpecificLayer( livePatternLayer, "no_pattern", "any" );
+			if ( !gradientLayer )
+			{
+				errorList.push( "Failed to find the gradient only layer..?" );
+				return;
+			}
+
 			srcRect = findSpecificPageItem( gradientLayer, this.gradientID, "any" );
 		}
 
