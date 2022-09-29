@@ -107,6 +107,8 @@ function GraphicStyle ( data )
 		this.doc.defaultFillColor = new NoColor();
 		this.doc.defaultStrokeColor = new NoColor();
 
+		this.backgroundSwatch = makeNewSpotColor( this.backgroundColor );
+
 		var livePatternLayer = findSpecificLayer( this.doc.layers, "Live Pattern" );
 		if ( !livePatternLayer )
 		{
