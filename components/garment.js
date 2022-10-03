@@ -56,7 +56,8 @@ function Garment ( config, data, designNumber )
 			this.openCT( this.adultGarmentFile );
 			this.mockupDocument = app.activeDocument;
 
-			var adultLayer = findSpecificLayer( this.mockupDocument, this.adultGarmentCode, "any" );
+
+			var adultLayer = findSpecificLayer( this.mockupDocument, this.adultGarmentCode.replace( /.*[-_]/i, "" ), "any" );
 			if ( adultLayer )
 			{
 				adultLayer.locked = false;
@@ -98,7 +99,7 @@ function Garment ( config, data, designNumber )
 				this.mockupDocument = app.activeDocument;
 			}
 
-			var youthLayer = findSpecificLayer( this.mockupDocument.layers, this.youthGarmentCode, "any" );
+			var youthLayer = findSpecificLayer( this.mockupDocument.layers, this.youthGarmentCode.replace( /.*[-_]/i, "" ), "any" );
 			if ( youthLayer )
 			{
 				youthLayer.locked = false;
@@ -135,6 +136,13 @@ function Garment ( config, data, designNumber )
 		if ( !this.adultGarmentFile && !this.youthGarmentFile )
 		{
 			log.e( "No youth or adult garment file found?" )
+			errorList.push( "Failed to find a file for the garment: " + this.garmentCode );
+			return;
+		}
+		else if ( !this.mainMockupLayer )
+		{
+			log.e( "No mockup layer found?" );
+			errorList.push( "Failed to find a garment layer for the garment: " + this.garmentCode );
 			return;
 		}
 		else
