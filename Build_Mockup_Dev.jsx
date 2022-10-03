@@ -246,7 +246,7 @@ function BuildMockup ()
 
 
 
-		designNumbers.push( "EP4d7RZmDI6D" );
+		designNumbers.push( "TfTlWct1PzL5" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";

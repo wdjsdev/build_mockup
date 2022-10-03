@@ -154,6 +154,7 @@ function Garment ( config, data, designNumber )
 			this.processMockup( this.mockupDocument )
 		}
 
+
 	}
 
 	this.openCT = function ( file )
@@ -171,6 +172,24 @@ function Garment ( config, data, designNumber )
 		currentMockup.saveAs( this.saveFile );
 		app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		curGarmentIndex++;
+
+		//add the design number to the mockup(s)
+		[ this.adultInfoLayer, this.youthInfoLayer ].forEach( function ( il )
+		{
+			if ( !il ) return;
+
+			var onFrame; //order number text frame
+			onFrame = findSpecificPageItem( il, "Order Number", "any" );
+			onFrame = onFrame || il.textFrames.add();
+			onFrame.name = "Order Number";
+			onFrame.contents = orderNumber + " " + teamName + "(customer)";
+
+			var dnFrame; //design number text frame
+			dnFrame = onFrame.duplicate();
+			dnFrame.name = "Design ID";
+			dnFrame.contents = designNumber;
+			dnFrame.position = [ onFrame.left, onFrame.top - dnFrame.height ];
+		} );
 
 		if ( this.mainMockupLayer )
 		{
