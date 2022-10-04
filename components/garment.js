@@ -184,11 +184,29 @@ function Garment ( config, data, designNumber )
 			onFrame = findSpecificPageItem( il, "Order Number", "any" );
 			if ( !onFrame )
 			{
-				onFrame = il.textFrames.add();
-				onFrame.textRange.characterAttributes.fillColor = makeNewSpotColor( "Info B" ).color;
-				onFrame.textRange.characterAttributes.fillColor.tint = 0;
-				onFrame.textRange.characterAttributes.strokeColor = new NoColor();
-				onFrame.position = [ 110, -15 ];
+				var curArtboard;
+				afc( il, "textFrames" ).forEach( function ( tf )
+				{
+					if ( curArtboard ) return;
+
+					afc( curGarment.mockupDocument, "artboards" ).forEach( function ( ab )
+					{
+						if ( isContainedWithin( tf, ab ) )
+						{
+							curArtboard = ab;
+						}
+					} );
+				} );
+				onFrame = afc( il, "textFrames" ).filter( function ( tf )
+				{
+					return tf.contents.match( /order( #)?.*team/i )
+				} )[ 0 ] || il.textFrames.add();
+				onFrame.contents = "Order Number_Team Name";
+				onFrame.textRange.fillColor = makeNewSpotColor( "Info B" ).color;
+				onFrame.textRange.fillColor.tint = 0;
+				onFrame.textRange.strokeColor = new NoColor();
+				var abr = curArtboard.artboardRect;
+				onFrame.position = [ abr[ 0 ] + 110, abr[ 1 ] - 10 ];
 			}
 			onFrame.name = "Order Number";
 			onFrame.contents = orderNumber + " " + teamName;
