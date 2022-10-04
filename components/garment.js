@@ -26,6 +26,8 @@ function Garment ( config, data, designNumber )
 	this.adultInfoLayer;
 	this.youthInfoLayer;
 
+	this.paramLayer;
+
 	this.graphicXPosition = 0;
 	this.graphicYPosition = 0;
 	this.youthXOffset = 0;
@@ -180,9 +182,16 @@ function Garment ( config, data, designNumber )
 
 			var onFrame; //order number text frame
 			onFrame = findSpecificPageItem( il, "Order Number", "any" );
-			onFrame = onFrame || il.textFrames.add();
+			if ( !onFrame )
+			{
+				onFrame = il.textFrames.add();
+				onFrame.textRange.characterAttributes.fillColor = makeNewSpotColor( "Info B" ).color;
+				onFrame.textRange.characterAttributes.fillColor.tint = 0;
+				onFrame.textRange.characterAttributes.strokeColor = new NoColor();
+				onFrame.position = [ 110, -15 ];
+			}
 			onFrame.name = "Order Number";
-			onFrame.contents = orderNumber + " " + teamName + "(customer)";
+			onFrame.contents = orderNumber + " " + teamName;
 
 			var dnFrame; //design number text frame
 			dnFrame = onFrame.duplicate();
@@ -405,17 +414,15 @@ function Garment ( config, data, designNumber )
 		//to add param blocks while recoloring the garment
 		//to ensure that the mockup exporter can work properly
 
-		var paramLayer = findSpecificLayer( this.mainMockupLayer, "paramcolors" );
+		this.paramLayer = findSpecificLayer( this.mainMockupLayer, "paramcolors" );
 
-		if ( paramLayer )
+		if ( this.paramLayer )
 		{
-			paramLayer.remove();
+			this.paramLayer.remove();
 		}
 
-		paramLayer = this.mainMockupLayer.layers.add();
-		paramLayer.name = "paramcolors";
-		var paramIndex = 0;
-		var paramBlock;
+		this.paramLayer = this.mainMockupLayer.layers.add();
+		this.paramLayer.name = "paramcolors";
 
 
 		var graphicStyleName;
@@ -426,10 +433,13 @@ function Garment ( config, data, designNumber )
 				//wonky data.. ignore it.
 				continue;
 			}
+
+
 			colors[ ph ].swatchName = BUILDER_COLOR_CODES[ colors[ ph ].colorCode ];
 			graphicStyleName = placeholderPrefix + ph.substring( 1, ph.length );
 			colors[ ph ].id = graphicStyleName;
 			curGStyle = new GraphicStyle( colors[ ph ] );
+
 			curGStyle.exec();
 			currentMockup.activate();
 
@@ -437,12 +447,7 @@ function Garment ( config, data, designNumber )
 			updateInfoColorCallouts( graphicStyleName, colors[ ph ].swatchName );
 
 
-			paramBlock = paramLayer.pathItems.rectangle( 0, 0, 5, 5 );
-			paramBlock.stroked = false;
-			paramBlock.name = "paramcolor-" + graphicStyleName;
-			paramBlock.left = this.mockupDocument.artboards[ 0 ].artboardRect[ 0 ] - 5;
-			paramBlock.top = this.mockupDocument.artboards[ 0 ].artboardRect[ 1 ] - ( 5 * paramIndex );
-			paramIndex++;
+
 
 
 			log.l( "Recoloring " + ph + " with " + colors[ ph ].swatchName );

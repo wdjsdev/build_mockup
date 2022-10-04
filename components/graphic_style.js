@@ -20,6 +20,7 @@ function GraphicStyle ( data )
 	this.doc;
 	this.swatches;
 	this.plainFill = false;
+	this.paramBlock;
 
 	//this is the "C1" color code representing the placeholder swatch name
 	//the swatch with this name will be replaced with the backgroundColor
@@ -28,6 +29,15 @@ function GraphicStyle ( data )
 
 	this.backgroundColor = BUILDER_COLOR_CODES[ this.data.colorCode ];
 	this.backgroundSwatch;
+
+
+	//attention
+	//add logic here to analyze the graphic style to optimize the script
+	//for example, if there's a pattern/gradient only, and it's the same color as the background
+	//it will not be visisble on the garment, and therefore we can skip the process
+	//of opening the gradient/pattern file and simply apply a solid fill color instead.
+
+
 
 	if ( this.data.gradient )
 	{
@@ -48,6 +58,13 @@ function GraphicStyle ( data )
 
 	this.exec = function ()
 	{
+		this.paramBlock = curGarment.paramLayer.pathItems.rectangle( 0, 0, 5, 5 );
+		this.paramBlock.stroked = false;
+		this.paramBlock.fillColor = makeNewSpotColor( this.placeholderColor ).color;
+		this.paramBlock.name = "paramcolor-" + this.data.id;
+		this.paramBlock.left = curGarment.mockupDocument.artboards[ 0 ].artboardRect[ 0 ] - 5;
+		this.paramBlock.top = curGarment.mockupDocument.artboards[ 0 ].artboardRect[ 1 ] - ( 5 * ( Number( this.data.id.replace( /[a-z]*/i, "" ) ) - 1 ) );
+
 		if ( this.data.pattern || this.data.gradient )
 		{
 			this.patternStyleNumber = this.data.pattern ? patternStyleConverter( this.data.pattern.id ) : "0000";
@@ -83,6 +100,7 @@ function GraphicStyle ( data )
 			curGarment.mockupDocument.selection = null;
 			curGarment.mockupDocument.defaultFillColor = this.placeholderSwatch.color;
 			app.executeMenuCommand( "Find Fill Color menu item" );
+			this.paramBlock.selected = true;
 			afc( curGarment.mockupDocument, "selection" ).forEach( function ( item )
 			{
 				gs.applyTo( item );
@@ -206,12 +224,12 @@ function GraphicStyle ( data )
 		removeAction( "graphic_style_from_selection" );
 		this.doc.graphicStyles[ this.doc.graphicStyles.length - 1 ].name = data.id;
 
+
 		var dupTarget = srcRect.duplicate( curGarment.mainMockupLayer );
 		dupTarget.remove();
 
 		filesToClose.push( this.doc );
 		currentMockup.activate();
-
 
 
 		// //both pattern AND gradient
