@@ -31,11 +31,39 @@ function GraphicStyle ( data )
 	this.backgroundSwatch;
 
 
-	//attention
-	//add logic here to analyze the graphic style to optimize the script
+	//analyze the graphic style to optimize the script
 	//for example, if there's a pattern/gradient only, and it's the same color as the background
 	//it will not be visisble on the garment, and therefore we can skip the process
 	//of opening the gradient/pattern file and simply apply a solid fill color instead.
+
+	if ( data.gradient && !data.pattern )
+	{
+		//gradient only
+		if ( data.gradient.colorCode == data.colorCode )
+		{
+			data.gradient = null;
+			this.plainFill = true;
+		}
+	}
+	else if ( data.pattern && !data.gradient )
+	{
+		//pattern only
+		if ( data.pattern.colorCode == data.colorCode )
+		{
+			data.pattern = null;
+			this.plainFill = true;
+		}
+	}
+	else if ( data.gradient && data.pattern )
+	{
+		//both gradient and pattern
+		if ( data.gradient.colorCode == data.colorCode && data.pattern.colorCode == data.colorCode )
+		{
+			data.gradient = null;
+			data.pattern = null;
+			this.plainFill = true;
+		}
+	}
 
 
 
