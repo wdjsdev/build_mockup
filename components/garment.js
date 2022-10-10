@@ -1046,21 +1046,17 @@ function Garment ( config, data, designNumber )
 		log.l( "Getting garments." );
 		scriptTimer.beginTask( "getGarments" );
 		this.adultGarmentFolder = this.adultGarmentCode ? locateCTFolder( this.adultGarmentCode ) : undefined;
-		this.youthGarmentFolder = this.youthGarmentCode ? locateCTFolder( this.youthGarmentCode ) : undefined;
 
 		//if this garment is a bag, there's no youth sizing.. skip this part.
-		if ( this.youthGarmentCode && data.garment.toLowerCase().indexOf( "bag" ) === -1 )
-		{
-			this.youthGarmentFolder = locateCTFolder( this.youthGarmentCode );
-		}
+		this.youthGarmentFolder = data.garment.match( /bag/i ) ? undefined : locateCTFolder( this.youthGarmentCode ) || undefined;
+
 		if ( this.adultGarmentFolder && this.adultGarmentCode )
 		{
-			// this.adultGarmentFile = this.getFile(this.adultGarmentFolder,this.styleNumber);
 			this.adultGarmentFile = getFile( this.adultGarmentFolder, this.styleNumber, this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix );
 		}
+
 		if ( this.youthGarmentFolder && this.youthGarmentCode )
 		{
-			// this.youthGarmentFile = this.getFile(this.youthGarmentFolder,this.styleNumber);
 			this.youthGarmentFile = getFile( this.youthGarmentFolder, this.styleNumber, this.youthGarmentCode + "_" + this.styleNumber + this.fileSuffix );
 		}
 
