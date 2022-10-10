@@ -1046,6 +1046,7 @@ function Garment ( config, data, designNumber )
 		log.l( "Getting garments." );
 		scriptTimer.beginTask( "getGarments" );
 		this.adultGarmentFolder = this.adultGarmentCode ? locateCTFolder( this.adultGarmentCode ) : undefined;
+		this.youthGarmentFolder = this.youthGarmentCode ? locateCTFolder( this.youthGarmentCode ) : undefined;
 
 		//if this garment is a bag, there's no youth sizing.. skip this part.
 		if ( this.youthGarmentCode && data.garment.toLowerCase().indexOf( "bag" ) === -1 )
