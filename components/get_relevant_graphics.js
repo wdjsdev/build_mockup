@@ -12,7 +12,14 @@ function getRelevantGraphics ( curGarment )
     afo( curGarment.graphics ).forEach( function ( curGraphic )
     {
         var result = false;
+        log.l( "processing graphic: " + curGraphic.name );
 
+        if ( !curGraphic.locations || !curGraphic.locations.length )
+        {
+            log.l( "ATTN: curGraphic has no locations." );
+            relevantGraphics.push( curGraphic );
+            return;
+        }
         var relevantLocations = curGraphic.locations.filter( function ( loc )
         {
             return curGarment.top ? topRegex.test( loc ) : botRegex.test( loc );

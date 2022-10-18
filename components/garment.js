@@ -477,38 +477,40 @@ function Garment ( config, data, designNumber )
 			//graphicStyleName = the name of the graphic style to apply
 			this.applyGraphicStyle( graphicStyleName );
 
-			//now, change any "B" colors.
-			this.applyGraphicStyle( graphicStyleName.replace( "C", "B" ) );
-
 			log.l( "created graphic style: " + graphicStyleName );
 		}
 		this.garmentColors = data.colors;
 	}
 
-	this.applyGraphicStyle = function ( graphicStyleName )
+	this.applyGraphicStyle = function ( placeholderName )
 	{
-		log.l( "Applying graphic style: " + graphicStyleName );
+		log.l( "Applying graphic style: " + placeholderName );
 		var doc = app.activeDocument;
-		doc.selection = null;
-		var placeholderSwatch = findSpecificSwatch( doc, graphicStyleName );
-		if ( !placeholderSwatch ) return;
-
-		doc.defaultFillColor = placeholderSwatch.color;
-		app.executeMenuCommand( "Find Fill Color menu item" );
-		var gs;
-
-		var newSpotSwatch = findSpecificSwatch( doc, graphicStyleName ) || makeNewSpotColor( this.garmentColors[ graphicStyleName ].swatchName );
+		var colorName = this.garmentColors[ placeholderName ].swatchName;
+		var newSpotSwatch = makeNewSpotColor( colorName );
 		var newSpotColor = newSpotSwatch.color;
 
-		changeThemColors();
+		var phSwatches = [ placeholderName, placeholderName.replace( "C", "B" ) ];
+
+		phSwatches.forEach( function ( ph )
+		{
+			var phSwatch = makeNewSpotColor( ph );
+			doc.selection = null;
+			doc.defaultFillColor = phSwatch.color;
+			app.executeMenuCommand( "Find Fill Color menu item" );
+			changeThemColors();
+		} );
 
 
 
-		function changeThemColors ()
+
+
+
+		function changeThemColors ( phName )
 		{
 			try
 			{
-				gs = doc.graphicStyles[ graphicStyleName ];
+				gs = doc.graphicStyles[ phName ];
 				for ( var cc = 0, len = doc.selection.length; cc < len; cc++ )
 				{
 					dig( doc.selection[ cc ] );
