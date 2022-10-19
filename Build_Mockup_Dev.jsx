@@ -238,15 +238,15 @@ function BuildMockup ()
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		// orderNumber = "3788154";
+
 
 		// designNumbers.push( "WLLeTvuiDWmv" ); // - complex. logo, name, multiple number locations, locker tag, sleeve logo and number
 		// designNumbers.push( "WXZsf9XTmmap" ); // - simple. logo, name, number, plain fills
 		// designNumbers.push( "rAOEEUzX8kGa" );
 
 
-
-		designNumbers.push( "q5xhpoENRCUp" );
+		orderNumber = "3790081";
+		// designNumbers.push( "q5xhpoENRCUp" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";

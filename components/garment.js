@@ -498,7 +498,7 @@ function Garment ( config, data, designNumber )
 			doc.selection = null;
 			doc.defaultFillColor = phSwatch.color;
 			app.executeMenuCommand( "Find Fill Color menu item" );
-			changeThemColors();
+			changeThemColors( ph );
 		} );
 
 
