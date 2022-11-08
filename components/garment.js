@@ -683,8 +683,8 @@ function Garment ( config, data, designNumber )
 				//options are "MENS", "WOMENS", "YOUTH";
 				//if these layers exist, determine which is the correct one
 				//and use that layer as the artLayer
-				var mensLayer = findSpecificLayer( prodLayer, "MENS" );
-				var womensLayer = findSpecificLayer( prodLayer, "WOMENS" );
+				var mensLayer = findSpecificLayer( prodLayer, "MENS", "imatch" );
+				var womensLayer = findSpecificLayer( prodLayer, "WOMENS", "imatch" );
 				var youthLayer = findSpecificLayer( prodLayer, "YOUTH" );
 
 				if ( mensLayer && womensLayer && youthLayer )
