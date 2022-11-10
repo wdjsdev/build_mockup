@@ -48,22 +48,34 @@ function GraphicStyle ( data )
 	else if ( data.pattern && !data.gradient )
 	{
 		//pattern only
-		if ( data.pattern.colorCode == data.colorCode )
-		{
-			data.pattern = null;
-			this.plainFill = true;
-		}
+		//temporariliy disabling this code that flattens
+		//the appearance if the colors are the same..
+		//often this is a mistake and just leads to extra processing
+		//time and manual removal of invisible patterns because they 
+		//are the same color as the background.
+		//but some patterns use tints of the background color,
+		//and thus are in fact visible even when placed on top of
+		//the same background color.
+		//need to identify the patterns that use tints so that
+		//we can process those differently and keep this optimization
+		//for the other cases.
+		// if ( data.pattern.colorCode == data.colorCode )
+		// {
+		// 	data.pattern = null;
+		// 	this.plainFill = true;
+		// }
 	}
-	else if ( data.gradient && data.pattern )
-	{
-		//both gradient and pattern
-		if ( data.gradient.colorCode == data.colorCode && data.pattern.colorCode == data.colorCode )
-		{
-			data.gradient = null;
-			data.pattern = null;
-			this.plainFill = true;
-		}
-	}
+	// else if ( data.gradient && data.pattern )
+	// {
+	//disabled.. see above
+	// 	//both gradient and pattern
+	// 	if ( data.gradient.colorCode == data.colorCode && data.pattern.colorCode == data.colorCode )
+	// 	{
+	// 		data.gradient = null;
+	// 		data.pattern = null;
+	// 		this.plainFill = true;
+	// 	}
+	// }
 
 
 
