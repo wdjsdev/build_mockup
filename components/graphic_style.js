@@ -247,7 +247,7 @@ function GraphicStyle ( data )
 				return;
 			}
 
-			srcRect = findSpecificPageItem( gradientLayer, this.gradientID, "any" );
+			srcRect = findSpecificPageItem( gradientLayer, this.gradientID, "imatch" );
 		}
 
 		if ( this.patternScale )
