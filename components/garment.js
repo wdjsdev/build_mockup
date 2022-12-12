@@ -815,10 +815,15 @@ function Garment ( config, data, designNumber )
 		else if ( curGraphic.type === "logo" )
 		{
 			logoArt = findSpecificPageItem( artLayer, artLayer.name, "imatch" );
-			if ( !logoArt )
+			if ( !logoArt && artLayer.pageItems.length)
 			{
 				logoArt = group( afc( artLayer, "pageItems" ), artLayer );
 				logoArt.name = artLayer.name;
+			}
+			else
+			{
+				errorList.push(artLayer.name + " is improperly formatted and can't be imported.");
+				return;
 			}
 
 			if ( curGraphic.teamNames && curGraphic.teamNames.length )
