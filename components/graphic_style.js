@@ -170,7 +170,7 @@ function GraphicStyle ( data )
 		var livePatternLayer = findSpecificLayer( this.doc.layers, "Live Pattern" );
 		if ( !livePatternLayer )
 		{
-			errorList.push( "This pattern is not yet optimized for this script." );
+			errorList.push( "The pattern: " + data.pattern.id + ", is not yet optimized for this script." );
 			log.e( "Pattern file: " + this.sourceFile.toString() + ", does not contain a Pattern layer" );
 
 			//attention
@@ -182,8 +182,8 @@ function GraphicStyle ( data )
 			//fixing the files that are used most frequently and not wasting time on files that are rarely used.
 			//attention
 
-			filesToClose.push( this.doc );
-			this.mockupDocument.activate();
+			// filesToClose.push( this.doc );
+			curGarment.mockupDocument.activate();
 			return;
 		}
 
