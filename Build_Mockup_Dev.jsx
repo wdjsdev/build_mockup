@@ -8,50 +8,36 @@ function BuildMockup ()
 
 	function getUtilities ()
 	{
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+		var devUtilPath = "~/Desktop/automation/utilities/";
+		var utilPath = dataResourcePath + "Utilities_Container.jsxbin";
+		var batchPath = dataResourcePath + "Batch_Framework.jsxbin";
+		var utilFilePaths = [utilPath]; //array of util files
 		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
-
-		if ( devUtilitiesPreferenceFile.exists )
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
 		{
-			devUtilitiesPreferenceFile.open( "r" );
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
-
-			if ( prefContents.match( /true/i ) )
-			{
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
-			}
+			utilFilePaths = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFilePaths;
 		}
 
-		if ( $.os.match( "Windows" ) )
+		if(!File(utilFilePaths[0]).exists)
 		{
-			utilPath = utilPath.replace( "/Volumes/", "//AD4/" );
+			alert("Could not find utilities. Please ensure you're connected to the appropriate Customization drive.");
+			return [];
 		}
 
-		result.push( utilPath + "Utilities_Container" + ext );
-		result.push( utilPath + "Batch_Framework" + ext );
-		return result;
+		return utilFilePaths;
 
 	}
-
 	var utilities = getUtilities();
-	if ( utilities )
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
 	{
-		for ( var u = 0, len = utilities.length; u < len; u++ )
-		{
-			eval( "#include \"" + utilities[ u ] + "\"" );
-		}
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
-	else
-	{
-		alert( "Failed to find the utilities.." );
-		return false;
-	}
+
+	if ( !valid || !utilities.length) return;
 
 
 
@@ -245,8 +231,8 @@ function BuildMockup ()
 		// designNumbers.push( "rAOEEUzX8kGa" );
 
 
-		// orderNumber = "3797860";
-		designNumbers.push( "ONF3GNLwZ58d" );
+		orderNumber = "3855157";
+		// designNumbers.push( "ONF3GNLwZ58d" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";

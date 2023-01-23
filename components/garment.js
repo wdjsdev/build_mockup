@@ -138,7 +138,7 @@ function Garment ( config, data, designNumber )
 		if ( !this.adultGarmentFile && !this.youthGarmentFile )
 		{
 			log.e( "No youth or adult garment file found?" )
-			errorList.push( "Failed to find a file for the garment: " + this.garmentCode );
+			errorList.push( "Failed to find a file for the garment: " + (this.garmentCode || this.youthGarmentCode || undefined ));
 			return;
 		}
 		else if ( !this.mainMockupLayer )
