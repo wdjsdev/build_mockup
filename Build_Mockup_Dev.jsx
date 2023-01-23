@@ -1,49 +1,43 @@
 #target Illustrator
-function BuildMockup() {
+function BuildMockup ()
+{
 	var valid = true;
 	var scriptName = "build_mockup";
 	const BATCH_MODE = false;
 
 
-	function getUtilities() {
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
-
-		if (devUtilitiesPreferenceFile.exists) {
-			devUtilitiesPreferenceFile.open("r");
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
-
-			if (prefContents.match(/true/i)) {
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
-			}
+	function getUtilities ()
+	{
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+		var devUtilPath = "~/Desktop/automation/utilities/";
+		var utilPath = dataResourcePath + "Utilities_Container.jsxbin";
+		var batchPath = dataResourcePath + "Batch_Framework.jsxbin";
+		var utilFilePaths = [utilPath]; //array of util files
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
+		{
+			utilFilePaths = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFilePaths;
 		}
 
-		if ($.os.match("Windows")) {
-			utilPath = utilPath.replace("/Volumes/", "//AD4/");
+		if(!File(utilFilePaths[0]).exists)
+		{
+			alert("Could not find utilities. Please ensure you're connected to the appropriate Customization drive.");
+			return [];
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
-		return result;
+		return utilFilePaths;
 
 	}
-
 	var utilities = getUtilities();
-	if (utilities) {
-		for (var u = 0, len = utilities.length; u < len; u++) {
-			eval("#include \"" + utilities[u] + "\"");
-		}
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
+	{
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
-	else {
-		alert("Failed to find the utilities..");
-		return false;
-	}
+
+	if ( !valid || !utilities.length) return;
 
 
 
@@ -57,7 +51,8 @@ function BuildMockup() {
 
 	LIVE_LOGGING = false;
 
-	if (user === "will.dowling") {
+	if ( user === "will.dowling" )
+	{
 		DEV_LOGGING = true;
 	}
 
@@ -71,36 +66,42 @@ function BuildMockup() {
 
 
 
-	scriptTimer.beginTask("BuildMockup");
+	scriptTimer.beginTask( "BuildMockup" );
 
 
-	scriptTimer.beginTask("getComponents");
+	scriptTimer.beginTask( "getComponents" );
 
 	//get the components
-	var devComponents = desktopPath + "automation/build_mockup/components";
-	var prodComponents = componentsPath + "build_mockup";
+	var devComponentsPath = desktopPath + "automation/build_mockup/components";
+	var prodComponentsPath = componentsPath + "build_mockup";
 
-	var compFiles = includeComponents(devComponents, prodComponents, true);
-	if (compFiles && compFiles.length) {
-		var curComponent;
-		for (var cf = 0, len = compFiles.length; cf < len; cf++) {
-			curComponent = compFiles[cf].fullName;
-			eval("#include \"" + curComponent + "\"");
-			log.l("included: " + compFiles[cf].name);
-		}
-	}
-	else if (!compFiles) {
-		valid = false;
-		return valid;
-	}
-	else {
-		errorList.push("Failed to find any components.");
-		log.e("No components were found.");
+	var compPath = $.fileName.match( /dev/i ) ? devComponentsPath : prodComponentsPath;
+
+	var compFiles = getComponents( compPath );
+	log.l( "Using compPath: " + compPath );
+	if ( !compFiles.length )
+	{
+		log.e( "No components were found at: " + compPath );
+		errorList.push( "Failed to find the components..." );
+		sendErrors( errorList );
 		valid = false;
 		return valid;
 	}
 
-	scriptTimer.endTask("getComponents");
+	//build the list of components to include
+	var evalStr = "";
+	compFiles.forEach( function ( cf )
+	{
+		evalStr += "#include \"" + cf.fullName + "\";\n";
+	} )
+
+	log.h( "including the following components:\nevalStr =\n" + evalStr );
+
+	//eval the string of all include statements to actually include the components
+	eval( evalStr );
+	scriptTimer.endTask( "getComponents" );
+
+
 
 	app.coordinateSystem = CoordinateSystem.DOCUMENTCOORDINATESYSTEM;
 
@@ -110,6 +111,7 @@ function BuildMockup() {
 	var orderData;
 	var garmentsNeeded = [];
 	var curGarmentIndex = 1;
+	var curGarment; //the garment object currently being processed
 	var designNumbers = [];
 	var designNumberOnly = false; //if the user wants just one design number instead of a whole order
 	var rushMode = false;
@@ -183,7 +185,7 @@ function BuildMockup() {
 	//Gather and include the components
 	//
 
-	logDest.push(getLogDest())
+	logDest.push( getLogDest() )
 	// initLog();
 
 
@@ -204,32 +206,44 @@ function BuildMockup() {
 
 	//initialize the save location preference file
 	var prefPath = documentsPath + "build_mockup_prefs/"
-	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
-	var saveLocPrefFolder = Folder(prefPath);
-	if (!saveLocPrefFolder.exists) {
+	var saveLocPrefFile = File( prefPath + "save_loc_pref.txt" );
+	var saveLocPrefFolder = Folder( prefPath );
+	if ( !saveLocPrefFolder.exists )
+	{
 		saveLocPrefFolder.create();
-		log.l("Created a saveLocPrefFolder");
+		log.l( "Created a saveLocPrefFolder" );
 	}
 
 	//
 	//Gather the order data
 	//
 
-	if (user === "will.dowling" && $.fileName.indexOf("_Dev") > -1) {
+	if ( user === "will.dowling" && $.fileName.indexOf( "_Dev" ) > -1 )
+	{
 		//for development,use these instead of entering the same info
 		//into the dialog each time. plus this could serve as a
 		//method of batching orders later
 		//
-		orderNumber = "1234567";
 
-		designNumbers.push("aliv0dq9TNfu");
+
+		// designNumbers.push( "WLLeTvuiDWmv" ); // - complex. logo, name, multiple number locations, locker tag, sleeve logo and number
+		// designNumbers.push( "WXZsf9XTmmap" ); // - simple. logo, name, number, plain fills
+		// designNumbers.push( "rAOEEUzX8kGa" );
+
+
+		orderNumber = "3855157";
+		// designNumbers.push( "ONF3GNLwZ58d" );
+
 		teamName = "TEST_graphics";
+		orderNumber = orderNumber || "1234567";
 	}
 
-	if (valid && !orderNumber && designNumbers.length === 0) {
+	if ( valid && !orderNumber && designNumbers.length === 0 )
+	{
 		getOrderNumber();
 	}
-	else if (designNumbers.length > 0) {
+	else if ( designNumbers.length > 0 )
+	{
 		designNumberOnly = true;
 	}
 
@@ -238,20 +252,24 @@ function BuildMockup() {
 	//if designNumbers.length > 0 then the user opted not to
 	//build an entire order, but rather a single design number
 	//as such, we don't need to get the order data
-	if (valid && !designNumberOnly) {
+	if ( valid && !designNumberOnly )
+	{
 		getOrderData();
 	}
 
-	if (valid && !designNumberOnly) {
+	if ( valid && !designNumberOnly )
+	{
 		designNumbers = getDesignNumbers();
 	}
 
 
-	if (valid) {
+	if ( valid )
+	{
 		initSaveLoc();
 	}
 
-	if (valid) {
+	if ( valid )
+	{
 		createOrderFolder();
 	}
 
@@ -259,37 +277,42 @@ function BuildMockup() {
 	//
 	//loop each design number to gather the garments and graphics needed
 	//
-	if (valid) {
+	if ( valid )
+	{
 		loopDesignNumbers();
 	}
 
 
-	if (valid) {
+	if ( valid )
+	{
 		loopGarmentsNeeded();
-		if (garmentsNeeded.length && garmentsNeeded[0].mockupDocument) {
-			garmentsNeeded[0].mockupDocument.activate();
-			garmentsNeeded[0].mockupDocument.save();
+		if ( garmentsNeeded.length && garmentsNeeded[ 0 ].mockupDocument )
+		{
+			garmentsNeeded[ 0 ].mockupDocument.activate();
+			garmentsNeeded[ 0 ].mockupDocument.save();
 		}
 	}
 
 
 
-	for (var ftc = filesToClose.length - 1; ftc >= 0; ftc--) {
-		filesToClose[ftc].close(SaveOptions.DONOTSAVECHANGES);
+	for ( var ftc = filesToClose.length - 1; ftc >= 0; ftc-- )
+	{
+		filesToClose[ ftc ].close( SaveOptions.DONOTSAVECHANGES );
 	}
 
 	// endLog();
 
-	if (errorList.length) {
-		sendErrors(errorList);
+	if ( errorList.length )
+	{
+		sendErrors( errorList );
 	}
 
-	log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+	log.l( "Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics." );
 
-	scriptTimer.endTask("BuildMockup");
-	scriptTimer.beginTask("printLog");
+	scriptTimer.endTask( "BuildMockup" );
+	scriptTimer.beginTask( "printLog" );
 	printLog();
-	scriptTimer.endTask("printLog");
+	scriptTimer.endTask( "printLog" );
 
 }
 

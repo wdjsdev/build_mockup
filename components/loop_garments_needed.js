@@ -13,16 +13,20 @@
 
 */
 
-function loopGarmentsNeeded()
+function loopGarmentsNeeded ()
 {
-	log.h("Beginning of loopGarmentsNeeded()");
-	for(var g=0,len=garmentsNeeded.length;g<len;g++)
+	log.h( "Beginning of loopGarmentsNeeded()" );
+	for ( var g = 0, len = garmentsNeeded.length; g < len; g++ )
 	{
-		log.l("Processing garmentsNeeded[" + g + "]");
-		garmentsNeeded[g].processGarment();
-		if(garmentsNeeded[g].saveFile)
+		log.l( "Processing garmentsNeeded[" + g + "]" );
+		curGarment = garmentsNeeded[ g ];
+		curGarment.processGarment();
+
+		if ( curGarment.saveFile )
 		{
-			currentMockup.saveAs(garmentsNeeded[g].saveFile);
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+			currentMockup.saveAs( curGarment.saveFile );
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		}
 	}
 }

@@ -28,7 +28,7 @@ function locateGraphicFolder(graphicCode, lib) {
 	var curDepth = 0;
 
 	//include the database
-	if (File(GCL).exists) {
+	if(File(GCL).exists) {
 		eval("#include \"" + GCL + "\"");
 		log.l("Found the graphic folder location database.");
 	}
@@ -40,18 +40,19 @@ function locateGraphicFolder(graphicCode, lib) {
 		eval("#include \"" + GCL + "\"");
 		log.l("No graphic folder location database existed. Created a new one.");
 	}
-
-	if (File(GLL).exists) {
+	
+	if(File(GLL).exists) {
 		eval("#include \"" + GLL + "\"");
 	}
-	else {
+	else
+	{
 		var dbFile = File(GLL);
 		dbFile.open("w");
 		dbFile.write("var graphicLibraryLocations = {};");
 		dbFile.close();
 		eval("#include \"" + GLL + "\"");
 	}
-
+		
 
 
 	log.l("Checking graphic locations database for " + graphicCode);
@@ -65,13 +66,13 @@ function locateGraphicFolder(graphicCode, lib) {
 		log.l(lib + " found: " + graphicLibraryLocations[lib]);
 		graphicFolder = Folder(graphicsPath + graphicLibraryLocations[lib]);
 		if (graphicFolder.exists) {
-			graphicLibraryLocations[graphicCode] = curFolder.fullName.replace(/^.*graphics\//i, "") + "/";
+			graphicLibraryLocations[graphicCode] = graphicFolder.fullName.replace(/^.*graphics\//i, "") + "/";
 			writeDatabase(GLL, "var graphicLibraryLocations = " + JSON.stringify(graphicLocations));
 		}
 	}
+	
 
-
-	if (!graphicFolder || !graphicFolder.exists) {
+	if(!graphicFolder || !graphicFolder.exists) {
 
 		//there's STILL no graphic folder.. couldn't find it in either database..
 		//just ask ths user to locate it manually

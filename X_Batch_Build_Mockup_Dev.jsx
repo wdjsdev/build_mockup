@@ -13,54 +13,51 @@ function BuildMockupBatch()
 
 	// eval("#include \"~/Desktop/automation/utilities/Utilities_Container.js\"");
 
-	function getUtilities()
+	function getUtilities ()
 	{
-		var result = [];
-		var utilPath = "/Volumes/Customization/Library/Scripts/Script_Resources/Data/";
-		var ext = ".jsxbin"
-
-		//check for dev utilities preference file
-		var devUtilitiesPreferenceFile = File("~/Documents/script_preferences/dev_utilities.txt");
-
-		if(devUtilitiesPreferenceFile.exists)
+		var utilNames = [ "Utilities_Container" ]; //array of util names
+		var utilFiles = []; //array of util files
+		//check for dev mode
+		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
+		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
+		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
 		{
-			devUtilitiesPreferenceFile.open("r");
-			var prefContents = devUtilitiesPreferenceFile.read();
-			devUtilitiesPreferenceFile.close();
+			$.writeln( "///////\n////////\nUsing dev utilities\n///////\n////////" );
+			var devUtilPath = "~/Desktop/automation/utilities/";
+			utilFiles =[ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			return utilFiles;
+		}
 
-			if(prefContents.match(/true/i))
+		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
+		
+		for(var u=0;u<utilNames.length;u++)
+		{
+			var utilFile = new File(dataResourcePath + utilNames[u] + ".jsxbin");
+			if(utilFile.exists)
 			{
-				utilPath = "~/Desktop/automation/utilities/";
-				ext = ".js";
+				utilFiles.push(utilFile);	
 			}
+			
 		}
 
-		if($.os.match("Windows"))
+		if(!utilFiles.length)
 		{
-			utilPath = utilPath.replace("/Volumes/","//AD4/");
+			alert("Could not find utilities. Please ensure you're connected to the appropriate Customization drive.");
+			return [];
 		}
 
-		result.push(utilPath + "Utilities_Container" + ext);
-		result.push(utilPath + "Batch_Framework" + ext);
-		return result;
+		
+		return utilFiles;
 
 	}
-
 	var utilities = getUtilities();
-	if(utilities)
+
+	for ( var u = 0, len = utilities.length; u < len && valid; u++ )
 	{
-		for(var u=0,len=utilities.length;u<len;u++)
-		{
-			eval("#include \"" + utilities[u] + "\"");	
-		}
-	}
-	else
-	{
-		alert("Failed to find the utilities..");
-		return false;	
+		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	
+	if ( !valid || !utilities.length) return;
 
 
 	//set batch mode to true
@@ -164,7 +161,8 @@ function BuildMockupBatch()
 	//in the dest folder
 	var existingOrders = [];
 
-	var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
+	// var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
+	var exFolderPath = customizationPath + "1_Mockup_Files/Mockup_Assets/";
 	var exFolder = Folder(exFolderPath);
 
 
@@ -244,11 +242,14 @@ function BuildMockupBatch()
 	//known graphic folder locations database
 	//database to keep track of exact folder locations for a given graphic
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "temp/graphic_locations_database.js";
-	var GFL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
+
+	//this one is for getting the data by "graphic library"
+	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
 	// var GFL = grahpicFolderLocationsDatabasePath = desktopPath + "automation/build_mockup/resources/graphic_folder_locations_database.js";
 
-	var GLS = graphicLocationAndSizingDatabasePath = dataPath + "build_mockup_data/graphic_locations_and_sizing_database.js";
-
+	//this is for getting the data by "graphic code".
+	//if we can't find it here.. then default to the library option above
+	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
 
 	//
 	//folder paths
@@ -379,7 +380,8 @@ function BuildMockupBatch()
 		batchTimer.beginTask("batchOrders");
 
 
-		var needMockPath = "/Volumes/Customization/Design Mockups/Needs Mockup/";
+		// var needMockPath = "/Volumes/Customization/Design Mockups/Needs Mockup/";
+		var needMockPath = customizationPath + "_Design_Mockups/1A_Needs_Mockup/"
 		var rushFolderPath = needMockPath + "_Paid Rush/";
 		var needsMockFolder = Folder(needMockPath);
 		var rushFolder = Folder(rushFolderPath);

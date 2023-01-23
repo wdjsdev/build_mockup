@@ -1,3 +1,4 @@
-bin_comp
 bin_comp/*
-.DS_STORE
+*.jsxbin
+Build_Mockup.jsx
+X_Batch_Build_Mockup.jsx
