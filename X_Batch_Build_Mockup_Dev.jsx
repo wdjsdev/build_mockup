@@ -1,6 +1,6 @@
 #target Illustrator
 
-function BuildMockupBatch()
+function BuildMockupBatch ()
 {
 
 	var valid = true;
@@ -24,29 +24,29 @@ function BuildMockupBatch()
 		{
 			$.writeln( "///////\n////////\nUsing dev utilities\n///////\n////////" );
 			var devUtilPath = "~/Desktop/automation/utilities/";
-			utilFiles =[ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
+			utilFiles = [ devUtilPath + "Utilities_Container.js", devUtilPath + "Batch_Framework.js" ];
 			return utilFiles;
 		}
 
 		var dataResourcePath = customizationPath + "Library/Scripts/Script_Resources/Data/";
-		
-		for(var u=0;u<utilNames.length;u++)
+
+		for ( var u = 0; u < utilNames.length; u++ )
 		{
-			var utilFile = new File(dataResourcePath + utilNames[u] + ".jsxbin");
-			if(utilFile.exists)
+			var utilFile = new File( dataResourcePath + utilNames[ u ] + ".jsxbin" );
+			if ( utilFile.exists )
 			{
-				utilFiles.push(utilFile);	
+				utilFiles.push( utilFile );
 			}
-			
+
 		}
 
-		if(!utilFiles.length)
+		if ( !utilFiles.length )
 		{
-			alert("Could not find utilities. Please ensure you're connected to the appropriate Customization drive.");
+			alert( "Could not find utilities. Please ensure you're connected to the appropriate Customization drive." );
 			return [];
 		}
 
-		
+
 		return utilFiles;
 
 	}
@@ -57,7 +57,7 @@ function BuildMockupBatch()
 		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	if ( !valid || !utilities.length) return;
+	if ( !valid || !utilities.length ) return;
 
 
 	//set batch mode to true
@@ -70,7 +70,7 @@ function BuildMockupBatch()
 	const BATCH_MODE = true;
 
 
-	logDest.push(getLogDest())
+	logDest.push( getLogDest() )
 
 
 	LIVE_LOGGING = false;
@@ -82,42 +82,42 @@ function BuildMockupBatch()
 
 
 
-	scriptTimer.beginTask("BuildMockup");
+	scriptTimer.beginTask( "BuildMockup" );
 
 
-	scriptTimer.beginTask("getComponents");
+	scriptTimer.beginTask( "getComponents" );
 
 	//get the components
 	var devComponents = desktopPath + "automation/build_mockup/components";
 	var prodComponents = componentsPath + "build_mockup";
 
 	// var compFiles = includeComponents(devComponents, prodComponents, true);
-	var compPath = $.fileName.match(/_dev/i) ? devComponents : prodComponents;
-	compFiles = getComponents(compPath);
-	if (compFiles && compFiles.length)
+	var compPath = $.fileName.match( /_dev/i ) ? devComponents : prodComponents;
+	compFiles = getComponents( compPath );
+	if ( compFiles && compFiles.length )
 	{
 		var curComponent;
-		for (var cf = 0, len = compFiles.length; cf < len; cf++)
+		for ( var cf = 0, len = compFiles.length; cf < len; cf++ )
 		{
-			curComponent = compFiles[cf].fullName;
-			eval("#include \"" + curComponent + "\"");
-			log.l("included: " + compFiles[cf].name);
+			curComponent = compFiles[ cf ].fullName;
+			eval( "#include \"" + curComponent + "\"" );
+			log.l( "included: " + compFiles[ cf ].name );
 		}
 	}
-	else if (!compFiles)
+	else if ( !compFiles )
 	{
 		valid = false;
 		return valid;
 	}
 	else
 	{
-		errorList.push("Failed to find any components.");
-		log.e("No components were found.");
+		errorList.push( "Failed to find any components." );
+		log.e( "No components were found." );
 		valid = false;
 		return valid;
 	}
 
-	scriptTimer.endTask("getComponents");
+	scriptTimer.endTask( "getComponents" );
 
 
 	//Global Variables
@@ -131,11 +131,11 @@ function BuildMockupBatch()
 	var orderNumberAndTeamNames = []; //array of strings like this: "1234567_Team Name"
 
 
-	
+
 	var localJobFolderPath = desktopPath + "batched_mockups/";
-	var localJobFolder = Folder(localJobFolderPath);
+	var localJobFolder = Folder( localJobFolderPath );
 	var saveLoc = localJobFolderPath;
-	if(!localJobFolder.exists)
+	if ( !localJobFolder.exists )
 	{
 		localJobFolder.create();
 	}
@@ -162,8 +162,8 @@ function BuildMockupBatch()
 	var existingOrders = [];
 
 	// var exFolderPath = "/Volumes/Customization/1_Active Orders/1_Mockup IN PROGRESS/_Mockup_Asset_Folders_/";
-	var exFolderPath = customizationPath + "1_Mockup_Files/Mockup_Assets/";
-	var exFolder = Folder(exFolderPath);
+	var exFolderPath = customizationPath + "1_Mockup_Files/_Mockup_Asset_Folders_/";
+	var exFolder = Folder( exFolderPath );
 
 
 	var garmentsProcessed = 0;
@@ -259,12 +259,12 @@ function BuildMockupBatch()
 
 	//initialize the save location preference file
 	var prefPath = documentsPath + "build_mockup_prefs/"
-	var saveLocPrefFile = File(prefPath + "save_loc_pref.txt");
-	var saveLocPrefFolder = Folder(prefPath);
-	if (!saveLocPrefFolder.exists)
+	var saveLocPrefFile = File( prefPath + "save_loc_pref.txt" );
+	var saveLocPrefFolder = Folder( prefPath );
+	if ( !saveLocPrefFolder.exists )
 	{
 		saveLocPrefFolder.create();
-		log.l("Created a saveLocPrefFolder");
+		log.l( "Created a saveLocPrefFolder" );
 	}
 
 
@@ -277,66 +277,66 @@ function BuildMockupBatch()
 	//
 
 
-	function promptUserForOrders()
+	function promptUserForOrders ()
 	{
-		var w = new Window("dialog","Choose Orders to Batch");
-			var msg1 = UI.static(w,"There are " + totalNeedsMockOrders + " mockups that need to be built.");
-			var msg2 = UI.static(w,"We are " + ordersAhead + " orders ahead of the mockup artists.");
-			var msg3 = UI.static(w,"Select which orders you want to build.");
-			var lbGroup = UI.group(w);
-				var ordersListbox = UI.listbox(lbGroup, [0, 0, 300, 400],fileNames,{multiselect:true});
-			
-			var btnGroup = UI.group(w);
-				var cancel = UI.button(btnGroup,"Cancel",function()
+		var w = new Window( "dialog", "Choose Orders to Batch" );
+		var msg1 = UI.static( w, "There are " + totalNeedsMockOrders + " mockups that need to be built." );
+		var msg2 = UI.static( w, "We are " + ordersAhead + " orders ahead of the mockup artists." );
+		var msg3 = UI.static( w, "Select which orders you want to build." );
+		var lbGroup = UI.group( w );
+		var ordersListbox = UI.listbox( lbGroup, [ 0, 0, 300, 400 ], fileNames, { multiselect: true } );
+
+		var btnGroup = UI.group( w );
+		var cancel = UI.button( btnGroup, "Cancel", function ()
+		{
+			ordersNeeded = [];
+			teamNames = [];
+			w.close();
+		} )
+		var submit = UI.button( btnGroup, "Submit", function ()
+		{
+			ordersNeeded = [];
+			teamNames = [];
+			if ( ordersListbox.selection && ordersListbox.selection.length )
+			{
+				var curSel, on, tn;
+				for ( var x = 0; x < ordersListbox.selection.length; x++ )
 				{
-					ordersNeeded = [];
-					teamNames = [];
-					w.close();
-				})
-				var submit = UI.button(btnGroup,"Submit",function()
-				{
-					ordersNeeded = [];
-					teamNames = [];
-					if(ordersListbox.selection && ordersListbox.selection.length)
-					{
-						var curSel,on,tn;
-						for(var x=0;x<ordersListbox.selection.length;x++)
-						{
-							curSel = ordersListbox.selection[x].text;
-							on = curSel.match(/\d{7}/)[0];
-							tn = curSel.replace(/^.*\d{7}_/,"").replace(".pdf","");
-							ordersNeeded.push(on)
-							teamNames.push(tn);
-						}
-					}
-					w.close();
-				})
+					curSel = ordersListbox.selection[ x ].text;
+					on = curSel.match( /\d{7}/ )[ 0 ];
+					tn = curSel.replace( /^.*\d{7}_/, "" ).replace( ".pdf", "" );
+					ordersNeeded.push( on )
+					teamNames.push( tn );
+				}
+			}
+			w.close();
+		} )
 		w.show();
 	}
 
 
-	function getFilesFromFolder(folder)
+	function getFilesFromFolder ( folder )
 	{
-		var salesOrders = folder.getFiles("*.pdf");
+		var salesOrders = folder.getFiles( "*.pdf" );
 		var curON;
-		for (var x = 0; x < salesOrders.length; x++)
+		for ( var x = 0; x < salesOrders.length; x++ )
 		{
-			curFile = salesOrders[x];
-			if (orderPdfPat.test(curFile.name))
+			curFile = salesOrders[ x ];
+			if ( orderPdfPat.test( curFile.name ) )
 			{
-				curOrderNum = curFile.name.match(/\d{7}/);
-				
-				if (!curOrderNum || existingOrders.indexOf(curOrderNum[0]) > -1)
+				curOrderNum = curFile.name.match( /\d{7}/ );
+
+				if ( !curOrderNum || existingOrders.indexOf( curOrderNum[ 0 ] ) > -1 )
 				{
 					ordersAhead++;
 					continue;
 				}
-				
-				teamName = decodeURI(curFile.name).replace(/^.*[\d]{7}_/, "").replace(".pdf","");
 
-				fileNames.push(decodeURI(curFile.name));
-				ordersNeeded.push(curOrderNum);
-				teamNames.push(teamName);
+				teamName = decodeURI( curFile.name ).replace( /^.*[\d]{7}_/, "" ).replace( ".pdf", "" );
+
+				fileNames.push( decodeURI( curFile.name ) );
+				ordersNeeded.push( curOrderNum );
+				teamNames.push( teamName );
 				totalNeedsMockOrders++;
 			}
 
@@ -347,124 +347,124 @@ function BuildMockupBatch()
 	}
 
 
-	function processOrders(ordersNeeded, teamNames)
+	function processOrders ( ordersNeeded, teamNames )
 	{
-		for (var x = 0; x < ordersNeeded.length; x++)
+		for ( var x = 0; x < ordersNeeded.length; x++ )
 		{
-			orderNumber = ordersNeeded[x];
-			teamName = teamNames[x];
-			batchTimer.beginTask(orderNumber + "_" + teamName);
-			log.l("\n*****\n");
-			log.l("Processing: " + orderNumber + "_" + teamName);
-			log.l("This is batch order number #" + x);
-			log.l("\n*****\n");
+			orderNumber = ordersNeeded[ x ];
+			teamName = teamNames[ x ];
+			batchTimer.beginTask( orderNumber + "_" + teamName );
+			log.l( "\n*****\n" );
+			log.l( "Processing: " + orderNumber + "_" + teamName );
+			log.l( "This is batch order number #" + x );
+			log.l( "\n*****\n" );
 
-			scriptResults = exec(orderNumber, teamName);
+			scriptResults = exec( orderNumber, teamName );
 
 			garmentsProcessed += scriptResults.garmentCount;
 			graphicsProcessed += scriptResults.graphicCount;
 			ordersProcessed++;
 
-			log.h("Finished batching order # " + x);
+			log.h( "Finished batching order # " + x );
 
-			batchTimer.endTask(orderNumber + "_" + teamName);
+			batchTimer.endTask( orderNumber + "_" + teamName );
 
 
-			copyOrderToAssetFolder(curOrderFolderPath);
+			copyOrderToAssetFolder( curOrderFolderPath );
 		}
 	}
 
 
-	function getBatchOrders()
+	function getBatchOrders ()
 	{
-		batchTimer.beginTask("batchOrders");
+		batchTimer.beginTask( "batchOrders" );
 
 
 		// var needMockPath = "/Volumes/Customization/Design Mockups/Needs Mockup/";
 		var needMockPath = customizationPath + "_Design_Mockups/1A_Needs_Mockup/"
 		var rushFolderPath = needMockPath + "_Paid Rush/";
-		var needsMockFolder = Folder(needMockPath);
-		var rushFolder = Folder(rushFolderPath);
+		var needsMockFolder = Folder( needMockPath );
+		var rushFolder = Folder( rushFolderPath );
 
 
-		
+
 
 
 		var scriptResults;
 
-		
+
 		var exFiles = exFolder.getFiles();
 
 		var onPat = /[\d]{7}/
 
 		//trim out any existing orders
 		var curOn;
-		for (var x = 0; x < exFiles.length; x++)
+		for ( var x = 0; x < exFiles.length; x++ )
 		{
-			curOn = exFiles[x].name.match(onPat);
-			if (curOn)
+			curOn = exFiles[ x ].name.match( onPat );
+			if ( curOn )
 			{
-				existingOrders.push(curOn[0]);
+				existingOrders.push( curOn[ 0 ] );
 			}
 
 		}
 
 		//strip out any duplicates from the existingOrders array
-		existingOrders = getUnique(existingOrders);
-
-		
+		existingOrders = getUnique( existingOrders );
 
 
-		
 
-		getFilesFromFolder(rushFolder,true);
+
+
+
+		getFilesFromFolder( rushFolder, true );
 
 		rushMode = true;
-		processOrders(ordersNeeded,teamNames)
+		processOrders( ordersNeeded, teamNames )
 		ordersNeeded = [];
 		teamNames = [];
 		fileNames = [];
 		rushMode = false;
 
-		getFilesFromFolder(needsMockFolder,false);
+		getFilesFromFolder( needsMockFolder, false );
 
 
 		promptUserForOrders();
 
-		
-		if(ordersNeeded.length > 20)
+
+		if ( ordersNeeded.length > 20 )
 		{
-			ordersNeeded = ordersNeeded.slice(0,20);
+			ordersNeeded = ordersNeeded.slice( 0, 20 );
 		}
 
-		log.h("Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join(", "));
-		processOrders(ordersNeeded, teamNames);
+		log.h( "Batching " + ordersNeeded.length + " orders.::teamNames = " + teamNames.join( ", " ) );
+		processOrders( ordersNeeded, teamNames );
 		ordersNeeded = [];
 		teamNames = [];
 
-		batchTimer.endTask("batchOrders");
+		batchTimer.endTask( "batchOrders" );
 
-		if (errorList.length)
+		if ( errorList.length )
 		{
-			log.e("Script errors: ::" + errorList.join("\n"));
+			log.e( "Script errors: ::" + errorList.join( "\n" ) );
 		}
 
-		log.e("errorList = " + errorList.join("\n"));
+		log.e( "errorList = " + errorList.join( "\n" ) );
 		errorList = [];
 
-		log.l("Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics.");
+		log.l( "Script built " + garmentsNeeded.length + " garments and opened " + graphicsOpened + " graphics." );
 
-		log.h("Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::")
+		log.h( "Batched " + ordersProcessed + " orders.::Processed " + garmentsProcessed + " garments.::Processed " + graphicsProcessed + " graphics.::" )
 
 
 	}
 
 
 
-	function exec(orderNumber, teamName)
+	function exec ( orderNumber, teamName )
 	{
 
-		orderNumberAndTeamNames.push(orderNumber + "_" + teamName);
+		orderNumberAndTeamNames.push( orderNumber + "_" + teamName );
 		orderData = undefined;
 		garmentsNeeded = [];
 		curGarmentIndex = 1;
@@ -487,20 +487,20 @@ function BuildMockupBatch()
 		//if designNumbers.length > 0 then the user opted not to
 		//build an entire order, but rather a single design number
 		//as such, we don't need to get the order data
-		if (valid && !designNumberOnly)
+		if ( valid && !designNumberOnly )
 		{
-			getOrderData(orderNumber);
+			getOrderData( orderNumber );
 		}
 
-		if (valid && !designNumberOnly)
+		if ( valid && !designNumberOnly )
 		{
 			designNumbers = getDesignNumbers();
 		}
 
 
-		
 
-		if (valid)
+
+		if ( valid )
 		{
 			createOrderFolder();
 		}
@@ -509,18 +509,18 @@ function BuildMockupBatch()
 		//
 		//loop each design number to gather the garments and graphics needed
 		//
-		if (valid)
+		if ( valid )
 		{
 			loopDesignNumbers();
 		}
 
-		if (valid)
+		if ( valid )
 		{
 			loopGarmentsNeeded();
-			if (garmentsNeeded.length && garmentsNeeded[0].mockupDocument)
+			if ( garmentsNeeded.length && garmentsNeeded[ 0 ].mockupDocument )
 			{
-				garmentsNeeded[0].mockupDocument.activate();
-				garmentsNeeded[0].mockupDocument.save();
+				garmentsNeeded[ 0 ].mockupDocument.activate();
+				garmentsNeeded[ 0 ].mockupDocument.save();
 			}
 		}
 
@@ -571,24 +571,24 @@ function BuildMockupBatch()
 	}
 
 
-	function confirmBatch()
+	function confirmBatch ()
 	{
 		var result;
-		var w = new Window("dialog");
-			var msg = UI.static(w,"Are you sure you want to run a batch?");
-			var btnGroup = UI.group(w);
-				var cancel = UI.button(btnGroup,"Cancel",function()
-				{
-					log.l("User cancelled confirmation dialog.");
-					result = false;
-					w.close();
-				})
-				var submit = UI.button(btnGroup,"But of course!",function()
-				{
-					log.l("User confirmed. Proceed with batch.");
-					result = true;
-					w.close();
-				})
+		var w = new Window( "dialog" );
+		var msg = UI.static( w, "Are you sure you want to run a batch?" );
+		var btnGroup = UI.group( w );
+		var cancel = UI.button( btnGroup, "Cancel", function ()
+		{
+			log.l( "User cancelled confirmation dialog." );
+			result = false;
+			w.close();
+		} )
+		var submit = UI.button( btnGroup, "But of course!", function ()
+		{
+			log.l( "User confirmed. Proceed with batch." );
+			result = true;
+			w.close();
+		} )
 		w.show();
 		return result;
 	}
@@ -596,25 +596,25 @@ function BuildMockupBatch()
 
 	// if(confirmBatch())
 	// {
-		
+
 	// }
-		
+
 
 	getBatchOrders();
 
-	scriptTimer.endTask("BuildMockup");
+	scriptTimer.endTask( "BuildMockup" );
 
-	scriptTimer.beginTask("printLog");
+	scriptTimer.beginTask( "printLog" );
 	printLog();
-	scriptTimer.endTask("printLog");
+	scriptTimer.endTask( "printLog" );
 
-	alert("All Done.\nProcessed " + ordersProcessed + " orders.\nWe are " + ordersAhead + " orders ahead of the mockup artists.\nThere are " + (totalNeedsMockOrders - ordersProcessed) + " orders remaining.");
+	alert( "All Done.\nProcessed " + ordersProcessed + " orders.\nWe are " + ordersAhead + " orders ahead of the mockup artists.\nThere are " + ( totalNeedsMockOrders - ordersProcessed ) + " orders remaining." );
 
-	for(var x=app.documents.length-1;x>=0;x--)
+	for ( var x = app.documents.length - 1; x >= 0; x-- )
 	{
-		app.documents[x].close(SaveOptions.DONOTSAVECHANGES);
+		app.documents[ x ].close( SaveOptions.DONOTSAVECHANGES );
 	}
-}	
+}
 
 
 
