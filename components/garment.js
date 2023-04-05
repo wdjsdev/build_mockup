@@ -138,7 +138,7 @@ function Garment ( config, data, designNumber )
 		if ( !this.adultGarmentFile && !this.youthGarmentFile )
 		{
 			log.e( "No youth or adult garment file found?" )
-			errorList.push( "Failed to find a file for the garment: " + (this.garmentCode || this.youthGarmentCode || undefined ));
+			errorList.push( "Failed to find a file for the garment: " + ( this.garmentCode || this.youthGarmentCode || undefined ) );
 			return;
 		}
 		else if ( !this.mainMockupLayer )
@@ -416,7 +416,7 @@ function Garment ( config, data, designNumber )
 		var placeholderPrefix = "C";
 
 		//clear out any existing placeholder graphic styles
-		var placeholderGraphicStylePat = /c[\d]{1,2}/i;
+		var placeholderGraphicStylePat = /[cb][\d]{1,2}/i;
 		for ( var gs = doc.graphicStyles.length - 1; gs >= 0; gs-- )
 		{
 			if ( doc.graphicStyles[ gs ].name.match( placeholderGraphicStylePat ) )
@@ -498,7 +498,7 @@ function Garment ( config, data, designNumber )
 			doc.selection = null;
 			doc.defaultFillColor = phSwatch.color;
 			app.executeMenuCommand( "Find Fill Color menu item" );
-			changeThemColors( ph );
+			changeThemColors( ph.replace( "B", "C" ) );
 		} );
 
 
@@ -815,14 +815,14 @@ function Garment ( config, data, designNumber )
 		else if ( curGraphic.type === "logo" )
 		{
 			logoArt = findSpecificPageItem( artLayer, artLayer.name, "imatch" );
-			if ( !logoArt && artLayer.pageItems.length)
+			if ( !logoArt && artLayer.pageItems.length )
 			{
 				logoArt = group( afc( artLayer, "pageItems" ), artLayer );
 				logoArt.name = artLayer.name;
 			}
 			else
 			{
-				errorList.push(artLayer.name + " is improperly formatted and can't be imported.");
+				errorList.push( artLayer.name + " is improperly formatted and can't be imported." );
 				return;
 			}
 
