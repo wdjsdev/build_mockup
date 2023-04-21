@@ -687,7 +687,7 @@ function Garment ( config, data, designNumber )
 				var womensLayer = findSpecificLayer( prodLayer, "WOMENS", "imatch" );
 				var youthLayer = findSpecificLayer( prodLayer, "YOUTH" );
 
-				if ( mensLayer && womensLayer && youthLayer )
+				if ( mensLayer || womensLayer || youthLayer )
 				{
 					log.l( "Found mens/womens/youth layers." )
 					scaleLogo = false;
@@ -697,6 +697,11 @@ function Garment ( config, data, designNumber )
 						artLayer = womensLayer;
 						noteLayer = findSpecificLayer( artLayer, "notes", "any" );
 
+					}
+					else if ( this.garmentWearer && this.garmentWearer.match( /[yg]/i ) )
+					{
+						artLayer = youthLayer;
+						noteLayer = findSpecificLayer( artLayer, "notes", "any" );
 					}
 					else
 					{
@@ -1200,7 +1205,8 @@ function Garment ( config, data, designNumber )
 	{
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
-		var pat = /[_-]([\d]{1,}([hgbmsrf]{1,4})?$)/i;
+		// var pat = /[_-]([\d]*([hgbmsrftl]{1,4})?\d*$)/i;
+		var pat = /[-_]([hgbmsrftlo\d]*)/i;
 		var result = name.match( pat ) || [];
 
 		return result[ 1 ] || undefined;
