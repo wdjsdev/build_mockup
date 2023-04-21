@@ -12,7 +12,7 @@ function BuildMockup ()
 		var devUtilPath = "~/Desktop/automation/utilities/";
 		var utilPath = dataResourcePath + "Utilities_Container.jsxbin";
 		var batchPath = dataResourcePath + "Batch_Framework.jsxbin";
-		var utilFilePaths = [utilPath]; //array of util files
+		var utilFilePaths = [ utilPath ]; //array of util files
 		var devUtilitiesPreferenceFile = File( "~/Documents/script_preferences/dev_utilities.txt" );
 		function readDevPref ( dp ) { dp.open( "r" ); var contents = dp.read() || ""; dp.close(); return contents; }
 		if ( devUtilitiesPreferenceFile.exists && readDevPref( devUtilitiesPreferenceFile ).match( /true/i ) )
@@ -21,9 +21,9 @@ function BuildMockup ()
 			return utilFilePaths;
 		}
 
-		if(!File(utilFilePaths[0]).exists)
+		if ( !File( utilFilePaths[ 0 ] ).exists )
 		{
-			alert("Could not find utilities. Please ensure you're connected to the appropriate Customization drive.");
+			alert( "Could not find utilities. Please ensure you're connected to the appropriate Customization drive." );
 			return [];
 		}
 
@@ -37,7 +37,7 @@ function BuildMockup ()
 		eval( "#include \"" + utilities[ u ] + "\"" );
 	}
 
-	if ( !valid || !utilities.length) return;
+	if ( !valid || !utilities.length ) return;
 
 
 
@@ -231,8 +231,8 @@ function BuildMockup ()
 		// designNumbers.push( "rAOEEUzX8kGa" );
 
 
-		orderNumber = "3855157";
-		// designNumbers.push( "ONF3GNLwZ58d" );
+		orderNumber = "3956840";
+		// designNumbers.push( "2Fs0IVChZRKx" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";
