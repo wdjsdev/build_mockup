@@ -216,6 +216,13 @@ function Garment ( config, data, designNumber )
 			dnFrame.name = "Design ID";
 			dnFrame.contents = designNumber;
 			dnFrame.position = [ onFrame.left, onFrame.top - dnFrame.height ];
+
+			var initialsFrame = findSpecificPageItem( il, "initials", "any" ); // initials text frame
+			if ( initialsFrame )
+			{
+				initialsFrame.contents = ( BATCH_MODE ? "BATCH" : getUserInitials() ) + "_" + getDate();
+			}
+
 		} );
 
 		if ( this.mainMockupLayer )
@@ -267,6 +274,19 @@ function Garment ( config, data, designNumber )
 			var namePat = /fdsp/i;
 
 			log.l( "Processing graphic: " + curGraphic.name );
+
+			//input name number logo callouts on info layer
+			var infoLabel = curGraphic.locations.indexOf( "TFCC" ) > -1 ? "Front Graphic" : curGraphic.type;
+			if ( infoLabel )
+			{
+				var infoLayer = curGarment.adultInfoLayer;
+				var infoFrame = findSpecificPageItem( infoLayer, infoLabel, "any" );
+				if ( infoFrame )
+				{
+					infoFrame.contents = curGraphic.name;
+				}
+
+			}
 
 
 			if ( curGraphic.file )
@@ -452,6 +472,7 @@ function Garment ( config, data, designNumber )
 				continue;
 			}
 
+			updateInfoFrames( ph, colors[ ph ] );
 
 			colors[ ph ].swatchName = BUILDER_COLOR_CODES[ colors[ ph ].colorCode ];
 			graphicStyleName = placeholderPrefix + ph.substring( 1, ph.length );
