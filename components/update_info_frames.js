@@ -1,5 +1,6 @@
 function updateInfoFrames ( label, newContents )
 {
+    if ( !label || !newContents ) return;
     var doc = app.activeDocument;
     var layers = afc( doc, "layers" );
 
@@ -12,7 +13,7 @@ function updateInfoFrames ( label, newContents )
         }
         var infoFrames = afc( infoLay, "textFrames" ).filter( function ( frame )
         {
-            return frame.name.match( new RegExp( label, "i" ) );
+            return frame.name.match( new RegExp( "^" + label + "$", "i" ) );
         } );
         infoFrames.forEach( function ( frame )
         {

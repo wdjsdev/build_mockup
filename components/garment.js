@@ -220,7 +220,7 @@ function Garment ( config, data, designNumber )
 			var initialsFrame = findSpecificPageItem( il, "initials", "any" ); // initials text frame
 			if ( initialsFrame )
 			{
-				initialsFrame.contents = ( BATCH_MODE ? "BATCH" : getUserInitials() ) + "_" + getDate();
+				initialsFrame.contents = ( BATCH_MODE ? "ABC" : getUserInitials() ) + " " + getDate();
 			}
 
 		} );
@@ -277,16 +277,7 @@ function Garment ( config, data, designNumber )
 
 			//input name number logo callouts on info layer
 			var infoLabel = curGraphic.locations.indexOf( "TFCC" ) > -1 ? "Front Graphic" : curGraphic.type;
-			if ( infoLabel )
-			{
-				var infoLayer = curGarment.adultInfoLayer;
-				var infoFrame = findSpecificPageItem( infoLayer, infoLabel, "any" );
-				if ( infoFrame )
-				{
-					infoFrame.contents = curGraphic.name;
-				}
-
-			}
+			updateInfoFrames( infoLabel, curGraphic.name )
 
 
 			if ( curGraphic.file )
@@ -887,10 +878,12 @@ function Garment ( config, data, designNumber )
 		{
 			var adultMockupLayer = this.adultMockupLayer;
 			var adultArtworkLayer = this.adultArtworkLayer;
+			adultArt.name = curGraphic.name;
 			processArt( curGraphic, adultArt, noteGroup, "adult", this.adultPlacementGuides, scaleLogo );
 		}
 		if ( youthArt )
 		{
+			youthArt.name = curGraphic.name + "Y";
 			var youthMockupLayer = this.youthMockupLayer;
 			var youthArtworkLayer = this.youthArtworkLayer;
 			var youthMockupArtboard = this.youthMockupArtboard;
