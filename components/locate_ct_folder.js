@@ -18,6 +18,7 @@
 
 function locateCTFolder ( mid )
 {
+	if ( !mid ) return;
 	log.h( "Beginning execution of locateCTFolder(" + mid + ")" );
 	var garmentFolder, mockupFolder, gfFiles, ctFolder, exit = false;
 	var maxDepth = 2;

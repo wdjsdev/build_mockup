@@ -463,9 +463,9 @@ function Garment ( config, data, designNumber )
 				continue;
 			}
 
-			updateInfoFrames( ph, colors[ ph ] );
 
 			colors[ ph ].swatchName = BUILDER_COLOR_CODES[ colors[ ph ].colorCode ];
+			updateInfoFrames( ph, colors[ ph ].swatchName );
 			graphicStyleName = placeholderPrefix + ph.substring( 1, ph.length );
 			colors[ ph ].id = graphicStyleName;
 			curGStyle = new GraphicStyle( colors[ ph ] );

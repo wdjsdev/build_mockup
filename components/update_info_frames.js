@@ -6,7 +6,7 @@ function updateInfoFrames ( label, newContents )
 
     layers.forEach( function ( layer )
     {
-        var infoLay = findSpecificLayer( layer, label );
+        var infoLay = findSpecificLayer( layer, "Information" );
         if ( !infoLay )
         {
             return;
@@ -17,7 +17,7 @@ function updateInfoFrames ( label, newContents )
         } );
         infoFrames.forEach( function ( frame )
         {
-            frame.contents = newContents;
+            frame.contents = newContents.toUpperCase();
         } )
     } )
 }
