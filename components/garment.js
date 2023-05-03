@@ -176,38 +176,36 @@ function Garment ( config, data, designNumber )
 		curGarmentIndex++;
 
 		//add the design number to the mockup(s)
-		[ this.adultInfoLayer, this.youthInfoLayer ].forEach( function ( il )
+		[ this.adultInfoLayer, this.youthInfoLayer ].forEach( function ( il, index )
 		{
 			if ( !il ) return;
 
-			var onFrame; //order number text frame
+			var docArtboards = afc( curGarment.mockupDocument, "artboards" );
+			var onFrame, curArtboard, abRect; //order number text frame
 			onFrame = findSpecificPageItem( il, "Order Number", "any" );
 			if ( !onFrame )
 			{
-				var curArtboard;
 				afc( il, "textFrames" ).forEach( function ( tf )
 				{
-					if ( curArtboard ) return;
-
-					afc( curGarment.mockupDocument, "artboards" ).forEach( function ( ab )
+					if ( tf.contents.match( /order.*team/i ) )
 					{
-						if ( isContainedWithin( tf, ab ) )
-						{
-							curArtboard = ab;
-						}
-					} );
+						onFrame = tf;
+					}
 				} );
-				onFrame = afc( il, "textFrames" ).filter( function ( tf )
-				{
-					return tf.contents.match( /order( #)?.*team/i )
-				} )[ 0 ] || il.textFrames.add();
+				onFrame = onFrame || il.textFrames.add();
 				onFrame.contents = "Order Number_Team Name";
-				onFrame.textRange.fillColor = makeNewSpotColor( "Info B" ).color;
-				onFrame.textRange.fillColor.tint = 0;
-				onFrame.textRange.strokeColor = new NoColor();
-				var abr = curArtboard.artboardRect;
-				onFrame.position = [ abr[ 0 ] + 110, abr[ 1 ] - 10 ];
+
+				onFrame.position = [ abRect[ 0 ] + 110, abRect[ 1 ] - 10 ];
 			}
+
+			docArtboards.forEach( function ( ab )
+			{
+				if ( isContainedWithin( onFrame, ab ) )
+				{
+					curArtboard = ab;
+					abRect = ab.artboardRect;
+				}
+			} );
 			onFrame.name = "Order Number";
 			onFrame.contents = orderNumber + " " + teamName;
 
@@ -222,6 +220,22 @@ function Garment ( config, data, designNumber )
 			{
 				initialsFrame.contents = ( BATCH_MODE ? "ABC" : getUserInitials() ) + " " + getDate();
 			}
+
+			var code = curGarment[ ( index === 0 ? "adult" : "youth" ) + "GarmentCode" ].toLowerCase();
+			var ageGender = { "y": "BOYS", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
+			var ageGenderLabelFrame = il.textFrames.add();
+			ageGenderLabelFrame.contents = ageGender;
+			ageGenderLabelFrame.textRange.characterAttributes.size = 40;
+			ageGenderLabelFrame.textRange.fillColor = makeNewSpotColor( "CUT LINE" ).color;
+			ageGenderLabelFrame.textRange.strokeColor = makeNewSpotColor( "CUT LINE" ).color;
+			ageGenderLabelFrame.position = [ abRect[ 0 ], abRect[ 1 ] + 60 ];
+
+			[ onFrame, dnFrame, initialsFrame ].forEach( function ( tf )
+			{
+				tf.textRange.fillColor = makeNewSpotColor( "Info B" ).color;
+				tf.textRange.fillColor.tint = 0;
+				tf.textRange.strokeColor = new NoColor();
+			} )
 
 		} );
 
