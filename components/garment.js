@@ -265,7 +265,9 @@ function Garment ( config, data, designNumber )
 
 		if ( this.saveFile )
 		{
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 			this.mockupDocument.save();
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		}
 
 		//check to see whether this graphic is relevant....
