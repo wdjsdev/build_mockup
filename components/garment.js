@@ -222,7 +222,7 @@ function Garment ( config, data, designNumber )
 			}
 
 			var code = curGarment[ ( index === 0 ? "adult" : "youth" ) + "GarmentCode" ].toLowerCase();
-			var ageGender = { "y": "BOYS", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
+			var ageGender = { "y": "YOUTH", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
 			var ageGenderLabelFrame = il.textFrames.add();
 			ageGenderLabelFrame.contents = ageGender;
 			ageGenderLabelFrame.textRange.characterAttributes.size = 40;
