@@ -181,7 +181,9 @@ function Garment ( config, data, designNumber )
 			if ( !il ) return;
 
 			var docArtboards = afc( curGarment.mockupDocument, "artboards" );
-			var onFrame, curArtboard, abRect; //order number text frame
+			var onFrame; //order number text frame
+			var curArtboard = docArtboards[ index ];
+			var abRect = curArtboard.artboardRect;
 			onFrame = findSpecificPageItem( il, "Order Number", "any" );
 			if ( !onFrame )
 			{
@@ -215,11 +217,24 @@ function Garment ( config, data, designNumber )
 			dnFrame.contents = designNumber;
 			dnFrame.position = [ onFrame.left, onFrame.top - dnFrame.height ];
 
-			var initialsFrame = findSpecificPageItem( il, "initials", "any" ); // initials text frame
-			if ( initialsFrame )
+			var initialsFrame = findSpecificPageItem( il, "initials", "any" );
+			if ( !initialsFrame )
 			{
-				initialsFrame.contents = ( BATCH_MODE ? "ABC" : getUserInitials() ) + " " + getDate();
+				var frames = afc( il, "textFrames" ).filter( function ( tf ) { return tf.contents.match( /^ABC/i ); } );
+				if ( frames.length )
+				{
+					initialsFrame = frames[ 0 ];
+				}
 			}
+			if ( !initialsFrame )
+			{
+				initialsFrame = il.textFrames.add();
+				initialsFrame.name = "ABC " + getDate();
+				initialsFrame.position = [ abRect[ 2 ] - 275, abRect[ 1 ] - 15 ];
+			}
+
+			initialsFrame.contents = ( BATCH_MODE ? "ABC" : getUserInitials() ) + " " + getDate();
+
 
 			var code = curGarment[ ( index === 0 ? "adult" : "youth" ) + "GarmentCode" ].toLowerCase();
 			var ageGender = { "y": "YOUTH", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
