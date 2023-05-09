@@ -239,6 +239,7 @@ function Garment ( config, data, designNumber )
 			var code = curGarment[ ( index === 0 ? "adult" : "youth" ) + "GarmentCode" ].toLowerCase();
 			var ageGender = { "y": "YOUTH", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
 			var ageGenderLabelFrame = il.textFrames.add();
+			ageGenderLabelFrame.name = "Mockup Label";
 			ageGenderLabelFrame.contents = ageGender;
 			ageGenderLabelFrame.textRange.characterAttributes.size = 40;
 			ageGenderLabelFrame.textRange.fillColor = makeNewSpotColor( "CUT LINE" ).color;
