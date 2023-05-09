@@ -196,51 +196,27 @@ function GraphicStyle ( data )
 
 		var gsType = ( this.data.pattern && this.data.gradient ) ? "both" : ( this.data.pattern ? "pattern" : "gradient" );
 
-
-
-		//this will be whichever artwork is required.. 
-		//gradient only, or pattern above/below gradient.
-		var srcRect;
-
-
-
-
 		//merge the colors
 		mergeSwatches( "C1", this.backgroundColor );
 		if ( this.patternColor ) mergeSwatches( "P1", this.patternColor );
 		if ( this.gradientColor ) mergeSwatches( "G1", this.gradientColor );
 
 
+		//this will be whichever artwork is required.. 
+		//gradient only, or pattern above/below gradient.
+		var srcRect;
 
 		if ( gsType === "pattern" )
 		{
 			srcRect = findSpecificPageItem( livePatternLayer, "no_gradient", "any" );
 			if ( !srcRect )
 			{
-				srcRect = livePatternLayer.pathItems.rectangle( 0, 0, 100, 100 );
-				srcRect.stroked = false;
-				srcRect.fillColor = this.backgroundSwatch.color;
-				srcRect.selected = true;
-				createAction( "add_new_fill", ADD_NEW_FILL_ACTION_STRING );
-				app.doScript( "add_new_fill", "add_new_fill" );
-				removeAction( "add_new_fill" );
-
-				var patSwatch = findSpecificSwatch( this.doc, "DSPATTERN-" + this.patternStyleNumber );
-				if ( !patSwatch )
-				{
-					patSwatch = findSpecificSwatch( this.doc, "DSPATTERN_" + this.patternStyleNumber );
-				}
-				if ( !patSwatch )
-				{
-					errorList.push( "Failed to find a pattern swatch for pattern style number: " + this.patternStyleNumber );
-					return;
-				}
-				srcRect.fillColor = patSwatch.color;
+				srcRect = makePatternOnlyBlock( this.backgroundSwatch.color, this.patternStyleNumber );
 			}
 		}
 		else 
 		{
-			gradientLayer = ( gap && gbp && this.gTop ? gap : gbp ) || findSpecificLayer( livePatternLayer, "no_pattern", "any" );
+			var gradientLayer = ( gap && gbp && this.gTop ? gap : gbp ) || findSpecificLayer( livePatternLayer, "no_pattern", "any" );
 			if ( !gradientLayer )
 			{
 				errorList.push( "Failed to find the gradient only layer..?" );
@@ -248,6 +224,12 @@ function GraphicStyle ( data )
 			}
 
 			srcRect = findSpecificPageItem( gradientLayer, this.gradientID, "imatch" );
+		}
+
+		if ( !srcRect )
+		{
+			errorList.push( "Failed to find the source rectangle for graphic style: " + this.data.id );
+			return;
 		}
 
 		if ( this.patternScale )
@@ -270,6 +252,32 @@ function GraphicStyle ( data )
 
 		filesToClose.push( this.doc );
 		currentMockup.activate();
+
+
+
+		function makePatternOnlyBlock ( bgColor, patNumber )
+		{
+			var tmpRect = livePatternLayer.pathItems.rectangle( 0, 0, 100, 100 );
+			tmpRect.stroked = false;
+			tmpRect.fillColor = bgColor;
+			tmpRect.selected = true;
+			createAction( "add_new_fill", ADD_NEW_FILL_ACTION_STRING );
+			app.doScript( "add_new_fill", "add_new_fill" );
+			removeAction( "add_new_fill" );
+
+			var patSwatch = findSpecificSwatch( this.doc, "DSPATTERN-" + patNumber );
+			if ( !patSwatch )
+			{
+				patSwatch = findSpecificSwatch( this.doc, "DSPATTERN_" + patNumber );
+			}
+			if ( !patSwatch )
+			{
+				errorList.push( "Failed to find a pattern swatch for pattern style number: " + patNumber );
+				return;
+			}
+			tmpRect.fillColor = patSwatch.color;
+			return tmpRect;
+		}
 
 
 		// //both pattern AND gradient
