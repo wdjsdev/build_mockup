@@ -182,7 +182,7 @@ function Garment ( config, data, designNumber )
 
 			var docArtboards = afc( curGarment.mockupDocument, "artboards" );
 			var onFrame; //order number text frame
-			var curArtboard = docArtboards[ index ];
+			var curArtboard = docArtboards[ index ] || docArtboards[ 0 ];
 			var abRect = curArtboard.artboardRect;
 			onFrame = findSpecificPageItem( il, "Order Number", "any" );
 			if ( !onFrame )
