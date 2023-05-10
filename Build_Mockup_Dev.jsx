@@ -231,8 +231,8 @@ function BuildMockup ()
 		// designNumbers.push( "rAOEEUzX8kGa" );
 
 
-		orderNumber = "3956840";
-		// designNumbers.push( "2Fs0IVChZRKx" );
+		// orderNumber = "3982781";
+		designNumbers.push( "n9cyGvb6bXB0" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";
@@ -289,7 +289,9 @@ function BuildMockup ()
 		if ( garmentsNeeded.length && garmentsNeeded[ 0 ].mockupDocument )
 		{
 			garmentsNeeded[ 0 ].mockupDocument.activate();
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 			garmentsNeeded[ 0 ].mockupDocument.save();
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 		}
 	}
 

@@ -520,7 +520,9 @@ function BuildMockupBatch ()
 			if ( garmentsNeeded.length && garmentsNeeded[ 0 ].mockupDocument )
 			{
 				garmentsNeeded[ 0 ].mockupDocument.activate();
+				app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 				garmentsNeeded[ 0 ].mockupDocument.save();
+				app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
 			}
 		}
 
