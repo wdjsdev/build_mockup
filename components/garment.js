@@ -239,12 +239,15 @@ function Garment ( config, data, designNumber )
 			var code = curGarment[ ( index === 0 ? "adult" : "youth" ) + "GarmentCode" ].toLowerCase();
 			var ageGender = { "y": "YOUTH", "w": "WOMENS", "g": "GIRLS", "m": "MENS" }[ code.match( /y|w|g/i ) ? code.match( /y|w|g/i )[ 0 ] : "m" ]
 			var ageGenderLabelFrame = il.textFrames.add();
-			ageGenderLabelFrame.name = "Mockup Label";
 			ageGenderLabelFrame.contents = ageGender;
 			ageGenderLabelFrame.textRange.characterAttributes.size = 40;
 			ageGenderLabelFrame.textRange.fillColor = makeNewSpotColor( "CUT LINE" ).color;
 			ageGenderLabelFrame.textRange.strokeColor = makeNewSpotColor( "CUT LINE" ).color;
 			ageGenderLabelFrame.position = [ abRect[ 0 ], abRect[ 1 ] + 60 ];
+			var exLabelGroup = ageGenderLabelFrame.createOutline();
+			exLabelGroup.name = "Mockup Label";
+			var mockLayer = findSpecificLayer( il.parent, "Mockup" );
+			mockLayer ? exLabelGroup.move( mockLayer, ElementPlacement.PLACEATBEGINNING ) : null;
 
 			[ onFrame, dnFrame, initialsFrame ].forEach( function ( tf )
 			{
@@ -312,40 +315,42 @@ function Garment ( config, data, designNumber )
 			updateInfoFrames( infoLabel, curGraphic.name )
 
 
-			if ( curGraphic.file )
+			if ( !curGraphic.file )
 			{
-				log.l( "full file name = " + curGraphic.file.fullName );
-				curGarment.openFile( curGraphic.file );
-				curGraphicDoc = app.activeDocument;
-				curGarment.recolorGraphic( curGraphic.colors, curGraphic.type );
-
-				curGarment.processGraphic( curGraphic );
-
-				graphicsOpened++;
-
-				graphicSaveFileName = localGraphicsFolderPath + "/" + curGraphic.name + ".ai"
-				graphicSaveFile = File( graphicSaveFileName );
-				while ( graphicSaveFile.exists )
-				{
-					if ( graphicAppendagePat.test( graphicSaveFileName ) )
-					{
-						curAppendage = graphicSaveFileName.substring( graphicSaveFileName.lastIndexOf( "_" ) + 1, graphicSaveFileName.indexOf( ".ai" ) );
-						curAppendage = parseInt( curAppendage );
-						graphicSaveFileName = graphicSaveFileName.replace( graphicAppendagePat, "_" + ( curAppendage + 1 ) );
-					}
-					else
-					{
-						graphicSaveFileName = graphicSaveFileName.replace( ".ai", "_2.ai" )
-					}
-					graphicSaveFile = File( decodeURI( graphicSaveFileName ) );
-				}
-
-				app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
-				curGraphicDoc.saveAs( graphicSaveFile );
-				app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
-				log.l( "Successfully opened, recolored, and saved: " + curGraphic.name + ", as " + decodeURI( graphicSaveFile.fullName ) );
-
+				return;
 			}
+
+			log.l( "full file name = " + curGraphic.file.fullName );
+			curGarment.openFile( curGraphic.file );
+			curGraphicDoc = app.activeDocument;
+			curGarment.recolorGraphic( curGraphic.colors, curGraphic.type );
+
+			curGarment.processGraphic( curGraphic );
+
+			graphicsOpened++;
+
+			graphicSaveFileName = localGraphicsFolderPath + "/" + curGraphic.name + ".ai"
+			graphicSaveFile = File( graphicSaveFileName );
+			while ( graphicSaveFile.exists )
+			{
+				if ( graphicAppendagePat.test( graphicSaveFileName ) )
+				{
+					curAppendage = graphicSaveFileName.substring( graphicSaveFileName.lastIndexOf( "_" ) + 1, graphicSaveFileName.indexOf( ".ai" ) );
+					curAppendage = parseInt( curAppendage );
+					graphicSaveFileName = graphicSaveFileName.replace( graphicAppendagePat, "_" + ( curAppendage + 1 ) );
+				}
+				else
+				{
+					graphicSaveFileName = graphicSaveFileName.replace( ".ai", "_2.ai" )
+				}
+				graphicSaveFile = File( decodeURI( graphicSaveFileName ) );
+			}
+
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+			curGraphicDoc.saveAs( graphicSaveFile );
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
+			log.l( "Successfully opened, recolored, and saved: " + curGraphic.name + ", as " + decodeURI( graphicSaveFile.fullName ) );
+
 		} );
 
 
@@ -1083,7 +1088,15 @@ function Garment ( config, data, designNumber )
 						}
 
 						dupGraphic.moveToBeginning( mockArtLay );
+
+						if ( guide.name.match( /display/i ) )
+						{
+							scaleToFitGuides = true;
+						}
+
 						alignArtToGuides( dupGraphic, guide, scaleToFitGuides );
+
+
 					} );
 				} );
 			}
