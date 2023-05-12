@@ -163,6 +163,19 @@ function Garment ( config, data, designNumber )
 	{
 		this.openFile( file );
 		app.executeMenuCommand( "fitall" );
+
+		var infoLay = findSpecificLayer( app.activeDocument.layers[ 0 ].layers, "Information" );
+		if ( !infoLay ) { return; }
+
+		var frames = afc( infoLay, "textFrames" );
+
+		frames.forEach( function ( frame )
+		{
+			if ( !frame.contents )
+			{
+				frame.contents = "____";
+			}
+		} );
 	}
 
 
