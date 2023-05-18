@@ -324,10 +324,9 @@ function Garment ( config, data, designNumber )
 			log.l( "Processing graphic: " + curGraphic.name );
 
 			//input name number logo callouts on info layer
-			var infoLabel = curGraphic.type.match( /name|number/i ) ? curGraphic.type : "";
-			if ( infoLabel )
+			if ( curGraphic.type && curGraphic.type.match( /name|number/i ) )
 			{
-				updateInfoFrames( infoLabel, curGraphic.name )
+				updateInfoFrames( curGraphic.type, curGraphic.name )
 			}
 			if ( curGraphic.locations.indexOf( "TFCC" ) > -1 )
 			{
