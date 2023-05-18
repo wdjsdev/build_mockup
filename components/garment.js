@@ -324,9 +324,15 @@ function Garment ( config, data, designNumber )
 			log.l( "Processing graphic: " + curGraphic.name );
 
 			//input name number logo callouts on info layer
-			var infoLabel = curGraphic.locations.indexOf( "TFCC" ) > -1 ? "Front Graphic" : curGraphic.type;
-			updateInfoFrames( infoLabel, curGraphic.name )
-
+			var infoLabel = curGraphic.type.match( /name|number/i ) ? curGraphic.type : "";
+			if ( infoLabel )
+			{
+				updateInfoFrames( infoLabel, curGraphic.name )
+			}
+			if ( curGraphic.locations.indexOf( "TFCC" ) > -1 )
+			{
+				updateInfoFrames( "Front Graphic", curGraphic.name );
+			}
 
 			if ( !curGraphic.file )
 			{
@@ -446,7 +452,7 @@ function Garment ( config, data, designNumber )
 		this.styleNumber = data.styleNo;
 
 		//check for an alphabetic style number
-		var alphaStyleNumPat = /^[a-z]*[\d]?$/i;
+		var alphaStyleNumPat = /^[a-z\-_]*[\d]?$/i;
 		this.styleNumber = this.styleNumber.replace( alphaStyleNumPat, "1000" )
 
 		//check for a style number with one or more letters appended to the end

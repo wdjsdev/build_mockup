@@ -4,6 +4,8 @@ function updateInfoFrames ( label, newContents )
     var doc = app.activeDocument;
     var layers = afc( doc, "layers" );
 
+    var matchedFrames = [];
+
     layers.forEach( function ( layer )
     {
         var infoLay = findSpecificLayer( layer, "Information" );
@@ -11,13 +13,23 @@ function updateInfoFrames ( label, newContents )
         {
             return;
         }
-        var infoFrames = afc( infoLay, "textFrames" ).filter( function ( frame )
-        {
-            return frame.name.match( new RegExp( "^" + label + "$", "i" ) );
-        } );
+        var infoFrames = afc( infoLay, "textFrames" );
+
         infoFrames.forEach( function ( frame )
         {
-            frame.contents = newContents.toUpperCase();
-        } )
+            if ( frame.name.match( /fabric type/i ) )
+            {
+                frame.remove();
+                return;
+            }
+            if ( frame.name.match( new RegExp( label, "i" ) ) && !frame.name.match( /order/i ) )
+            {
+                matchedFrames.push( frame );
+            }
+        } );
+    } )
+    matchedFrames.forEach( function ( frame )
+    {
+        frame.contents = newContents.toUpperCase();
     } )
 }
