@@ -6,6 +6,7 @@ function Garment ( config, data, designNumber )
 	this.adultGarmentCode = "";
 	this.youthGarmentCode = "";
 	this.garmentWearer = ""; //this is either M, W, or Y 
+	this.garmentIsAccessory = false; //boolean for if the garment is an accessory like shoes or hats. for these well scale all artwork to fit on the guides
 	this.bigLogoSize = 3; //default is 13 inches at 10% scale
 	this.smallLogoSize = .4; // default is 4 inches at 10% scale
 	this.garmentFolder;
@@ -394,6 +395,10 @@ function Garment ( config, data, designNumber )
 
 		this.adultGarmentCode = this.adultGarmentCode.replace( /se$/i, "" );
 
+		//check whether this garment is an accessory like a hat or bag or shoe
+		var accessoryGarments = [ "BM-10001", "BM-10002", "BM-10003", "BM-10006", "BM-10007", "BM-10008", "BM-10009", "BM-10011", "BM-10013", "BM-11000", "FD-10000", "FD-10003", "FD-10004", "FD-10005", "FD-10014", "FD-103", "FD-106", "FD-109", "FD-113", "FD-121", "FD-130", "FD-131", "FD-132", "MBB-0601100", "MBB-0601100", "MBB-0601200", "MBB-0601200W", "MBB-0701100", "MBB-0701100", "MBB-0701200", "MBB-0701200W", "MBB-0801100", "MBB-0801100", "MBB-0801200", "MBB-0801200W", "FD-9000", "FD-9003", "FD-9005", "FD-9006", "FD-9007", "FD-9008", "FD-9010", "FD-9012", "FD-9014", "FD-9017", "FD-9020", "FD-9021", "FD-9022", "FD-9024", "FD-9025", "FD-9029", "FD-9030", "FD-9031", "FD-9032", "FD-9035", "FD-9036", "FD-9037", "FD-9038", "FD-9039", "FD-9044", "FD-9047", "FD-9049", "FD-9051", "FD-9053", "FD-9057", "FD-9058", "FD-9060", "FD-9061Y", "FD-9061", "FD-9062", "FD-9063", "FD-9072", "FD-9076", "FD-9079", "FD-9124", "FD-9129", "FD-9143", "FD-9145", "FD-9000", "FD-9003", "FD-9005", "FD-9006", "FD-9007", "FD-9008", "FD-9010", "FD-9012", "FD-9014", "FD-9017", "FD-9020", "FD-9021", "FD-9022", "FD-9024", "FD-9025", "FD-9029", "FD-9030", "FD-9031", "FD-9032", "FD-9035", "FD-9036", "FD-9037", "FD-9038", "FD-9039", "FD-9044", "FD-9047", "FD-9049", "FD-9051", "FD-9053", "FD-9057", "FD-9058", "FD-9060", "FD-9061Y", "FD-9061", "FD-9062", "FD-9063", "FD-9072", "FD-9076", "FD-9079", "FD-9124", "FD-9129", "FD-9143", "FD-9145" ];
+
+		this.garmentIsAccessory = accessoryGarments.indexOf( this.adultGarmentCode ) > -1;
 
 		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
 		//just build this garment without merging anything else into it.
@@ -715,9 +720,10 @@ function Garment ( config, data, designNumber )
 
 
 
-		//check to see whether this is a background graphic or ghosted graphic
-		//if so.. don't scale it
-		if ( /(bg)|(g$)/i.test( curGraphic.name ) || curGraphic.type.match( /name|number/i ) )
+		//check to see whether this is a background graphic or ghosted graphic or a non accessory garment
+		//if so.. don't scale it.
+		//if its an accessory, we want to scale all graphics
+		if ( !this.garmentIsAccessory && ( /(bg)|(g$)/i.test( curGraphic.name ) || curGraphic.type.match( /name|number/i ) ) )
 		{
 			scaleLogo = false;
 			log.l( "setting scaleLogo to false" );
