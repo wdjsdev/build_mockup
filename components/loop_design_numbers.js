@@ -15,7 +15,7 @@
 
 function loopDesignNumbers ()
 {
-	log.h( "Beginning loopDesignNumbers()" );
+	log.h( "Beginning loopDesignNumbers()::" + designNumbers.join( "\n" ) );
 	var curBuilderData, curDesignNumber;
 	var rev;
 	var config;

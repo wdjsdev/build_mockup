@@ -20,13 +20,10 @@ function loopGarmentsNeeded ()
 	{
 		log.l( "Processing garmentsNeeded[" + g + "]" );
 		curGarment = garmentsNeeded[ g ];
-		curGarment.processGarment();
-
-		if ( curGarment.saveFile )
+		curGarment.processGarment( curGarment.adultGarmentFile, curGarment.youthGarmentFile );
+		if ( curGarment.adultGarmentExtraSizeFile || curGarment.youthGarmentExtraSizeFile )
 		{
-			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
-			currentMockup.saveAs( curGarment.saveFile );
-			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
+			curGarment.processGarment( curGarment.adultGarmentExtraSizeFile, curGarment.youthGarmentExtraSizeFile, "_Extra_Sizes" );
 		}
 	}
 }

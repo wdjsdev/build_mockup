@@ -14,27 +14,32 @@ function alignArtToGuides ( art, guide, scale )
 
 
 
-	if ( scale ) 
+	if ( scale && !guide.name.match( /tbnm display/i ) ) 
 	{
 		var gDim = getMaxDimension( dupGuide );
-		var aDim = art.name.match( /name|number/i ) ? ( art.width > art.height ? art.width : art.height ) : getMaxDimension( art );
-		var scaleFactor = ( aDim > gDim ? ( gDim / aDim ) : ( aDim / gDim ) * 100 ) * 100;
+		var aDim = getMaxDimension( art );
+		var scaleFactor = ( gDim / aDim ) * 100;
 		log.l( "scaling art to " + scaleFactor + "%" );
 		art.resize( scaleFactor, scaleFactor, true, true, true, true, scaleFactor, Transformation.CENTER );
 	}
 
 	//align the art
 	log.l( "Aligning the art horizontally to the guide..." );
-	hAlignCenter( dupGuide, [ art ] );
-	if ( guide.name.match( /(tbnm|tfcc|tfur|tful|tflr|tflc|tfrl|tblt)/i ) )
+
+	align( dupGuide, [ art ], "hcenter" )
+	if ( guide.name.match( /display/i ) )
+	{
+		align( dupGuide, [ art ], "vcenter" )
+	}
+	else if ( guide.name.match( /(tbnm|tfcc|tfur|tful|tflr|tflc|tfrl|tblt)/i ) )
 	{
 		log.l( "aligning top." )
-		vAlignTop( dupGuide, [ art ] );
+		align( dupGuide, [ art ], "vtop" )
 	}
 	else
 	{
 		log.l( "aligning bottom." )
-		vAlignBottom( dupGuide, [ art ] );
+		align( dupGuide, [ art ], "vbottom" )
 	}
 
 

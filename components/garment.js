@@ -12,11 +12,14 @@ function Garment ( config, data, designNumber )
 	this.garmentFolder;
 	this.adultGarmentFile;
 	this.youthGarmentFile;
+	this.adultGarmentExtraSizeFile;
+	this.youthGarmentExtraSizeFile;
 	this.styleNumber = "";
 	this.fileSuffix; //this is like a _A or _B for reversible garments
 	this.garmentColors = data.colors;
 	this.graphics = config.graphics;
 	this.saveFile;
+	this.extraSizeGarmentSaveFile;
 	this.mockupDocument;
 
 	this.mainMockupLayer;
@@ -51,12 +54,18 @@ function Garment ( config, data, designNumber )
 
 
 
-	this.processGarment = function ()
+	this.processGarment = function ( adultFile, youthFile, extraLabel )
 	{
-		var necessaryLayers = [ [ "MockupLayer", "Mockup" ], [ "ArtworkLayer", "Artwork Layer" ], [ "InfoLayer", "Information" ] ];
-		if ( this.adultGarmentFile )
+		if ( !adultFile && !youthFile )
 		{
-			this.openCT( this.adultGarmentFile );
+			log.e( "No youth or adult garment file found?" )
+			errorList.push( "Failed to find a file for the garment: " + ( this.garmentCode || this.youthGarmentCode || undefined ) );
+			return;
+		}
+		var necessaryLayers = [ [ "MockupLayer", "Mockup" ], [ "ArtworkLayer", "Artwork Layer" ], [ "InfoLayer", "Information" ] ];
+		if ( adultFile )
+		{
+			this.openCT( adultFile );
 			this.mockupDocument = app.activeDocument;
 
 
@@ -81,13 +90,13 @@ function Garment ( config, data, designNumber )
 			}
 
 		}
-		if ( this.youthGarmentFile )
+		if ( youthFile )
 		{
-			this.openCT( this.youthGarmentFile );
+			this.openCT( youthFile );
 			var youthDoc = app.activeDocument;
 
 			//if there's and audult and youth, merge the youth file into the adult file
-			if ( this.adultGarmentFile )
+			if ( adultFile )
 			{
 				mergeTemplate( this.mockupDocument );
 				this.adultInfoLayer.locked = false;
@@ -118,7 +127,7 @@ function Garment ( config, data, designNumber )
 					curGarment[ "youth" + nl[ 0 ] ] = lay;
 				} )
 				this.youthPlacementGuides = findSpecificLayer( this.youthInfoLayer, "Placement Guides" );
-				this.youthMockupArtboard = this.mockupDocument.artboards[ this.adultGarmentFile ? 1 : 0 ];
+				this.youthMockupArtboard = this.mockupDocument.artboards[ adultFile ? 1 : 0 ];
 			}
 
 			if ( this.youthMockupArtboard && this.adultMockupArtboard )
@@ -136,13 +145,8 @@ function Garment ( config, data, designNumber )
 			this.mainMockupLayer.visible = true;
 		}
 
-		if ( !this.adultGarmentFile && !this.youthGarmentFile )
-		{
-			log.e( "No youth or adult garment file found?" )
-			errorList.push( "Failed to find a file for the garment: " + ( this.garmentCode || this.youthGarmentCode || undefined ) );
-			return;
-		}
-		else if ( !this.mainMockupLayer )
+
+		if ( !this.mainMockupLayer )
 		{
 			log.e( "No mockup layer found?" );
 			errorList.push( "Failed to find a garment layer for the garment: " + this.garmentCode );
@@ -154,9 +158,15 @@ function Garment ( config, data, designNumber )
 			this.mainMockupLayer.locked = false;
 			this.mainMockupLayer.visible = true;
 			this.graphicYPosition = this.mockupDocument.artboards[ 0 ].artboardRect[ 1 ];
-			this.processMockup( this.mockupDocument )
+			this.processMockup( this.mockupDocument, extraLabel );
 		}
 
+		if ( this.saveFile )
+		{
+			app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+			currentMockup.saveAs( this.saveFile );
+			app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
+		}
 
 	}
 
@@ -180,9 +190,9 @@ function Garment ( config, data, designNumber )
 	}
 
 
-	this.processMockup = function ( file )
+	this.processMockup = function ( file, extraLabel )
 	{
-		this.saveFile = this.getSaveFile();
+		this.saveFile = this.getSaveFile( extraLabel );
 
 		app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
 		currentMockup.saveAs( this.saveFile );
@@ -950,7 +960,7 @@ function Garment ( config, data, designNumber )
 			youthArt.name = curGraphic.name + "Y";
 			var youthMockupLayer = this.youthMockupLayer;
 			var youthArtworkLayer = this.youthArtworkLayer;
-			var youthMockupArtboard = this.youthMockupArtboard;
+			// var youthMockupArtboard = this.youthMockupArtboard;
 			processArt( curGraphic, youthArt, noteGroup, "youth", this.youthPlacementGuides, scaleLogo );
 		}
 
@@ -981,7 +991,6 @@ function Garment ( config, data, designNumber )
 			var guides; //array of guide objects on the placement guides layer.
 			var masterArt; //the artwork that gets duplicated from the source file to the mockup layer
 
-
 			if ( scale )
 			{
 				newScale = ( function ()
@@ -1007,6 +1016,7 @@ function Garment ( config, data, designNumber )
 			{
 				log.l( "making a groupItem from art" );
 				var name = art.name;
+
 				art = group( [ art ], art.parent );
 				art.name = name;
 
@@ -1062,15 +1072,18 @@ function Garment ( config, data, designNumber )
 				guidesLayer.visible = true;
 				log.l( "guides layer exists: " + guidesLayer.name );
 				guides = afc( guidesLayer, "pageItems" );
-				var trimmedGuides = [];
 
 				//loop each graphic location and align the art to the appropriate guides
 				curGraphic.locations.forEach( function ( curLoc )
 				{
 					log.l( "Processing location: " + curLoc );
-					trimmedGuides = guides.filter( function ( guide )
+					var trimmedGuides = [];
+					guides.forEach( function ( guide )
 					{
-						return guide.name.match( curLoc );
+						if ( guide.name.match( curLoc ) )
+						{
+							trimmedGuides.push( guide );
+						}
 					} );
 
 					log.l( "trimmedGuides = " + trimmedGuides.join( ", " ) );
@@ -1082,43 +1095,44 @@ function Garment ( config, data, designNumber )
 						guide.locked = false;
 						guide.hidden = false;
 						var dupGraphic;
-						var scaleToFitGuides = true;
 						var curGuide = guide.duplicate();
 						curGuide.guides = false;
-						var maxDim = getMaxDimension( curGuide ) / 7.2;
-						var gDim;
-						var decimal = maxDim - Math.floor( maxDim );
-						if ( decimal > .35 && decimal < .65 )
-						{
-							gDim = Math.floor( maxDim ) + 0.5;
-						}
-						else
-						{
-							gDim = Math.round( maxDim )
-						}
+						var guideBounds = getBoundsData( curGuide );
 						curGuide.remove();
 
-						if ( ( curGraphic.type.match( /name/i ) && curLoc.match( /tbpl/i ) ) || ( curGraphic.type.match( /number/i ) ) )
+						var scaleToFitGuides = true;
+						if ( curGraphic.type.match( /number|name/i ) && !guide.name.match( /display/i ) )
 						{
-							log.l( "disabling scale to fit guides" )
-							var presizedArt = findSpecificPageItem( artLayer, "number_" + gDim );
+							var guideMaxDim = ( ( guideBounds.w > guideBounds.h ) ? guideBounds.w : guideBounds.h ) / 7.2;
+							var decimal = guideMaxDim - Math.floor( guideMaxDim );
+							var roundedGuideMaxDim = ( decimal > .35 && decimal < .65 ) ? Math.floor( guideMaxDim ) + 0.5 : Math.round( guideMaxDim );
+							dupGraphic = findSpecificPageItem( art.parent, curGraphic.type + "_" + roundedGuideMaxDim );
+							if ( dupGraphic )
+							{
+								dupGraphic = dupGraphic.duplicate( app.activeDocument );
+								dupGraphic.name = curGraphic.name;
+							}
+							log.l( "curGraphic.type = " + curGraphic.type );
+							log.l( "guide.name = " + guide.name );
+							log.l( "turning off scaling" )
 							scaleToFitGuides = false;
 						}
-						if ( !presizedArt )
+
+						if ( !dupGraphic ) 
 						{
 							dupGraphic = masterArt.duplicate();
 						}
-						else
-						{
-							log.l( "found presized art: " + presizedArt.name );
-							dupGraphic = presizedArt.duplicate( mockupDocument );
-						}
 
-						dupGraphic.moveToBeginning( mockArtLay );
+						dupGraphic.moveToBeginning( guide.name.match( /display/i ) ? mockLay : mockArtLay );
 
-						if ( guide.name.match( /display/i ) )
+
+						if ( guide.name.match( /tbnm display/i ) )
 						{
-							scaleToFitGuides = true;
+							var frames = recursiveDig( dupGraphic, function ( item ) { return item.typename === "TextFrame"; } );
+							frames.forEach( function ( frame )
+							{
+								frame.contents = "1234567890";
+							} )
 						}
 
 						alignArtToGuides( dupGraphic, guide, scaleToFitGuides );
@@ -1143,30 +1157,39 @@ function Garment ( config, data, designNumber )
 	{
 		log.l( "Getting garments." );
 		scriptTimer.beginTask( "getGarments" );
-		this.adultGarmentFolder = this.adultGarmentCode ? locateCTFolder( this.adultGarmentCode ) : undefined;
+		this.adultGarmentFolderPath = getCTFolderPath( this.adultGarmentCode );
+		this.adultGarmentFolder = this.adultGarmentFolderPath ? Folder( this.adultGarmentFolderPath ) : undefined;
+		this.adultGarmentExtraSizeFolder = this.adultGarmentFolderPath ? Folder( this.adultGarmentFolderPath + "/Extra_Sizes/" ) : undefined;
 
 		//if this garment is a bag, there's no youth sizing.. skip this part.
-		this.youthGarmentFolder = data.garment.match( /bag/i ) ? undefined : ( locateCTFolder( this.youthGarmentCode ) || undefined );
+		this.youthGarmentFolderPath = data.garment.match( /bag/i ) ? undefined : ( getCTFolderPath( this.youthGarmentCode ) || undefined );
+		this.youthGarmentFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath ) : undefined;
+		this.youthGarmentExtraSizeFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath + "/Extra_Sizes/" ) : undefined;
 
-		if ( this.adultGarmentFolder && this.adultGarmentCode )
+		if ( this.adultGarmentFolderPath )
 		{
 			this.adultGarmentFile = getFile( this.adultGarmentFolder, this.styleNumber, this.adultGarmentCode + "_" + this.styleNumber + this.fileSuffix );
+			this.adultGarmentExtraSizeFile = this.adultGarmentExtraSizeFolder ? getFile( this.adultGarmentExtraSizeFolder, this.styleNumber, this.adultGarmentCode + "X_" + this.styleNumber + this.fileSuffix, "_Extra_Sizes" ) : undefined;
 		}
 
-		if ( this.youthGarmentFolder && this.youthGarmentCode )
+		if ( this.youthGarmentFolder )
 		{
 			this.youthGarmentFile = getFile( this.youthGarmentFolder, this.styleNumber, this.youthGarmentCode + "_" + this.styleNumber + this.fileSuffix );
+			this.youthGarmentExtraSizeFile = this.youthGarmentExtraSizeFolder ? getFile( this.youthGarmentExtraSizeFolder, this.styleNumber, this.youthGarmentCode + "X_" + this.styleNumber + this.fileSuffix, "_Extra_Sizes" ) : undefined;
 		}
 
 		log.l( "adult garment file: " + this.adultGarmentFile );
 		log.l( "youth garment file: " + this.youthGarmentFile );
+		log.l( "adult garment extra size file: " + this.adultGarmentExtraSizeFile );
+		log.l( "youth garment extra size file: " + this.youthGarmentExtraSizeFile );
 
 		scriptTimer.endTask( "getGarments" );
 	}
 
-	this.getSaveFile = function ()
+	this.getSaveFile = function ( extraLabel )
 	{
-		var fileName = curOrderFolderPath + "/" + orderNumber + "_Master_" + designNumber + this.suffix + ".ai"
+		extraLabel = extraLabel || "";
+		var fileName = curOrderFolderPath + "/" + orderNumber + "_Master_" + designNumber + this.suffix + extraLabel + ".ai"
 		log.l( "this.saveFile = " + fileName );
 		return File( fileName );
 	}

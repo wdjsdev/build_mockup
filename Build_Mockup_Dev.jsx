@@ -175,9 +175,6 @@ function BuildMockup ()
 	//if we can't find it here.. then default to the library option below
 	var GCL = dataPath + "build_mockup_data/graphic_locations_database.js";
 
-	//this one is for getting the data by "graphic library"
-	var GLL = grahpicFolderLocationsDatabasePath = dataPath + "build_mockup_data/graphic_folder_locations_database.js";
-
 
 
 
@@ -231,8 +228,8 @@ function BuildMockup ()
 		// designNumbers.push( "rAOEEUzX8kGa" );
 
 
-		orderNumber = "4021521";
-		// designNumbers.push( "id1n81r9e2aP" );
+		// orderNumber = "4021521";
+		designNumbers.push( "Rp09u26InU1V" );
 
 		teamName = "TEST_graphics";
 		orderNumber = orderNumber || "1234567";

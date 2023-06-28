@@ -24,38 +24,12 @@ function locateGraphicFolder ( graphicCode, lib )
 
 
 	scriptTimer.beginTask( "locateGraphicFolder_" + graphicCode );
-	var graphicFolder, parentFolder, gfFiles, exit = false;
+	var curGraphicFolder, parentFolder, gfFiles, exit = false;
 	var maxDepth = 1;
 	var curDepth = 0;
 
 	//include the database
-	if ( File( GCL ).exists )
-	{
-		eval( "#include \"" + GCL + "\"" );
-		log.l( "Found the graphic folder location database." );
-	}
-	else
-	{
-		var dbFile = File( GCL );
-		dbFile.open( "w" );
-		dbFile.write( "var graphicLocations = {};" );
-		dbFile.close();
-		eval( "#include \"" + GCL + "\"" );
-		log.l( "No graphic folder location database existed. Created a new one." );
-	}
-
-	if ( File( GLL ).exists )
-	{
-		eval( "#include \"" + GLL + "\"" );
-	}
-	else
-	{
-		var dbFile = File( GLL );
-		dbFile.open( "w" );
-		dbFile.write( "var graphicLibraryLocations = {};" );
-		dbFile.close();
-		eval( "#include \"" + GLL + "\"" );
-	}
+	eval( "#include \"" + GCL + "\"" );
 
 
 
@@ -63,23 +37,11 @@ function locateGraphicFolder ( graphicCode, lib )
 	if ( graphicLocations[ graphicCode ] )
 	{
 		log.l( graphicCode + " found: " + graphicsPath + graphicLocations[ graphicCode ] );
-		graphicFolder = Folder( graphicsPath + graphicLocations[ graphicCode ] );
-	}
-	else if ( graphicLibraryLocations[ lib ] )
-	{
-		//"graphic library" database
-
-		log.l( lib + " found: " + graphicLibraryLocations[ lib ] );
-		graphicFolder = Folder( graphicsPath + graphicLibraryLocations[ lib ] );
-		if ( graphicFolder.exists )
-		{
-			graphicLibraryLocations[ graphicCode ] = graphicFolder.fullName.replace( /^.*\/graphics\//i, "" ) + "/";
-			writeDatabase( GLL, "var graphicLibraryLocations = " + JSON.stringify( graphicLocations ) );
-		}
+		curGraphicFolder = Folder( graphicsPath + graphicLocations[ graphicCode ] );
 	}
 
 
-	if ( !graphicFolder || !graphicFolder.exists )
+	if ( !curGraphicFolder || !curGraphicFolder.exists )
 	{
 
 		//there's STILL no graphic folder.. couldn't find it in either database..
@@ -91,57 +53,23 @@ function locateGraphicFolder ( graphicCode, lib )
 		//just ask the user where the file is and be done with it.
 		// digForGraphic(graphicsFolder);
 
-		if ( !graphicFolder )
+		if ( !curGraphicFolder )
 		{
-			graphicFolder = graphicsFolder.selectDlg( orderNumber + "_" + curDesignNumber + ": Which folder has the artwork for " + graphicCode + "?" );
+			curGraphicFolder = graphicsFolder.selectDlg( orderNumber + "_" + curDesignNumber + ": Which folder has the artwork for " + graphicCode + "?" );
 		}
 
 		//if there's a graphic folder, save the folder path to the database
 		//else, return undefined.
 
-		if ( graphicFolder )
+		if ( curGraphicFolder )
 		{
-			graphicLocations[ graphicCode ] = decodeURI( graphicFolder.fullName ).replace( /^.*graphics\//i, "" ) + "/";
+			graphicLocations[ graphicCode ] = decodeURI( curGraphicFolder.fullName ).replace( /^.*graphics\//i, "" ) + "/";
 			writeDatabase( GCL, "var graphicLocations = " + JSON.stringify( graphicLocations ) );
-			log.l( "Added {" + lib + "," + graphicFolder.fullName + " to graphicLocations database." );
+			log.l( "Added {" + lib + "," + curGraphicFolder.fullName + " to graphicLocations database." );
 		}
 
 	}
 
 	scriptTimer.endTask( "locateGraphicFolder_" + graphicCode );
-	return graphicFolder;
-
-	function digForGraphic ( loc )
-	{
-		log.l( "Digging for " + graphicCode + " in " + loc.fullName );
-		var files = loc.getFiles( "*" + graphicCode + "*" );
-		if ( files.length )
-		{
-			graphicFolder = loc;
-		}
-		else
-		{
-			files = loc.getFiles();
-		}
-		var curFile
-		for ( var f = 0, len = files.length; f < len && !graphicFolder && curDepth < maxDepth; f++ )
-		{
-			curFile = files[ f ];
-			if ( curFile instanceof Folder )
-			{
-				curDepth++;
-				digForGraphic( files[ f ] );
-			}
-			else
-			{
-				if ( curFile.name.toLowerCase().indexOf( graphicCode.toLowerCase ) > -1 )
-				{
-					graphicFolder = curFile;
-					log.l( "Found graphic folder here: " );
-					log.l( graphicFolder.fullName );
-				}
-			}
-		}
-		curDepth--;
-	}
+	return curGraphicFolder;
 }
