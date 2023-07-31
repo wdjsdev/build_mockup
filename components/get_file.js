@@ -20,7 +20,6 @@ function getFile ( folder, style, name, extraLabel )
 	//to fix it later.
 	if ( !file.exists )
 	{
-		log.l( "ATTN::::Why wasn't this file found?!? Figure it out!::" + file.fullName );
 		scriptTimer.beginTask( folder + ".getFiles()" );
 		files = folder.getFiles();
 
@@ -50,11 +49,13 @@ function getFile ( folder, style, name, extraLabel )
 	}
 	else if ( files.length > 1 )
 	{
+		log.l( "ATTN::::Why wasn't this file found?!? Figure it out!::" + file.fullName );
 		file = chooseFile( name, files );
 		// file = files[0];
 	}
 	else
 	{
+		log.l( "ATTN::::Why wasn't this file found?!? Figure it out!::" + file.fullName );
 		file = folder.openDlg( "Select the appropriate file for : " + name + extraLabel );
 	}
 
