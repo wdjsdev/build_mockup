@@ -1163,6 +1163,15 @@ function Garment ( config, data, designNumber )
 
 		//if this garment is a bag, there's no youth sizing.. skip this part.
 		this.youthGarmentFolderPath = data.garment.match( /bag/i ) ? undefined : ( getCTFolderPath( this.youthGarmentCode ) || undefined );
+
+		//specific bandaid fix for FD-9061Y which is the only youth bag we have...
+		//if the youthGarmentCode is FD-9061Y, then set the youthGarmentFolderPath and remove the adultGarmentFolderPath
+		if ( this.youthGarmentCode.match( /9061y/i ) )
+		{
+			this.youthGarmentFolderPath = getCTFolderPath( this.youthGarmentCode );
+			this.adultGarmentFolderPath = undefined;
+		}
+
 		this.youthGarmentFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath ) : undefined;
 		this.youthGarmentExtraSizeFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath + "/Extra_Sizes/" ) : undefined;
 
