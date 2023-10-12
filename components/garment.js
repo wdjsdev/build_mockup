@@ -74,6 +74,7 @@ function Garment ( config, data, designNumber )
 			{
 				adultLayer.locked = false;
 				adultLayer.visible = true;
+				adultLayer.name = adultLayer.name.replace( /-/g, "_" ).replace(/_/,"-");
 				//locate or initialize the necessary layers
 				necessaryLayers.forEach( function ( nl )
 				{
@@ -412,7 +413,7 @@ function Garment ( config, data, designNumber )
 
 		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
 		//just build this garment without merging anything else into it.
-		var singleWearerGarments = [ "FD-5060", "FD-5060G", "FD-5060Y", "FD-5060W", "FD-5070", "FD-5070G", "FD-5070Y", "FD-5070W", "FD-5077", "FD-5077W", "FD-5077Y", "FD-5077G", "PS-5075", "PS-5075G", "PS-5075Y", "PS-5075W", "PS-5082", "PS-5082G", "PS-5082Y", "PS-5082W", "PS-5094", "PS-5094G", "PS-5094Y", "PS-5094W", "PS-5095", "PS-5095G", "PS-5095Y", "PS-5095W", "PS-5098", "PS-5098G", "PS-5098Y", "PS-5098W", "PS-5105", "PS-5105G", "PS-5105Y", "PS-5105W", "PS-5106", "PS-5106G", "PS-5106Y", "PS-5106W" ];
+		var singleWearerGarments = [ "FD-5060", "FD-5060G", "FD-5060Y", "FD-5060W", "FD-5070", "FD-5070G", "FD-5070Y", "FD-5070W", "FD-5077", "FD-5077W", "FD-5077Y", "FD-5077G", "PS-5075", "PS-5075G", "PS-5075Y", "PS-5075W", "PS-5082", "PS-5082G", "PS-5082Y", "PS-5082W", "PS-5094", "PS-5094G", "PS-5094Y", "PS-5094W", "PS-5095", "PS-5095G", "PS-5095Y", "PS-5095W", "PS-5098", "PS-5098G", "PS-5098Y", "PS-5098W", "PS-5105", "PS-5105G", "PS-5105Y", "PS-5105W", "PS-5106", "PS-5106G", "PS-5106Y", "PS-5106W", "FD-9000", "FD-9003", "FD-9006", "FD-9007", "FD-9008", "FD-9010", "FD-9012", "FD-9014", "FD-9020", "FD-9024", "FD-9030", "FD-9031", "FD-9037", "FD-9044", "FD-9047", "FD-9049", "FD-9051", "FD-9053", "FD-9058", "FD-9060", "FD-9061Y", "FD-9061", "FD-9062", "FD-9124", "FD-9143", "FD-9145" ];
 		var isSingleWearerGarment = singleWearerGarments.indexOf( this.adultGarmentCode ) > -1 ? true : false;
 
 		if ( womensCodePat.test( this.adultGarmentCode ) )
@@ -1162,15 +1163,16 @@ function Garment ( config, data, designNumber )
 		this.adultGarmentExtraSizeFolder = this.adultGarmentFolderPath ? Folder( this.adultGarmentFolderPath + "/Extra_Sizes/" ) : undefined;
 
 		//if this garment is a bag, there's no youth sizing.. skip this part.
-		this.youthGarmentFolderPath = data.garment.match( /bag/i ) ? undefined : ( getCTFolderPath( this.youthGarmentCode ) || undefined );
+		// this.youthGarmentFolderPath = data.garment.match( /bag/i ) ? undefined : ( getCTFolderPath( this.youthGarmentCode ) || undefined );
+		this.youthGarmentFolderPath = getCTFolderPath( this.youthGarmentCode ) || undefined;
 
 		//specific bandaid fix for FD-9061Y which is the only youth bag we have...
 		//if the youthGarmentCode is FD-9061Y, then set the youthGarmentFolderPath and remove the adultGarmentFolderPath
-		if ( this.youthGarmentCode.match( /9061y/i ) )
-		{
-			this.youthGarmentFolderPath = getCTFolderPath( this.youthGarmentCode );
-			this.adultGarmentFolderPath = undefined;
-		}
+		// if ( this.youthGarmentCode && this.youthGarmentCode.match( /9061y/i ) )
+		// {
+		// 	this.youthGarmentFolderPath = getCTFolderPath( this.youthGarmentCode );
+		// 	this.adultGarmentFolderPath = undefined;
+		// }
 
 		this.youthGarmentFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath ) : undefined;
 		this.youthGarmentExtraSizeFolder = this.youthGarmentFolderPath ? Folder( this.youthGarmentFolderPath + "/Extra_Sizes/" ) : undefined;
