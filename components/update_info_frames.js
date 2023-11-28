@@ -13,6 +13,7 @@ function updateInfoFrames ( label, newContents )
         {
             return;
         }
+        infoLay.locked = false;
         var infoFrames = afc( infoLay, "textFrames" );
 
         infoFrames.forEach( function ( frame )
@@ -27,6 +28,7 @@ function updateInfoFrames ( label, newContents )
                 matchedFrames.push( frame );
             }
         } );
+        infoLay.locked = true;
     } )
     matchedFrames.forEach( function ( frame )
     {
