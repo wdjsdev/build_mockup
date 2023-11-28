@@ -74,7 +74,7 @@ function Garment ( config, data, designNumber )
 			{
 				adultLayer.locked = false;
 				adultLayer.visible = true;
-				adultLayer.name = adultLayer.name.replace( /-/g, "_" ).replace(/_/,"-");
+				adultLayer.name = adultLayer.name.replace( /-/g, "_" ).replace( /_/, "-" );
 				//locate or initialize the necessary layers
 				necessaryLayers.forEach( function ( nl )
 				{
@@ -204,6 +204,8 @@ function Garment ( config, data, designNumber )
 		[ this.adultInfoLayer, this.youthInfoLayer ].forEach( function ( il, index )
 		{
 			if ( !il ) return;
+			il.locked = false;
+			il.visible = true;
 
 			var docArtboards = afc( curGarment.mockupDocument, "artboards" );
 			var onFrame; //order number text frame
@@ -383,7 +385,8 @@ function Garment ( config, data, designNumber )
 
 		} );
 
-
+		this.adultInfoLayer ? this.adultInfoLayer.locked = true : null;
+		this.youthInfoLayer ? this.youthInfoLayer.locked = true : null;
 
 	}
 
