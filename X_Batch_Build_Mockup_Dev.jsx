@@ -330,7 +330,7 @@ function BuildMockupBatch ()
 				teamName = decodeURI( curFile.name ).replace( /^.*[\d]{7}_/, "" ).replace( ".pdf", "" );
 
 				fileNames.push( decodeURI( curFile.name ) );
-				ordersNeeded.push( curOrderNum );
+				ordersNeeded.push( curOrderNum[ 0 ] );
 				teamNames.push( teamName );
 				totalNeedsMockOrders++;
 			}
@@ -412,7 +412,7 @@ function BuildMockupBatch ()
 
 
 
-		getFilesFromFolder( rushFolder, true );
+		getFilesFromFolder( rushFolder );
 
 		rushMode = true;
 		processOrders( ordersNeeded, teamNames )
@@ -421,7 +421,7 @@ function BuildMockupBatch ()
 		fileNames = [];
 		rushMode = false;
 
-		getFilesFromFolder( needsMockFolder, false );
+		getFilesFromFolder( needsMockFolder );
 
 
 		promptUserForOrders();
