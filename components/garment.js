@@ -416,7 +416,7 @@ function Garment ( config, data, designNumber )
 
 		//if this garment is a "single wearer" don't build the corresponding youth/adult to match.
 		//just build this garment without merging anything else into it.
-		var singleWearerGarments = [ "FD-5060", "FD-5060G", "FD-5060Y", "FD-5060W", "FD-5070", "FD-5070G", "FD-5070Y", "FD-5070W", "FD-5077", "FD-5077W", "FD-5077Y", "FD-5077G", "PS-5075", "PS-5075G", "PS-5075Y", "PS-5075W", "PS-5082", "PS-5082G", "PS-5082Y", "PS-5082W", "PS-5094", "PS-5094G", "PS-5094Y", "PS-5094W", "PS-5095", "PS-5095G", "PS-5095Y", "PS-5095W", "PS-5098", "PS-5098G", "PS-5098Y", "PS-5098W", "PS-5105", "PS-5105G", "PS-5105Y", "PS-5105W", "PS-5106", "PS-5106G", "PS-5106Y", "PS-5106W", "FD-9000", "FD-9003", "FD-9006", "FD-9007", "FD-9008", "FD-9010", "FD-9012", "FD-9014", "FD-9020", "FD-9024", "FD-9030", "FD-9031", "FD-9037", "FD-9044", "FD-9047", "FD-9049", "FD-9051", "FD-9053", "FD-9058", "FD-9060", "FD-9061Y", "FD-9061", "FD-9062", "FD-9124", "FD-9143", "FD-9145", "FD-5171", "FD-5171W", "FD-5171Y", "FD-5171G", "FD-9039" ];
+		var singleWearerGarments = [ "FD-5060", "FD-5060G", "FD-5060Y", "FD-5060W", "FD-5070", "FD-5070G", "FD-5070Y", "FD-5070W", "FD-5077", "FD-5077W", "FD-5077Y", "FD-5077G", "PS-5075", "PS-5075G", "PS-5075Y", "PS-5075W", "PS-5082", "PS-5082G", "PS-5082Y", "PS-5082W", "PS-5094", "PS-5094G", "PS-5094Y", "PS-5094W", "PS-5095", "PS-5095G", "PS-5095Y", "PS-5095W", "PS-5098", "PS-5098G", "PS-5098Y", "PS-5098W", "PS-5105", "PS-5105G", "PS-5105Y", "PS-5105W", "PS-5106", "PS-5106G", "PS-5106Y", "PS-5106W", "FD-9000", "FD-9003", "FD-9006", "FD-9007", "FD-9008", "FD-9010", "FD-9012", "FD-9014", "FD-9020", "FD-9024", "FD-9030", "FD-9031", "FD-9037", "FD-9044", "FD-9047", "FD-9049", "FD-9051", "FD-9053", "FD-9058", "FD-9060", "FD-9061Y", "FD-9061", "FD-9062", "FD-9124", "FD-9143", "FD-9145", "FD-5171", "FD-5171W", "FD-5171Y", "FD-5171G", "FD-5170W", "FD-5170", "FD-5170Y", "FD-5170G", "FD-9039", "FD-11004", "FD-11005", "FD-9137", "FD-9130", "BM-10001", "BM-10002", "BM-10003", "BM-10006", "BM-10007", "BM-10008", "BM-10009", "BM-10013", "FD-10003", "FD-10004", "FD-10005", "FD-10014", "FD-109", "FD-11004", "FD-11005", "FD-121" ];
 		var isSingleWearerGarment = singleWearerGarments.indexOf( this.adultGarmentCode ) > -1 ? true : false;
 
 		if ( womensCodePat.test( this.adultGarmentCode ) )
@@ -470,7 +470,7 @@ function Garment ( config, data, designNumber )
 		this.styleNumber = data.styleNo;
 
 		//check for an alphabetic style number
-		var alphaStyleNumPat = /^[a-z\-_]*[\d]?$/i;
+		var alphaStyleNumPat = /^[a-z][a-z\-_\d]*[\d]?$/i;
 		this.styleNumber = this.styleNumber.replace( alphaStyleNumPat, "1000" )
 
 		//check for a style number with one or more letters appended to the end
@@ -772,7 +772,7 @@ function Garment ( config, data, designNumber )
 				//and use that layer as the artLayer
 				var mensLayer = findSpecificLayer( prodLayer, "MENS", "imatch" );
 				var womensLayer = findSpecificLayer( prodLayer, "WOMENS", "imatch" );
-				var youthLayer = findSpecificLayer( prodLayer, "YOUTH" );
+				var youthLayer = findSpecificLayer( prodLayer, "YOUTH", "imatch" );
 
 				if ( mensLayer || womensLayer || youthLayer )
 				{
@@ -1226,6 +1226,14 @@ function Garment ( config, data, designNumber )
 		{
 
 			curGraphic = this.graphics[ g ];
+
+			//for some builders, they use a certain subset of fonts so they can display live text
+			//on the builder for changing names/numbers. these fonts will have "-LIVE" appended to
+			//the end of the graphic code. but it uses the same graphic as the normal builders
+			//so lets just strip out the "-live" and then treat it normally.
+			curGraphic.name = curGraphic.name.replace( /[-_]\s*live\s*$/i, "" );
+
+
 			//check first to see if this graphic is something worth grabbing at all..
 			//check for PROVIDED, CUSTOM, or ONFILE
 
@@ -1333,7 +1341,7 @@ function Garment ( config, data, designNumber )
 		// return name.substring(name.lastIndexOf("-")+1,name.length);
 
 		// var pat = /[_-]([\d]*([hgbmsrftl]{1,4})?\d*$)/i;
-		var pat = /[-_]([hgbmsrftlo\d]*)/i;
+		var pat = /[-_]([hgbmsrftlock\d]*)/i;
 		var result = name.match( pat ) || [];
 
 		return result[ 1 ] || undefined;
