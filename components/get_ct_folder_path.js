@@ -68,7 +68,7 @@ function getCTFolderPath ( mid )
 		if ( ctFolderPath )
 		{
 			//write the new ct/mockup folder to the database
-			ctLocations[ mid ] = ctFolderPath.replace( /^.*prepress\//i, "" );
+			ctLocations[ mid ] = ctFolderPath.replace( /\\{2}/g, "/" ).replace( /^.*prepress\//i, "" );
 			writeDatabase( CTFL, "var ctLocations = " + JSON.stringify( ctLocations, null, 4 ) );
 			log.l( "added {" + mid + ", " + ctFolderPath + "} to ctLocations database." );
 		}
