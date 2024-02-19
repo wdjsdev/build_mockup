@@ -107,13 +107,13 @@ function GraphicStyle ( data )
 
 		if ( this.data.pattern || this.data.gradient )
 		{
-			this.patternStyleNumber = this.data.pattern ? patternStyleConverter( this.data.pattern.id ) : "0000";
+			this.patternCode = this.data.pattern ? patternStyleConverter( this.data.pattern.id ) : "0000";
 
 			this.patternFolder = Folder( graphicsPath + "Pattern Fills/" );
-			this.sourceFile = getFile( this.patternFolder, this.patternStyleNumber, "DSPATTERN-" + this.patternStyleNumber );
+			this.sourceFile = getFile( this.patternFolder, this.patternCode, this.patternCode );
 			if ( !this.sourceFile || !this.sourceFile.exists )
 			{
-				errorList.push( "Failed to find a source file for pattern/gradient style number: " + this.patternStyleNumber );
+				errorList.push( "Failed to find a source file for pattern/gradient style number: " + this.patternCode );
 				return;
 			}
 
@@ -211,7 +211,7 @@ function GraphicStyle ( data )
 			srcRect = findSpecificPageItem( livePatternLayer, "no_gradient", "any" );
 			if ( !srcRect )
 			{
-				srcRect = makePatternOnlyBlock( this.backgroundSwatch.color, this.patternStyleNumber );
+				srcRect = makePatternOnlyBlock( this.backgroundSwatch.color, this.patternCode );
 			}
 		}
 		else 
@@ -265,10 +265,10 @@ function GraphicStyle ( data )
 			app.doScript( "add_new_fill", "add_new_fill" );
 			removeAction( "add_new_fill" );
 
-			var patSwatch = findSpecificSwatch( this.doc, "DSPATTERN-" + patNumber );
+			var patSwatch = findSpecificSwatch( this.doc, patNumber );
 			if ( !patSwatch )
 			{
-				patSwatch = findSpecificSwatch( this.doc, "DSPATTERN_" + patNumber );
+				patSwatch = findSpecificSwatch( this.doc, patNumber );
 			}
 			if ( !patSwatch )
 			{
@@ -279,146 +279,6 @@ function GraphicStyle ( data )
 			return tmpRect;
 		}
 
-
-		// //both pattern AND gradient
-		// if ( data.pattern && data.gradient )
-		// {
-		// 	if ( data.gradient.top )
-		// 	{
-		// 		this.targetBlock = gap.pageItems[ data.gradient.id ];
-		// 	}
-		// 	else
-		// 	{
-		// 		this.targetBlock = gbp.pageItems[ data.gradient.id ];
-		// 	}
-		// }
-
-		// //only a gradient
-		// else if ( data.gradient )
-		// {
-		// 	this.targetBlock = livePatternLayer.layers[ "No_Pattern" ].pageItems[ data.gradient.id ];
-		// }
-
-		// // only a pattern
-		// else if ( data.pattern )
-		// {
-		// 	this.targetBlock = findSpecificPageItem( livePatternLayer, "no_gradient" );
-		// 	if ( !this.targetBlock )
-		// 	{
-		// 		this.targetBlock = livePatternLayer.pathItems.rectangle( 103, 710, 152, 152 );
-		// 		this.targetBlock.stroked = false;
-		// 		this.targetBlock.fillColor = this.backgroundSwatch.color;
-		// 		this.targetBlock.selected = true;
-		// 		createAction( "add_new_fill", ADD_NEW_FILL_ACTION_STRING );
-		// 		app.doScript( "add_new_fill", "add_new_fill" );
-		// 		removeAction( "add_new_fill" );
-		// 		var patternSwatch;
-		// 		var curSwatch;
-		// 		var patternCodeRegex = /^dspattern[\s]*[-_]/i;
-		// 		for ( var p = app.activeDocument.swatches.length - 1; p >= 0 && !patternSwatch; p-- )
-		// 		{
-		// 			curSwatch = app.activeDocument.swatches[ p ];
-		// 			if ( patternCodeRegex.test( curSwatch.name ) && curSwatch.name.indexOf( this.patternStyleNumber ) > -1 )
-		// 			{
-		// 				patternSwatch = curSwatch;
-		// 			}
-		// 		}
-
-		// 		if ( patternSwatch )
-		// 		{
-		// 			this.targetBlock.fillColor = patternSwatch.color;
-		// 			this.targetBlock.name = "no_gradient";
-		// 		}
-		// 		else
-		// 		{
-		// 			errorList.push( "Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber );
-		// 			log.e( "Failed to identify the correct pattern swatch for: DSPATTERN-" + this.patternStyleNumber );
-		// 		}
-		// 	}
-		// }
-
-		// //just a solid fill color
-		// else
-		// {
-		// 	this.targetBlock = livePatternLayer.pathItems.rectangle( 103, 710, 152, 152 );
-		// 	this.targetBlock.filled = true;
-		// 	this.targetBlock.stroked = false;
-		// 	this.targetBlock.fillColor = this.backgroundSwatch.color;
-		// }
-
-
-
-		// this.targetBlock.name = data.id;
-		// this.doc.selection = null;
-		// this.targetBlock.selected = true;
-		// this.recolor( "C1" );
-		// if ( this.patternScale )
-		// {
-		// 	this.targetBlock.resize( this.patternScale * 100, this.patternScale * 100, true, true, true, true );
-		// }
-		// filesToClose.push( this.doc );
-		// currentMockup.layers[ 0 ].locked = false;
-		// currentMockup.layers[ 0 ].visible = true;
-
-
-		// if ( this.targetBlock )
-		// {
-		// 	//select the target block and create a new graphic style
-		// 	this.doc.selection = null;
-		// 	this.targetBlock.selected = true;
-		// 	createAction( "graphic_style_from_selection", GRAPHIC_STYLE_FROM_SELECTION_ACTION_STRING );
-		// 	app.doScript( "graphic_style_from_selection", "graphic_style_from_selection" );
-		// 	removeAction( "graphic_style_from_selection" );
-		// 	this.doc.graphicStyles[ this.doc.graphicStyles.length - 1 ].name = data.id;
-		// 	var dupTarget = this.targetBlock.duplicate( currentMockup );
-		// 	dupTarget.remove();
-		// }
-
-		// tmpLay.remove();
 	}
-
-	// this.recolor = function ( inputColor )
-	// {
-	// 	mergeSwatches( inputColor, this.backgroundColor );
-
-	// 	if ( data.pattern )
-	// 	{
-	// 		this.processPattern();
-	// 	}
-
-	// 	if ( data.gradient )
-	// 	{
-	// 		this.processGradient();
-	// 	}
-	// }
-
-	// this.processPattern = function ()
-	// {
-
-	// 	this.patternColor = BUILDER_COLOR_CODES[ data.pattern.colorCode ];
-	// 	this.patternScale = data.pattern.scale;
-	// 	mergeSwatches( "P1", this.patternColor );
-
-	// }
-
-	// this.processGradient = function ()
-	// {
-	// 	this.gradientColor = BUILDER_COLOR_CODES[ data.gradient.colorCode ];
-	// 	mergeSwatches( "G1", this.gradientColor );
-	// }
-
-	// this.recolorGradients = function ()
-	// {
-	// 	var curGrad, curStop;
-	// 	for ( var rg = 0, len = this.doc.gradients.length; rg < len; rg++ )
-	// 	{
-	// 		curGrad = this.doc.gradients[ rg ];
-	// 		for ( var y = 0, yLen = curGrad.gradientStops.length; y < yLen; y++ )
-	// 		{
-	// 			curStop = curGrad.gradientStops[ y ];
-	// 			curStop.color = this.swatches[ this.gradientColor ].color;
-	// 		}
-	// 	}
-	// }
 
 }

@@ -15,36 +15,39 @@
 
 */
 
-function patternStyleConverter(id)
+function patternStyleConverter ( id )
 {
-	var result,dbFile,dbContents;
 
 	//include the database
 	try
 	{
-		eval("#include \"" + PSN + "\"");
-		log.l("Found the pattern id style number database.");	
+		eval( "#include \"" + PSN + "\"" );
+		log.l( "Found the pattern id style number database." );
 	}
-	catch(e)
+	catch ( e )
 	{
-		var dbFile = File(PSN);
-		dbFile.open("w");
-		dbFile.write("var patternIds = {};");
-		dbFile.close();
-		eval("#include \"" + PSN + "\"");
-		log.l("No graphic folder location database existed. Created a new one.");
+		// var dbFile = File(PSN);
+		// dbFile.open("w");
+		// dbFile.write("var patternIds = {};");
+		// dbFile.close();
+		// eval("#include \"" + PSN + "\"");
+		// log.l("No graphic folder location database existed. Created a new one.");
 	}
 
-	if(patternIds[id])
+
+
+
+	var idType = id.match( /fw/i ) ? "footwear" : "regular";
+	var lib = patternIds[ idType ];
+	var prefix = ( idType === "footwear" ? "FW" : "DS" ) + "PATTERN";
+	var graphicCode = lib[ id ];
+	if ( !graphicCode )
 	{
-		result = patternIds[id];
+		graphicCode = uiPrompt( "Please enter the 4 digit style number for the pattern id: " + id );
+		lib[ id ] = prefix + "-" + graphicCode;
+		writeDatabase( PSN, "var patternIds = " + JSON.stringify( patternIds, null, 4 ) );
 	}
-	else
-	{
-		result = uiPrompt("Please enter the 4 digit style number for the pattern id: " + id);
-		patternIds[id] = result;
-		writeDatabase(PSN,"var patternIds = " + JSON.stringify(patternIds));
-	}
-	return result;
+
+	return graphicCode;
 
 }
