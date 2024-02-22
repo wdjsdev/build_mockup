@@ -43,9 +43,12 @@ function patternStyleConverter ( id )
 	var graphicCode = lib[ id ];
 	if ( !graphicCode )
 	{
-		graphicCode = uiPrompt( "Please enter the 4 digit style number for the pattern id: " + id );
-		lib[ id ] = prefix + "-" + graphicCode;
-		writeDatabase( PSN, "var patternIds = " + JSON.stringify( patternIds, null, 4 ) );
+		graphicCode = uiPrompt( "Please enter the 4 digit style number for the " + prefix + " id: " + id, prefix );
+		if ( graphicCode )
+		{
+			lib[ id ] = prefix + "-" + graphicCode;
+			writeDatabase( PSN, "var patternIds = " + JSON.stringify( patternIds, null, 4 ) );
+		}
 	}
 
 	return graphicCode;
