@@ -70,25 +70,27 @@ function Garment ( config, data, designNumber )
 
 
 			var adultLayer = findSpecificLayer( this.mockupDocument, this.adultGarmentCode.replace( /.*[-_]/i, "" ), "any" );
-			if ( adultLayer )
+			if ( !adultLayer )
 			{
-				adultLayer.locked = false;
-				adultLayer.visible = true;
-				adultLayer.name = adultLayer.name.replace( /-/g, "_" ).replace( /_/, "-" );
-				//locate or initialize the necessary layers
-				necessaryLayers.forEach( function ( nl )
-				{
-					var lay = findSpecificLayer( adultLayer, nl[ 1 ], "any" ) || adultLayer.layers.add();
-					lay.name = nl[ 1 ];
-					lay.locked = false;
-					lay.visible = true;
-					curGarment[ "adult" + nl[ 0 ] ] = lay;
-				} )
-				this.adultPlacementGuides = findSpecificLayer( this.adultInfoLayer, "Placement Guides" );
-				this.adultMockupArtboard = this.mainMockupArtboard = this.mockupDocument.artboards[ 0 ];
-				this.mainMockupLayer = this.adultMockupLayer;
-
+				adultLayer = this.mockupDocument.layers[ 0 ];
 			}
+			adultLayer.locked = false;
+			adultLayer.visible = true;
+			adultLayer.name = adultLayer.name.replace( /-/g, "_" ).replace( /_/, "-" );
+			//locate or initialize the necessary layers
+			necessaryLayers.forEach( function ( nl )
+			{
+				var lay = findSpecificLayer( adultLayer, nl[ 1 ], "any" ) || adultLayer.layers.add();
+				lay.name = nl[ 1 ];
+				lay.locked = false;
+				lay.visible = true;
+				curGarment[ "adult" + nl[ 0 ] ] = lay;
+			} )
+			this.adultPlacementGuides = findSpecificLayer( this.adultInfoLayer, "Placement Guides" );
+			this.adultMockupArtboard = this.mainMockupArtboard = this.mockupDocument.artboards[ 0 ];
+			this.mainMockupLayer = this.adultMockupLayer;
+
+
 
 		}
 		if ( youthFile )
@@ -113,23 +115,25 @@ function Garment ( config, data, designNumber )
 			}
 
 			var youthLayer = findSpecificLayer( this.mockupDocument.layers, this.youthGarmentCode.replace( /.*[-_]/i, "" ), "any" );
-			if ( youthLayer )
+			if ( !youthLayer )
 			{
-				youthLayer.locked = false;
-				youthLayer.visible = true;
-
-				//locate or initialize the necessary layers
-				necessaryLayers.forEach( function ( nl )
-				{
-					var lay = findSpecificLayer( youthLayer, nl[ 1 ], "any" ) || youthLayer.layers.add();
-					lay.name = nl[ 1 ];
-					lay.locked = false;
-					lay.visible = true;
-					curGarment[ "youth" + nl[ 0 ] ] = lay;
-				} )
-				this.youthPlacementGuides = findSpecificLayer( this.youthInfoLayer, "Placement Guides" );
-				this.youthMockupArtboard = this.mockupDocument.artboards[ adultFile ? 1 : 0 ];
+				youthLayer = this.mockupDocument.layers[ adultFile ? 1 : 0 ];
 			}
+			youthLayer.locked = false;
+			youthLayer.visible = true;
+
+			//locate or initialize the necessary layers
+			necessaryLayers.forEach( function ( nl )
+			{
+				var lay = findSpecificLayer( youthLayer, nl[ 1 ], "any" ) || youthLayer.layers.add();
+				lay.name = nl[ 1 ];
+				lay.locked = false;
+				lay.visible = true;
+				curGarment[ "youth" + nl[ 0 ] ] = lay;
+			} )
+			this.youthPlacementGuides = findSpecificLayer( this.youthInfoLayer, "Placement Guides" );
+			this.youthMockupArtboard = this.mockupDocument.artboards[ adultFile ? 1 : 0 ];
+
 
 			if ( this.youthMockupArtboard && this.adultMockupArtboard )
 			{
@@ -1110,7 +1114,7 @@ function Garment ( config, data, designNumber )
 							var guideMaxDim = ( ( guideBounds.w > guideBounds.h ) ? guideBounds.w : guideBounds.h ) / 7.2;
 							var decimal = guideMaxDim - Math.floor( guideMaxDim );
 							var roundedGuideMaxDim = ( decimal > .35 && decimal < .65 ) ? Math.floor( guideMaxDim ) + 0.5 : Math.round( guideMaxDim );
-							dupGraphic = findSpecificPageItem( art.parent, curGraphic.type + "_" + roundedGuideMaxDim );
+							dupGraphic = findSpecificPageItem( art.layer, curGraphic.type + "_" + roundedGuideMaxDim );
 							if ( dupGraphic )
 							{
 								dupGraphic = dupGraphic.duplicate( app.activeDocument );
@@ -1138,6 +1142,7 @@ function Garment ( config, data, designNumber )
 								frame.contents = "1234567890";
 							} )
 						}
+
 
 						alignArtToGuides( dupGraphic, guide, scaleToFitGuides );
 
